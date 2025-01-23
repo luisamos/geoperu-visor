@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración de Colores</title>
+
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+    <style>
+        .container p {
+            font-size: 18px;
+        }
+
+        button {
+            font-size: 18px;
+            font-weight: 700;
+            background-color: #fff;
+            color: #27A5CE;
+            border: 1px solid #27A5CE;
+            border-radius: 5px;
+            width: 136px;
+            height: 42px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        button:hover {
+            color: #fff;
+            background-color: #27A5CE;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="menu">
+    </div>
+
+    <div class="contenido">
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <h3>Configuración de colores</h3>
+                    <p style="font-size: 18px;">Configura los colores que deseas que aparezcan en tu visor.</p>
+                </div>
+                <div class="col s12">
+                    <button id="btnGuardar">Guardar</button>
+                </div>
+            </div>
+            <br />
+            <div class="row" style="max-height: 600px;  overflow-y: auto;">
+                <div class="col s4">
+                    <span style="font-size: 18px;">Seleccione el color base principal</span>
+                    <input id="clrPrincipal" type="color" value="#EB3030">
+                </div>
+                <div class="col s4">
+                    <span style="font-size: 18px;">Seleccione el color para el texto</span>
+                    <input id="clrTexto" type="color" value="#333333">
+                </div>
+                <div class="col s4">
+                    <span style="font-size: 18px;">Seleccione el color bpara la sombra</span>
+                    <input id="clrSombra" type="color" value="#F9C645">
+                </div>
+                <div class="col s12">
+                    <br />
+                </div>
+                <div class="col s4">
+                    <img alt="Imagen base referencial" src="images/buttons_letters/ref_base.png">
+                </div>
+                <div class="col s4">
+                    <img alt="Imagen base referencial" src="images/buttons_letters/ref_letra.png">
+                </div>
+                <div class="col s4">
+                    <img alt="Imagen base referencial" src="images/buttons_letters/ref_sombra.png">
+                </div>
+            </div>
+
+            <div class="modal_wait">
+                <div class="ventana">
+                    <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                var IdSubsistemaCurrent = 0;
+                const $btnGuardar = document.querySelector('#btnGuardar');
+                const $colorp = document.querySelector('#clrPrincipal');
+                const $colort = document.querySelector('#clrTexto');
+                const $colors = document.querySelector('#clrSombra');
+
+                $btnGuardar.addEventListener('click', saveConfigColor);
+
+                async function getConfigColors() {
+                    var data = new FormData();
+                    data.append('idsubs', IdSubsistemaCurrent);
+                    let respFetch = await fetch(URL_SUBSISTEMA_ID, { method: 'POST', body: data });
+                    let respJson = await respFetch.json();
+
+                    if (respJson.length > 0) {
+                        let objSubsistema = respJson[0];
+
+                        if (objSubsistema.colorprincipal.length > 0) $('#clrPrincipal').val(objSubsistema.colorprincipal);
+                        if (objSubsistema.colortexto.length > 0) $('#clrTexto').val(objSubsistema.colortexto);
+                        if (objSubsistema.colorsombra.length > 0) $('#clrPclrSombrarincipal').val(objSubsistema.colorsombra);
+
+                        $(".modal_wait").fadeOut();
+                    }
+                }
+
+                function saveConfigColor() {
+
+                    $(".modal_wait").fadeIn("100");
+                    var data = new FormData();
+                    data.append('idsubs', IdSubsistemaCurrent);
+                    data.append('colorp', $colorp.value);
+                    data.append('colort', $colort.value);
+                    data.append('colors', $colors.value);
+
+                    fetch(SET_CONFIGCOLOR_SUBSISTEMA, { method: 'POST', body: data })
+                        .then(respConfig => {
+                            respConfig.json();
+                        })
+                        .then(respConfigJson => {
+                            if (respConfigJson === null) {
+                                alertToast('No se pudo guardar los cambios. Inténtelo de nuevo más tarde.');
+                                $(".modal_wait").fadeOut();
+                                return;
+                            }
+
+                            if (respConfigJson.length >= 0) {
+                                alertToast(respConfigJson[0].description_response)
+                            }
+                            $(".modal_wait").fadeOut();
+                        })
+                        .catch(err => {
+                            alertToast('No se pudo guardar los cambios. Inténtelo de nuevo más tarde.');
+                            $(".modal_wait").fadeOut();
+                            return;
+                        })
+                }
+
+                function errorReload() {
+                    alertToast('No hemos podido establcer conexión, la página se recargará en 3 seg.')
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000);
+                }
+
+                function setUser() {
+                    var mToken = getCookie('geoToken');
+                    var decoded = jwt_decode(mToken);
+                    $('#lblUsuario').text(decoded.usuario);
+                    $('#lblRol').text(decoded.rol);
+                    IdUsuarioCurrent = decoded.idusuario;
+                    IdSubsistemaCurrent = decoded.idsubs;
+                    setMenuByRol(decoded.idrol);
+                    getConfigColors();
+                }
+
+                $(document).ready(function () {
+                    $(".modal_wait").fadeIn("100");
+                    validarToken();
+
+                    $("#menu").load("../administracion/template/index.html", function () {
+                        $('#mnuColor').css('background-color', menuSeleccionado);
+                        setTimeout(() => {
+                            setUser();
+                            set_usuario_avatar();
+                        }, 500);
+                    });
+                });
+            </script>
+</body>
+
+</html>

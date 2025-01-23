@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    <div id="container" style="padding: 0px;border: 0px;width: 100vw;height: 100vh">
+
+    </div>
+</body>
+
+<script src="https://unpkg.com/@superset-ui/embedded-sdk"></script>
+
+<script>
+
+
+    async function getToken() {
+                const res = await fetch('http://localhost:3000/token');
+                const data = await res.json()
+                //console.log(data['value']);
+                return data['value'];
+    }
+
+  supersetEmbeddedSdk.embedDashboard({
+    id: "a889aecb-dde0-42f1-b822-b78754a9ecae",
+    supersetDomain: "https://analytics.geoperu.gob.pe",
+    mountPoint: document.getElementById("container"), // any html element that can contain an iframe
+    fetchGuestToken: () => "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7Imxhc3RfbmFtZSI6InN0cmluZyIsInVzZXJuYW1lIjoic3RyaW5nIiwiZmlyc3RfbmFtZSI6InN0cmluZyJ9LCJyZXNvdXJjZXMiOlt7ImlkIjoiYTg4OWFlY2ItZGRlMC00MmYxLWI4MjItYjc4NzU0YTllY2FlIiwidHlwZSI6ImRhc2hib2FyZCJ9XSwicmxzX3J1bGVzIjpbeyJkYXRhc2V0IjowLCJjbGF1c2UiOiJzdHJpbmcifV0sImlhdCI6MTY2NjY1NjE4My4yNzM3Mzg5LCJleHAiOjE2NjY2NTY0ODMuMjczNzM4OSwiYXVkIjoiaHR0cDovLzAuMC4wLjA6ODA4MC8iLCJ0eXBlIjoiZ3Vlc3QifQ.Ot-Vui2i9q7IEEuEXJ7nN8M_j7rcfpM8EpnuEaF-7bQ",
+    dashboardUiConfig: { hideTitle: true }, // dashboard UI config: hideTitle, hideTab, hideChartControls (optional)
+  });
+</script>
+</html>
+
+

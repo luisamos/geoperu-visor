@@ -1,0 +1,8 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g opacity="0.5">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M8 9C8 8.44772 8.44772 8 9 8H39C39.5523 8 40 8.44772 40 9V40C40 40.5523 39.5523 41 39 41H9C8.44772 41 8 40.5523 8 40V9ZM10 10V39H38V10H10Z" fill="white"/>
+<path d="M21 22V36H27V22H21Z" fill="white"/>
+<path d="M13 26V36H18.5V26H13Z" fill="white"/>
+<path d="M29.5 14V36H35V14H29.5Z" fill="white"/>
+</g>
+</svg>

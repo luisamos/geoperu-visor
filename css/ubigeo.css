@@ -1,0 +1,191 @@
+.filter__ubigeo {
+    position: absolute;
+    z-index: 600;
+    width: 2vw;
+    min-width: 300px;
+    top: 100px;
+    right: 60px;
+    /* display: grid;
+    grid-template-columns: [col1-start] 1fr [col2-start] 30px [col2-end];
+    grid-template-rows: 30px;
+    grid-template-areas: "ubigeo__text ubigeo__image" "ubigeo__list"; */
+}
+
+.filter__ubigeo>div:first-child {
+    display: grid;
+    grid-template-columns: 1fr 1px;
+    grid-template-rows: 32px;
+    gap: 0;
+}
+
+.filter__ubigeo>div:focus {
+    border: 3px solid var(--color-hover);
+}
+
+.location__gps {
+    position: absolute;
+    z-index: 600;
+    width: 48px;
+    height: 48px;
+    top: 140px;
+    right: 230px;
+    cursor: pointer;
+    background-color: var(--color-background);
+    display: none;
+}
+
+.location__gps:hover svg {
+    background-color: var(--color-icon);
+}
+
+.location__gps:hover circle {
+    stroke: var(--color-background);
+}
+
+.location__gps:hover .gps__center {
+    fill: var(--color-background);
+}
+
+.location__gps:hover .gps__rect {
+    stroke: var(--color-background);
+    fill: var(--color-background);
+}
+
+.ubigeo__text {
+    border: 1px solid var(--color-text);
+    background-color: var(--color-claro);
+    float: left;
+    padding-left: 5px;
+    margin-bottom: 0;
+    height: 30px;
+    /* border-radius: 5px 0 0 5px; */
+    font-size: 14px;
+    outline: none;
+    color: var(--color-text);
+    font-size: 12px;
+    text-transform: uppercase;
+    background-image: url('../images/general/search-white.svg');
+    background-position: 10px center;
+    background-repeat: no-repeat;
+}
+
+.ubigeo__text:focus{
+    outline: 3px solid var(--color-hover);
+}
+
+.ubigeo__image {
+    float: right;
+    position: absolute;
+    right: 3px;
+    top: 2px;
+    width: 28px;
+    height: 28px;
+    /* background-color: var(--color-menu); */
+    background-color: var(--color-subcategory);
+    /* border-radius: 0 5px 5px 0; */
+    text-align: center;
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border: none;
+}
+
+.ubigeo__list {
+    background-color: var(--color-claro);
+    /* padding: 5px; */
+    grid-column: col1-start / col2-end;
+    font-size: 14px;
+    margin-block-start: 0;
+    margin-inline-end: 0;
+    border: 1px solid transparent;
+    font-size: 12px;
+    line-height: 25px;
+    list-style-type: none;
+    margin-top: 0px;
+    /* border-radius: 5px; */
+    display: none;
+    user-select: none;
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.ubigeo__list::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    background-color: #F5F5F5;
+}
+
+.ubigeo__list::-webkit-scrollbar {
+    width: 6px;
+    background-color: #F5F5F5;
+}
+
+.ubigeo__list::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+}
+
+.ubigeo__list li span {
+    cursor: pointer;
+    padding: 2px 3px;
+    user-select: none;
+}
+
+.ubigeo__list:hover li span.active {
+    background-color: var(--color-claro);
+}
+
+.ubigeo__list li span.active,
+.ubigeo__list li span.active:hover,
+.ubigeo__list li span:hover {
+    color: var(--color-claro);
+    background: var(--color-hover);
+}
+
+.filtro__result{
+    padding: 2px 8px;
+    height: 32px;
+    line-height: 16px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.filtro__result:hover{
+    background-color: var(--color-hover);
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+    .filter__ubigeo {
+        width: 45vw;
+        min-width: 240px;
+        top: 4px;
+        right: 10px;
+        z-index: 600;
+    }
+
+    .ubigeo__image {
+        height: 30px;
+        margin-top: 0.5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .filter__ubigeo {
+        position: fixed;
+        width: 95vw;
+        top: 50px;
+        left: 0;
+        right: 0;
+        margin: auto;
+        max-height: 200px;
+    }
+
+    .filter__ubigeo input {
+        font-size: 11px;
+    }
+}

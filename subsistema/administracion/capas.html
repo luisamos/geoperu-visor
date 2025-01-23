@@ -1,0 +1,2260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Capas</title>
+
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script> -->
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/jQuery-MD5.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script type="text/javascript" src="./js/sweetalert2.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/purify.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+
+    <style>
+        #divFile {
+            padding: 0;
+        }
+
+        #divFile .btn {
+            float: right;
+            background-color: #fff;
+            width: 136px;
+            height: 42px;
+            position: absolute;
+            right: 0px;
+            top: -5px;
+        }
+
+        #divFile .btn span {
+            color: #27A5CE;
+            font-weight: 500;
+            font-size: 18px;
+        }
+
+        .progress-bar {
+            height: 35px;
+            /* width: 250px; */
+            width: 100%;
+            border: 2px solid #BDBDBD;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: #27A5CE;
+            display: flex;
+            align-items: center;
+            /* justify-content: center; */
+            color: #fff;
+            font-weight: bold;
+            transition: width 0.25s;
+        }
+
+        .progress-bar-text {
+            margin-left: 10px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .progress-bar-white {
+            height: 35px;
+            /* width: 250px; */
+            width: 100%;
+            border: 2px solid #BDBDBD;
+            background-color: #fff;
+        }
+
+        .progress-bar-fill-white {
+            height: 100%;
+            width: 0%;
+            background-color: #27A5CE;
+            display: flex;
+            align-items: center;
+            /* justify-content: center; */
+            color: #000;
+            font-weight: bold;
+            transition: width 0.25s;
+        }
+
+        .progress-bar-text-white {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="menu">
+    </div>
+
+    <div class="contenido">
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <h3>Administración de capas</h3>
+                    <p style="font-size: 18px;">Sube tu propia información georreferenciada y edite su contenido.</p>
+                </div>
+                <div class="input-field col s4">
+                    <select id="cboTematica">
+                    </select>
+                    <label>Categoría</label>
+                </div>
+                <div class="input-field col s4">
+                    <select id="cboSubtematica">
+                    </select>
+                    <label>Sub-Categoría</label>
+                </div>
+                <div class="input-field col s8">
+                    <input id="filtro_capa" type="text" class="validate" value=""
+                        placeholder="Busque por el nombre de la capa">
+                    <label for="filtro_capa">Filtro por capa</label>
+                </div>
+                <a id="btnFiltroCapas" href="#!" class="right"><img alt="Buscar" src="images/buttons_letters/buscar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="buscar"
+                        data-file="buttons_letters"></a>
+
+            </div>
+            <div class="row" style="height: 10px;">
+                <div class="input-field col s2 left">
+                    <label class="">
+                        <input id="chkOnlyActive" type="checkbox" />
+                        <span>Mostrar sólo activas</span>
+                    </label>
+                </div>
+                <a id="btnAgregarLayer" href="#!" class="right"><img alt="Buscar"
+                        src="images/buttons_letters/agregar.png" onmouseover="hover(this);" onmouseout="unhover(this);"
+                        data-img="agregar" data-file="buttons_letters"></a>
+            </div>
+            <br />
+            <div class="row" style="max-height: 600px;  overflow-y: auto;">
+                <div class="col s12">
+                    <table class="highlight" id="tblLayers" style="background-color: #fff;">
+                        <thead>
+                            <tr>
+                                <th style="padding-left: 20px;">N°</th>
+                                <th>Categoría</th>
+                                <th>Sub-categoría</th>
+                                <th>Codigo</th>
+                                <th>Nombre</th>
+                                <th>Tipo</th>
+                                <th>Mínimo</th>
+                                <th>Máximo</th>
+                                <!-- <th>Fuente</th>
+                                <th>Metadata</th> -->
+                                <th>Estado</th>
+                                <th style="width: 15%; text-align: center;">Opciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_layer" class="modal-popup">
+        <div class="ventana_layer">
+            <div class="row center">
+                <h5>Ingrese todos los datos:</h5>
+                <img id="imgClose_modal_layer" alt="Cerrar ventana" src="images/buttons_icons/close.png"
+                    style="position: absolute; right: 10px; top: 10px;" />
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <label id="lblIdLayer" style="visibility: hidden;"></label>
+                    <label id="lblIdTematica" style="visibility: hidden;"></label>
+                    <label id="lblIdSubtematica" style="visibility: hidden;"></label>
+
+                    <div class="input-field col s6">
+                        <select id="cboFuente" name="comboFuente">
+                        </select>
+                        <label>Fuente de datos de la capa</label>
+                    </div>
+                    <div class="input-field col s3">
+                        <select id="cboTematicaModal">
+                        </select>
+                        <label>Categoría</label>
+                    </div>
+                    <div class="input-field col s3">
+                        <select id="cboSubtematicaModal">
+                        </select>
+                        <label>Sub-Categoría</label>
+                    </div>
+
+                    <div id="divServer" class="input-field col s4">
+                        <select id="cboServer">
+                            <option value="0">Seleccione el servidor</option>
+                            <option value="GEOSERVER">GeoServer</option>
+                            <option value="GEOPERU">MapServer</option>
+                            <option value="ARCGIS">ArcGis</option>
+                        </select>
+                        <label>Servidor de Mapas</label>
+                    </div>
+                    <div id="divTipo" class="input-field col s4">
+                        <select id="cboTipo">
+                            <option value="0">Seleccione el tipo de capa</option>
+                            <option value="3">Punto</option>
+                            <option value="2">Línea</option>
+                            <option value="1">Polígono</option>
+                            <option value="1">Raster</option>
+                        </select>
+                        <label>Tipo de Capa</label>
+                    </div>
+                    <div id="divOrden" class="input-field col s4">
+                        <input placeholder="0" value="1" id="orden_layer" type="number" class="validate" min="1"
+                            max="999" disabled>
+                        <label for="orden_layer">Orden</label>
+                    </div>
+
+                    <!-- <div  class="col s12"> -->
+                    <div id="divFile" class="file-field input-field col s12">
+                        <div class="btn" style="float: right; background-color: #fff;">
+                            <span>Examinar</span>
+                            <input type="file" id="file_shp" accept=".zip, application/JSON">
+                        </div>
+                        <div class="file-path-wrapper">
+                            <input id="archivo_shape" class="file-path validate" type="text"
+                                placeholder="Ruta del archivo">
+                        </div>
+                        <div class="progress-bar" id="progressBar">
+                            <div class="progress-bar-fill">
+                                <span class="progress-bar-text">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="divUrlIcon" class="input-field col s10">
+                        <input placeholder="Ingrese la URL del ícono en caso quiera personalizar su GeoJSON"
+                            id="url_icon" type="text" class="validate">
+                        <label for="url_icon">URL Ícono</label>
+                    </div>
+
+                    <div id="divUrlExterno" class="input-field col s10">
+                        <input placeholder="Ingrese la URL externa para poder conectar la capa" id="url_externo"
+                            type="text" class="validate">
+                        <label for="url_externo">URL Externo</label>
+                    </div>
+                    <div id="divButton" class="input-field col s2">
+                        <a id="btnReadWms" href="#"><img alt="Aceptar" src="images/buttons_letters/buscar.png"
+                                onmouseover="hover(this);" onmouseout="unhover(this);" data-img="buscar"
+                                data-file="buttons_letters"></a>
+                    </div>
+
+                    <div id="divWMSExterno" class="input-field col s4">
+                        <select id="cboCapaExterna">
+                            <option value="-1">Primero ingrese la URL del WMS</option>
+                        </select>
+                        <label>Seleccione una capa del WMS</label>
+                    </div>
+                    <div id="divNombre" class="input-field col s4">
+                        <input placeholder="Digite el nombre de la capa" id="nombre_layer" type="text" class="validate">
+                        <label for="nombre_layer">Nombre de la Capa</label>
+                    </div>
+                    <div id="divCodigo" class="input-field col s4">
+                        <input placeholder="Digite el código de la capa" id="codigo_layer" type="text" class="validate">
+                        <label for="codigo_layer">Código de la Capa</label>
+                    </div>
+                    <div id="divTooltip" class="input-field col s4">
+                        <input placeholder="Digite la descripción emergente (opcional)" id="tooltip_layer" type="text"
+                            class="validate">
+                        <label for="tooltip_layer">Descripción emergente (Opcional)</label>
+                    </div>
+
+                    <div id="divVista" class="input-field col s4">
+                        <input placeholder="Digite el nombre de la vista relacionada" id="vista_layer" type="text"
+                            class="validate">
+                        <label for="vista_layer">Nombre de vista relacionada</label>
+                    </div>
+                    <div id="divObservacion" class="input-field col s4">
+                        <input placeholder="Digite una observación opcional para control interno" id="observacion_layer"
+                            type="text" class="validate">
+                        <label for="observacion_layer">Digite la descripción (Opcional)</label>
+                    </div>
+                    <div id="divMinimo" class="input-field col s2">
+                        <input placeholder="0" value="-1" id="minimo_layer" type="number" class="validate" min="-1"
+                            max="999999999">
+                        <label for="minimo_layer">Escala Mínima</label>
+                    </div>
+                    <div id="divMaximo" class="input-field col s2">
+                        <input placeholder="0" value="-1" id="maximo_layer" type="number" class="validate" min="-1"
+                            max="999999999">
+                        <label for="maximo_layer">Escala Máxima</label>
+                    </div>
+                    <div id="divSld" class="right">
+                        <a id="btnSld" href="#" style="margin-right: 30px;"><img alt="Examinar"
+                                src="images/buttons_letters/examinar_sld.png"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="row center">
+                <a id="btnProccedLayer" href="#" style="margin-right: 30px;"><img id="imgProccedLayer" alt="Aceptar"
+                        src="images/buttons_letters/aceptar.png" onmouseover="hover(this);" onmouseout="unhover(this);"
+                        data-img="aceptar" data-file="buttons_letters"></a>
+                <a id="btnCancelLayer" href="#"><img id="imgCancelLayer" alt="Cancelar"
+                        src="images/buttons_letters/cancelar.png" onmouseover="hover(this);" onmouseout="unhover(this);"
+                        data-img="cancelar" data-file="buttons_letters"></a>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_sld" class="modal-popup">
+        <div class="ventana_sld" style="border-radius: 5px;">
+            <div class="row center">
+                <h5>Subir archivo de estilo</h5>
+            </div>
+            <div class="row">
+                <div class="file-field input-field col s12">
+                    <div class="btn" style="float: right; background-color: #4F4F4F; border: 1px #fff solid;">
+                        <span>Examinar</span>
+                        <input type="file" id="file_sld" accept=".sld">
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input id="archivo_sld" class="file-path validate" type="text" placeholder="Ruta del archivo"
+                            style="color: #fff;">
+                    </div>
+                    <div class="progress-bar-white" id="progressBarSld" style="display: none !important;">
+                        <div class="progress-bar-fill-white">
+                            <span class="progress-bar-text-white">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="rowIcons" style="display: none;">
+                <div class="col s12">
+                    <span style="font-size: 14px; padding-left: 10px;">Íconos faltantes detectados:</span>
+                </div>
+            </div>
+            <div class="row center">
+                <a id="btnProccedSld" href="#" style="margin-right: 30px;"><img alt="Actualizar"
+                        src="images/buttons_letters/actualizar.png" onmouseover="hover(this);"
+                        onmouseout="unhover(this);" data-img="actualizar" data-file="buttons_letters"></a>
+                <a id="btnCancelSld" href="#"><img alt="Descartar" src="images/buttons_letters/descartar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="descartar"
+                        data-file="buttons_letters"></a>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_gallery" class="modal-popup">
+        <div class="ventana_gallery">
+            <div id="head_gallery" style="text-align: center; font-size: 16px; font-weight: 600;">
+                <span>Galería de íconos</span>
+                <img id="imgClose_modal_gallery" alt="Cerrar ventana" src="images/buttons_icons/close.png"
+                    style="position: absolute; right: 10px; top: 10px;">
+            </div>
+            <span style="color: #333;">Seleccione un ícono para sustituir el ícono faltante detectado: </span><span
+                id="span_IconOriginal" style="color: #AAA;">icono.png</span>
+            <div id="content_gallery"
+                style="width: 752px; height: 335px; border: 1px solid #000; display: grid; overflow-y:auto;">
+
+            </div>
+
+        </div>
+    </div>
+
+    <div id="modal_confirm" class="modal-popup">
+        <div class="ventana_confirmacion" style="border-radius: 5px;">
+            <div class="row">
+                <label id="lblIdLayerToggle" style="visibility: hidden;"></label>
+                <label id="lblOperacion" style="visibility: hidden;"></label>
+                <div class="col s12 center">
+                    <h6>¿Está seguro que desea activar/desactivar el registro?</h6>
+                    <br />
+                    <a id="btnElimnarProceder" href="#" style="margin-right: 30px;"><img alt="Aceptar"
+                            src="images/buttons_letters/aceptar.png" onmouseover="hover(this);"
+                            onmouseout="unhover(this);" data-img="aceptar" data-file="buttons_letters"></a>
+                    <a id="btnEliminarCancelar" href="#"><img alt="Cancelar" src="images/buttons_letters/cancelar.png"
+                            onmouseover="hover(this);" onmouseout="unhover(this);" data-img="cancelar"
+                            data-file="buttons_letters"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal_wait">
+        <div class="ventana">
+            <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var saveBlock = false;
+        const $inputFile = document.getElementById('file_shp');
+        const $progressBarFill = document.querySelector('#progressBar > .progress-bar-fill');
+        const $progressBarText = $progressBarFill.querySelector('.progress-bar-text');
+
+
+        const $inputFileSld = document.getElementById('file_sld');
+        const $progressBarFillSld = document.querySelector('#progressBarSld > .progress-bar-fill-white');
+        const $progressBarTextSld = $progressBarFillSld.querySelector('.progress-bar-text-white');
+
+        const $spanProgressText = document.getElementsByClassName('progress-bar-text')[0];
+
+        const $closeModal = document.getElementById('imgClose_modal_layer');
+        $closeModal.addEventListener('click', function () {
+            $('#modal_layer').fadeOut();
+        });
+        const $closeModalGallery = document.getElementById('imgClose_modal_gallery');
+        $closeModalGallery.addEventListener('click', function () {
+            $('#modal_gallery').fadeOut();
+        });
+
+        //Pasamos el archivo a binary si es que es Raster
+        var blobFile;
+        function readFile(event) {
+            blobFile = event.target.result;
+
+        }
+        function changeFile() {
+
+            var file = $inputFile.files[0];
+            var reader = new FileReader();
+            reader.addEventListener('load', readFile);
+            reader.readAsText(file);
+        }
+
+        $inputFile.addEventListener('change', changeFile)
+
+        // getIconCategory();
+        function getIconCategory() {
+            fetch(GET_ICON_CATEGORY)
+                .then(response => response.json())
+                .then(responseJson => {
+                    responseJson.forEach(function (el, ind) {
+                        let codigoCategory = el.categoria.replace(' ', '_')
+                        let htmlCategory = `<div id="${codigoCategory}" style="margin: 10px 0 0 10px;">
+                                                <span style="font-size: 16px; font-weight: 600;">${el.categoria}</span>
+                                                <div class="divider" style="width: 262px; color: #000; background-color: #000;"></div>
+                                                <br />
+                                                <div id="${codigoCategory}_icons">
+                                                </div>
+                                            </div>`
+                        $('#content_gallery').append(htmlCategory);
+                    });
+                    getIconsGallery();
+                });
+        }
+
+        function getIconsGallery() {
+            fetch(GET_ICON_GALLERY)
+                .then(response => response.json())
+                .then(responseJson => {
+                    responseJson.forEach(function (el, ind) {
+                        let codigoCategory = el.categoria.replace(' ', '_');
+                        let htmlIconImage = `<img class="icon__gallery" id="${el.icono.replace('.svg', '')}" alt="${el.icono}" src="${PATH_IMAGES_GEOSERVER}${el.icono}">`
+                        $('#' + codigoCategory).append(htmlIconImage);
+                    });
+
+                    var $iconosGallery = document.querySelectorAll('.icon__gallery');
+
+                    $iconosGallery.forEach(function ($iconGallery) {
+                        $iconGallery.addEventListener('click', function () {
+                            for (var i = 0; i < mListIconReplace.length; i++) {
+                                let oIcon = mListIconReplace[i];
+                                if (oIcon.original === $('#span_IconOriginal').text()) {
+                                    let iconId = oIcon.original.substr(0, oIcon.original.indexOf('.'));
+                                    oIcon.sustituto = this.id;
+                                    $('#imgPreview_' + iconId).attr("src", this.src);
+                                    $('#imgChangeResult_' + iconId).empty();
+                                    let htmlResult = `<img alt="Icono resultado" src="images/buttons_icons/status_ok.png" style="margin-left: 15px; margin-top: 15px; width: 24px; height: 24px;">`
+                                    $('#imgChangeResult_' + iconId).append(`${htmlResult}`);
+                                }
+                            }
+                            $('#modal_gallery').fadeOut();
+                        })
+                    })
+                });
+        }
+
+        var IdUsuarioCurrent = 0;
+        var IdSubsistemaCurrent = 0;
+
+        var IdLayerCurrent = 0;
+        var flagInsert = false;
+        var objectLayers = {};
+        var registro_layer_template = `<table><tr class=""><td style="padding-left: 20px;">ITEM_LAYER</td><td>ITEM_TEMA</td><td>ITEM_SUBT</td><td>CODI_LAYER</td><td>NOMB_LAYER</td><td>TIPO_LAYER</td><td>MIN_LAYER</td><td>MAX_LAYER</td><td>ESTA_LAYER</td><td style="width: 15%; text-align: center; "><div class="min-height: 43px;">
+                                        <a style="display: DISP_LAYER;" href="#!" title="Editar capa" class="openEdit" data-id="ITEM_ID"><img alt="Editar Layer" src="images/buttons_icons/layer_edit.png" onmouseover="hover(this);" onmouseout="unhover(this);" data-img="layer_edit" data-file="buttons_icons"></a>
+                                        <a style="display: DISP_LAYER;" href="#!" title="Editar info" class="openInfo" data-id="ITEM_ID" data-layer="CODI_LAYER"><img alt="Editar información" src="images/buttons_icons/layer_info.png" onmouseover="hover(this);" onmouseout="unhover(this);" data-img="layer_info" data-file="buttons_icons"></a>
+                                        <a style="display: DISP_LAYER;" href="#!" title="Editar metadata" class="openMeta" data-id="ITEM_ID" data-layer="CODI_LAYER"><img alt="Editar Metadata" src="images/buttons_icons/layer_report.png" onmouseover="hover(this);" onmouseout="unhover(this);" data-img="layer_report" data-file="buttons_icons"></a>
+                                        <a style="display: DISP_LAYER;" href="#!" title="Activar/Desactivar capa" class="openTgle" data-id="ITEM_ID"><img alt="Activar/Desactivar Layer" src="images/buttons_icons/layer_toggleON_LAYER.png" onmouseover="hover(this);" onmouseout="unhover(this);" data-img="layer_toggleON_LAYER" data-file="buttons_icons"></a>
+                                        <a style="display: DISP_LAYER;" href="#!" title="Eliminar capa" class="openDlte" data-id="ITEM_ID"><img alt="Eliminar Layer" src="images/buttons_icons/layer_delete.png" onmouseover="hover(this);" onmouseout="unhover(this);" data-img="layer_delete" data-file="buttons_icons"></a>
+                                        <div style="display: DISP_LAYR; justify-content: center; align-items: center; user-select: none;"><a href="#!" title="Capa bloqueada por pertenecer a Geo Perú" class="openBlock" data-id="ITEM_ID"><img alt="Block Layer" src="images/buttons_icons/layer_locked.png" onmouseover="hover(this);" onmouseout="unhover(this);" data-img="layer_locked" data-file="buttons_icons"></a><span>Capa bloqueada</span></dvi>
+                                        </div></td></tr></table>`;
+        // <a href="#!" title="Editar diccionario" class="openRprt" data-id="ITEM_ID" data-layer="CODI_LAYER"><img alt="Editar diccionario" src="images/buttons_icons/layer_report.png"></a>
+        var optionFuente = [
+            { id: 0, descripcion: 'Seleccione la fuente de los datos', estado: 1, orden: 1 },
+            { id: 1, descripcion: 'Geo Perú (Cuando es propia de Geo Perú)', estado: 1, orden: 2 },
+            { id: 2, descripcion: 'WMS Externo (Cuando es un WMS externo a Geo Perú)', estado: 1, orden: 3 },
+            { id: 3, descripcion: 'Shape Externo (Cuando es un archivo Shape)', estado: 1, orden: 4 },
+            { id: 4, descripcion: 'Imagen Raster (Cuando es un archivo de Imagen)', estado: 0, orden: 5 },
+            { id: 5, descripcion: 'WFS Externo (Cuando es un WFS externo a Geo Perú)', estado: 1, orden: 6 },
+            { id: 6, descripcion: 'Geo JSON (Cuando es un archivo en formato GeoJSON)', estado: 0, orden: 7 },
+            { id: 7, descripcion: 'Geo JSON (Archivo)', estado: 1, orden: 8 },
+            { id: 8, descripcion: 'Geo JSON (URL)', estado: 1, orden: 9 },
+            { id: 9, descripcion: 'WMTS', estado: 1, orden: 10 },
+
+        ]
+
+        function fillFuente() {
+
+            $('#cboFuente').empty();
+            $.each(optionFuente, function () {
+                if (this.estado === 1) {
+                    if (IdSubsistemaCurrent != 0 && this.id == 1) {
+                        console.log('Se suprime la opción de Geo Perú como fuente')
+                        $('#cboFuente').append(`<option value="${this.id}" >${this.descripcion}</option>`);
+                    } else {
+                        let disabled = '';
+                        $('#cboFuente').append(`<option value="${this.id}" ${disabled}>${this.descripcion}</option>`);
+                    }
+                }
+
+            });
+            $("#cboFuente").val(0);
+            $("#cboFuente").formSelect();
+        }
+
+        var listTematica = {};
+        function get_tematica() {
+            let urlLoadTematico;
+            let requestOptions;
+            if (IdSubsistemaCurrent === 0) {
+                urlLoadTematico = GET_TEMATICO + '/' + IdSubsistemaCurrent;
+                requestOptions = { method: 'GET' };
+            }
+            else {
+                urlLoadTematico = GET_CATEGORY_SUBSISTEMA;
+                var dataCategories = new FormData();
+                dataCategories.append('idsubs', IdSubsistemaCurrent);
+                requestOptions = { method: 'POST', body: dataCategories, redirect: 'follow' }
+            }
+
+            fetch(urlLoadTematico, requestOptions)
+                .then(responseTematico => {
+                    return responseTematico.json();
+                })
+                .then(responseJson => {
+                    if (responseJson != null && responseJson != undefined) {
+                        listTematica = responseJson;
+                        $('#cboTematica').append(`<option value="0">Seleccione una categoría</option>`);
+                        $.each(responseJson, function () {
+                            $('#cboTematica').append(`<option value="${this.idtematico}">${this.tematico_descripcion}</option>`)
+                        });
+                        $("#cboTematica").formSelect();
+
+                        $(".modal_wait").fadeOut("100");
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    alertToast('No se ha podido cargar las categorías');
+                    alertToast('Intentando recargar en 3 segundos');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 3000);
+                });
+        }
+
+        var listSubtematica = {};
+        function get_subtematica(_IdTematico, _isModal) {
+            let urlTemporal;
+            let requestOptions;
+            if (IdSubsistemaCurrent === 0) {
+                urlTemporal = `${GET_SUBTEMATICO}/${_IdTematico}/${IdSubsistemaCurrent}`
+                requestOptions = { method: 'GET' };
+            }
+            else {
+                urlTemporal = GET_SUBCATEGORY_SUBSISTEMA;
+                var subcategoryFormData = new FormData();
+                subcategoryFormData.append('idtema', parseInt(_IdTematico));
+                subcategoryFormData.append('idsubs', IdSubsistemaCurrent);
+                requestOptions = { method: 'POST', body: subcategoryFormData, redirect: 'follow' }
+            }
+
+            fetch(urlTemporal, requestOptions)
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJSON => {
+                    var $control;
+                    if (_isModal)
+                        $control = $('#cboSubtematicaModal');
+                    else
+                        $control = $('#cboSubtematica');
+
+                    $control.empty();
+                    if (respJSON != null && respJSON != undefined) {
+                        listSubtematica = respJSON;
+                        $control.append(`<option value="0">No asignado</option>`)
+                        $.each(respJSON, function () {
+                            $control.append(`<option value="${this.idsubtematico}">${this.subtematico_descripcion}</option>`)
+                        });
+                        $control.formSelect();
+                    }
+                });
+        }
+
+        async function get_all_layers(_idlayer, _idtematica, _idsubtematica, _nombre = '') {
+            if (_idsubtematica === null) _idsubtematica = 0;
+            if (_idsubtematica === undefined) _idsubtematica = 0;
+
+            let response;
+            let responseJson;
+
+            var data = new FormData();
+            data.append('idlayer', _idlayer);
+            data.append('idtematica', _idtematica);
+            data.append('idsubtematica', _idsubtematica);
+            data.append('idsubs', IdSubsistemaCurrent);
+            
+            if (IdSubsistemaCurrent === 0) {
+                response = await fetch(GET_ALL_LAYERS, { method: 'POST', body: data });
+                responseJson = await response.json();
+            }
+            else {
+                response = await fetch(GET_LAYER_X_SUBSISTEMA_PANEL, { method: 'POST', body: data });
+                responseJson = await response.json();
+            }
+
+            objectLayers = responseJson;
+            if ($('#chkOnlyActive').prop('checked'))
+                objectLayersFilter = objectLayers.filter(i => i.idestado == 1);
+            else
+                objectLayersFilter = objectLayers;
+
+            if (_nombre.length > 0)
+                objectLayersFilter = objectLayersFilter.filter(i => i.capa.toLowerCase().includes(_nombre.toLowerCase()));
+
+            $('#tblLayers > tbody > tr').remove();
+            var $controlTemporal = $('#tblLayers');
+            fillTable(objectLayersFilter, $controlTemporal);
+
+        }
+
+        function fillTable(_list, _control) {
+            for (var i = 0; i < _list.length; i++) {
+
+                let new_row = registro_layer_template
+                    .replace(/ITEM_LAYER/g, i + 1)
+                    .replace(/ITEM_ID/g, _list[i].id)
+                    .replace(/ITEM_TEMA/g, _list[i].tematico_descripcion)
+                    .replace(/ITEM_SUBT/g, _list[i].subtematico_descripcion)
+                    .replace(/CODI_LAYER/g, _list[i].nombre_capa)
+                    .replace(/NOMB_LAYER/g, _list[i].capa)
+                    .replace(/TIPO_LAYER/g, _list[i].tipocapa)
+                    .replace(/MIN_LAYER/g, _list[i].escala_minima)
+                    .replace(/MAX_LAYER/g, _list[i].escala_maxima)
+                    // .replace(/FUEN_LAYER/g, _list[i].file_map)
+                    // .replace(/META_LAYER/g, _list[i].metadata_geoserver)
+                    .replace(/ESTA_LAYER/g, _list[i].estado)
+                    .replace(/DISP_LAYER/g, ((IdSubsistemaCurrent != 0 && _list[i].isnacional == 1) ? 'None' : ''))
+                    .replace(/DISP_LAYR/g, ((IdSubsistemaCurrent != 0 && _list[i].isnacional == 1) ? 'flex' : 'None'))
+                    .replace(/ON_LAYER/g, ((_list[i].idestado == 1) ? '_on' : ''))
+                    .replace(/CODI_HASH/g, _list[i].hashcode)
+
+                _control[0].innerHTML += DOMPurify.sanitize(new_row, CONFIG_SANITIZE);
+            }
+
+            $('.openEdit').bind('click', openModalEdit);
+            $('.openInfo').bind('click', openModalInfo);
+            $('.openRprt').bind('click', openModalRprt);
+            $('.openTgle').bind('click', openModalTgle);
+            $('.openDlte').bind('click', openModalDlte);
+            $('.openMeta').bind('click', openModalMeta)
+        }
+
+        $('#btnFiltroCapas').on('click', function () {
+            let IdTemaSelected = $('#cboTematica').val();
+            let IdSubtSelected = $('#cboSubtematica').val();
+            let filtroCapa = $('#filtro_capa').val();
+
+            if ((IdTemaSelected == undefined || IdSubtSelected == undefined) && filtroCapa.length <= 0) {
+                alertToast('Seleccione al menos una categoría o digite el nombre de la capa')
+                return;
+            }
+            IdSubtSelected = (IdSubtSelected == null) ? 0 : IdSubtSelected;
+            get_all_layers(0, IdTemaSelected, IdSubtSelected, filtroCapa);
+        });
+
+        $('#cboTematica').on('change', function () {
+            let IdTematicaTemporal = $('#cboTematica').val();
+            if (IdTematicaTemporal != undefined) {
+                get_subtematica(IdTematicaTemporal, false);
+            }
+        });
+
+        $('#cboTematicaModal').on('change', function () {
+            let IdTematicaTemporal = $('#cboTematicaModal').val();
+            if (IdTematicaTemporal != undefined) {
+                get_subtematica(IdTematicaTemporal, true);
+            }
+        });
+
+        $('#chkOnlyActive').on('change', function () {
+            setFilter();
+        });
+
+        function setFilter() {
+            var objectLayersFilter = {};
+            if ($('#chkOnlyActive').prop('checked')) {
+                //Sólo activos
+                objectLayersFilter = objectLayers.filter(i => i.idestado == 1);
+            }
+            else {
+                objectLayersFilter = objectLayers;
+            }
+
+            if ($('#filtro_capa').val().length > 0) {
+                objectLayersFilter = objectLayersFilter.filter(i => i.capa.toLowerCase().includes($('#filtro_capa').val().toLowerCase()));
+            }
+
+            $('#tblLayers > tbody > tr').remove();
+            var $controlTemporal = $('#tblLayers');
+
+            fillTable(objectLayersFilter, $controlTemporal);
+        }
+
+        function fillComboModal() {
+            $('#cboTematicaModal').empty();
+            $.each(listTematica, function () {
+                $('#cboTematicaModal').append(`<option value="${this.idtematico}">${this.tematico_descripcion}</option>`)
+            });
+
+            $('#cboSubtematicaModal').empty();
+            $('#cboSubtematicaModal').append(`<option value="0">No asignado</option>`)
+            $.each(listSubtematica, function () {
+                $('#cboSubtematicaModal').append(`<option value="${this.idsubtematico}">${this.subtematico_descripcion}</option>`)
+            });
+        }
+
+        var objectTemporal;
+        function openModalEdit() {
+
+            // resetProgressFile();             //Queda inoperativo porque se oculta el divFile
+
+            flagInsert = false;
+            let IdCurrentTemporal = $(this).attr('data-id');
+            $.each(objectLayers, function () {
+                if (this.id == IdCurrentTemporal) {
+                    objectTemporal = this;
+                }
+            });
+
+            fillComboModal();
+            fillFuente();
+
+            if (objectTemporal != null && objectTemporal != undefined) {
+                $('#lblIdLayer').val(objectTemporal.id);
+                $('#lblIdTematica').val(objectTemporal.idtematica);
+                $('#lblIdSubtematica').val(objectTemporal.idsubtematico);
+
+                $('#cboTematicaModal').val(objectTemporal.idtematica);
+                $('#cboSubtematicaModal').val(objectTemporal.idsubtematico);
+
+                $('#nombre_tematica').val(objectTemporal.tematico_descripcion);
+                $('#nombre_subtematica').val(objectTemporal.subtematico);
+                $('#cboServer').val(objectTemporal.file_map);
+                $('#cboServer').formSelect();
+                $('#cboTipo').val(objectTemporal.idtipocapa.toString());
+                $('#cboTipo').formSelect();
+                $('#nombre_layer').val(objectTemporal.capa);
+                $('#codigo_layer').val(objectTemporal.nombre_capa);
+                $('#minimo_layer').val(objectTemporal.escala_minima);
+                $('#maximo_layer').val(objectTemporal.escala_maxima);
+                $('#tooltip_layer').val(objectTemporal.tooltip_layer);
+                $('#vista_layer').val(objectTemporal.tabla_vista);
+                $('#orden_layer').val(objectTemporal.orden);
+                $('#observacion_layer').val(objectTemporal.observacion);
+
+                $('#cboFuente').val(objectTemporal.idfuente);
+                $('#url_externo').val(objectTemporal.url_fuente);
+
+                evalFuente(objectTemporal.idfuente);
+                $('#cboFuente').formSelect();
+
+                $('#cboCapaExterna').append(`<option value="${objectTemporal.nombre_capa}">${objectTemporal.capa}</option>`);
+                $('#cboCapaExterna').val(objectTemporal.nombre_capa);
+                $('#cboCapaExterna').formSelect();
+
+                //Bloqueamos campos
+                toggleControlesLayerBloqueado((objectTemporal.bloqueada == 1) ? true : false);
+            }
+            // flagInsert = false;
+            $('#cboTematicaModal').formSelect();
+            $("#cboSubtematicaModal").formSelect();
+            $('#modal_layer').fadeIn();
+        }
+
+        function toggleControlesLayerBloqueado(_sw) {
+            $('#cboServer').prop("disabled", _sw);
+            $('#cboServer').formSelect();
+
+            $('#cboFuente').prop("disabled", _sw);
+            $('#cboFuente').formSelect();
+
+            $('#codigo_layer').prop("disabled", _sw);
+            $('#vista_layer').prop("disabled", _sw);
+        }
+
+        function clearForm() {
+            $('#lblIdLayer').val(0);
+            $('#lblIdTematica').val(0);
+            $('#lblIdSubtematica').val(0);
+
+            $('#nombre_tematica').val('');
+            $('#nombre_subtematica').val('');
+            $('#cboServer').val('0');
+            $('#cboTipo').val('0');
+            $('#cboTipo').formSelect();
+            $('#nombre_layer').val('');
+            $('#codigo_layer').val('');
+            $('#minimo_layer').val(-1);
+            $('#maximo_layer').val(-1);
+            $('#tooltip_layer').val('');
+            $('#vista_layer').val('');
+            $('#orden_layer').val(0);
+            $('#observacion_layer').val('');
+            $('#cboFuente').val('0');
+            $('#url_externo').val('');
+
+            $('#archivo_shape').val(null);
+            $('#archivo_sld').val(null);
+            document.querySelector('#archivo_shape').value = '';
+            document.querySelector('#file_shp').value = '';
+
+            enabledButtonImage('imgProccedLayer');
+            enabledButtonImage('imgCancelLayer');
+            resetProgressFile();
+        }
+
+        function resetProgressFile() {
+            $progressBarText.innerText = '0%'
+            $progressBarFill.style.width = '0%';
+            $progressBarText.style.color = '#000';
+            $('#archivo_shape').val(null);
+
+            $('#imgProccedLayer').removeClass('disabled');
+            $('#imgCancelLayer').removeClass('disabled');
+        }
+
+        $('#btnAgregarLayer').on('click', function () {
+
+            let IdTematicaCurrent = 0, IdSubtematicaCurrent = 0;
+            IdTematicaCurrent = $('#cboTematica').val();
+            IdSubtematicaCurrent = $('#cboSubtematica').val();
+            if (IdTematicaCurrent == 0) {
+                alertToast('Por favor seleccione una categoría.')
+                return;
+            }
+
+            clearForm();
+            toggleControlesLayerBloqueado(false);
+            $('#lblIdLayer').val(0);
+            $('#lblIdTematica').val(IdTematicaCurrent);
+            $('#lblIdSubtematica').val(IdSubtematicaCurrent);
+
+            fillComboModal();
+            fillFuente();
+            $('#cboTematicaModal').val(IdTematicaCurrent);
+            $('#cboSubtematicaModal').val(IdSubtematicaCurrent);
+            $('#cboTematicaModal').formSelect();
+            $("#cboSubtematicaModal").formSelect();
+
+            $('#nombre_tematica').val($('#cboTematica option:selected').text());
+            $('#nombre_subtematica').val($('#cboSubtematica option:selected').text());
+            flagInsert = true;
+            evalFuente(0);
+
+            //GET el orden máximo
+            var data = new FormData();
+            data.append('idtema', IdTematicaCurrent);
+            data.append('idsubt', IdSubtematicaCurrent);
+            fetch(GET_ORDEN, { method: 'POST', body: data })
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJson => {
+                    $('#orden_layer').val(respJson[0].orden);
+                    $('#modal_layer').fadeIn();
+                })
+                .catch(err => {
+                    console.log(err);
+                    alertToast('No se pudo obtener el orden');
+                    $('#modal_layer').fadeIn();
+                });
+
+        });
+
+        $('#btnCancelLayer').on('click', function () {
+            clearForm();
+            $('#modal_layer').fadeOut();
+        });
+
+        $('#btnProccedLayer').on('click', function () {
+            if (saveBlock)
+                return;
+            let idtema = 0, idsubt = 0, ordn = 0, desc = 0, idtipo = 0, indx = 0, min = -1, max = -1, meta = 0, idlyer = 0;
+            let funcion = '', nomb = '', view = '', codi = '', obse = '', fmap = '', driv = '', ttip = '', idfuen = 0, uext = '';
+            let pend = false;
+
+            funcion = (flagInsert) ? 'insert' : 'update';
+            // idtema = $('#lblIdTematica').val();
+            // idsubt = $('#lblIdSubtematica').val();
+            idtema = $('#cboTematicaModal').val();
+            idsubt = $('#cboSubtematicaModal').val();
+            idsubt = (idsubt.trim().length == 0) ? 0 : idsubt;
+            codi = $('#codigo_layer').val();
+            view = $('#vista_layer').val();
+            ordn = ($('#orden_layer').val() === '') ? 0 : $('#orden_layer').val();
+            obse = $('#observacion_layer').val();
+            idtipo = $('#cboTipo').val();
+            fmap = $('#cboServer').val();
+            min = $('#minimo_layer').val();
+            max = $('#maximo_layer').val();
+            ttip = $('#tooltip_layer').val();
+            meta = (fmap == 'GEOSERVER') ? 1 : 0;
+            idlyer = $('#lblIdLayer').val();
+            idfuen = $('#cboFuente').val();
+            uext = (idfuen == 3 || idfuen == 4 || idfuen == 6 || idfuen == 7) ? $('#file_shp').val().toString().substr($('#file_shp').val().toString().lastIndexOf('\\') + 1, $('#file_shp').val().toString().length - $('#file_shp').val().toString().lastIndexOf('\\')) : $('#url_externo').val();
+            // nomb = (idfuen == 1 || idfuen == 3) ? $('#nombre_layer').val() : (idfuen == 2) ? $('#cboCapaExterna option:selected').text() : '';
+            nomb = $('#nombre_layer').val();
+
+            if (idfuen <= 0) {
+                alertToast('Seleccione la fuente de datos de la capa.');
+                return;
+            }
+
+            if (idtema == 0) {
+                alertToast('Seleccione una categoría');
+                return;
+            }
+
+            if (fmap == 0) {
+                alertToast('Seleccione el servidor de mapa');
+                return;
+            }
+
+            if (idtipo == 0) {
+                alertToast('Seleccione el tipo de capa');
+                return;
+            }
+
+            if (nomb.replace(/' '/g, '').length <= 0) {
+                alertToast('Registre un nombre de capa.');
+                return;
+            }
+
+            if (nomb.indexOf('/') >= 0) {
+                alertToast('El nombre de capa no es válido.');
+                return;
+            }
+
+            if (idfuen == 2 && codi.replace(/' '/g, '').length == 0) {
+                alertToast('Debe especificar el código de la capa.');
+                return;
+            }
+
+            if (idfuen == 1 && (codi.replace(/' '/g, '').length == 0 || view.replace(/' '/g, '').length == 0))
+                pend = true;
+
+            if (idfuen == 2 || idfuen == 9)
+                pend = false;
+
+            if (min < -1 || max < -1) {
+                alertToast('El escala mínima y máxima no debe ser menor a -1');
+                return;
+            }
+
+            if (idfuen == 2 || idfuen == 9) {
+                if (codi == -1) {
+                    alertToast('Capa no es válida');
+                    return;
+                }
+
+                if (uext.trim().length <= 0) {
+                    alertToast('Ingrese la URL externa.')
+                    return;
+                }
+                if ($('#cboCapaExterna').val() == -1) {
+                    alertToast('Debe seleccionar la capa.')
+                    return;
+                }
+            }
+
+            if (idfuen == 3 || idfuen == 4 || idfuen == 6 || idfuen == 7) {
+                if (flagInsert) {
+                    if (uext.trim().length <= 0) {
+                        alertToast('Elija el archivo')
+                        return;
+                    }
+
+                    if ($('#file_shp').val().toString().length > 0) {
+
+                        //Validamos el peso del archivo, no mayor a 15 MB
+                        var file = $inputFile.files[0];
+                        if (idfuen != 4) {
+                            var fileSize = file.size / 1024 / 1024;
+                            if (fileSize > 350) {
+                                alertToast('El archivo que intenta subir es muy pesado. <br />El límite es 100MB');
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+
+            //Deshabilitamos las opción de Aceptar
+            ///PENDIENTE
+            disabledButtonImage('imgProccedLayer');
+            disabledButtonImage('imgCancelLayer');
+            saveBlock = true;
+            guardarLayer(funcion, idtema, codi, nomb, view, ordn, (pend) ? 3 : 1, obse, desc, idtipo, fmap, indx, min, max, driv, ttip, meta, idsubt, idlyer, Number(idfuen), uext);
+
+        });
+
+        function resetFileModal() {
+            $progressBarFill.style.width = '0.00%';
+            $progressBarText.textContent = '0.00%';
+            $progressBarText.style.color = '#000';
+            saveBlock = false;
+            enabledButtonImage('imgProccedLayer');
+            enabledButtonImage('imgCancelLayer');
+        }
+
+        async function guardarLayer(_funcion, _idtematica, _capa, _nomb, _view, _ordn, _idesta,
+            _obse, _desc, _idtipo, _fmap, _indx, _mini, _maxi, _driv, _ttip, _meta, _idsubt, _idlyer, _idfuen, _uext) {
+
+            let _hashDate = '';
+            var data = new FormData();
+            data.append('funcion', _funcion);
+            data.append('iduser', IdUsuarioCurrent);
+            data.append('idtema', _idtematica);
+            data.append('capa', _capa);
+            data.append('nomb', _nomb);
+            data.append('view', _view);
+            data.append('ordn', _ordn);
+            data.append('idesta', _idesta);
+            data.append('obse', _obse);
+            data.append('desc', _desc);
+            data.append('idtipo', _idtipo);
+            data.append('fmap', _fmap);
+            data.append('indx', _indx);
+            data.append('mini', _mini);
+            data.append('maxi', _maxi);
+            data.append('driv', _driv);
+            data.append('ttip', _ttip);
+            data.append('meta', _meta);
+            data.append('idsubt', _idsubt);
+            data.append('idlyer', _idlyer);
+            data.append('idfuen', _idfuen);
+            data.append('uext', _uext);
+            data.append('idsubs', IdSubsistemaCurrent);
+
+            if ((_idfuen == 3 || _idfuen == 6) && flagInsert) {
+
+                let files = $inputFile.files;
+                let file = files[0];
+                if (files.length === 0) {
+                    alertToast('Primero cargue su archivo .zip');
+                    return;
+                }
+
+                alertToast('Espere mientras se sube el archivo.');
+                $spanProgressText.style.color = '#fff';
+
+                //Contruimos el objeto de FormData para subir el archivo
+                let oDataUpload = new FormData();
+                oDataUpload.append('zip', file, _uext);
+                oDataUpload.append('ubigeo', UBIGEO_GENERAL);
+                
+                const xhr = new XMLHttpRequest();
+                xhr.open('PUT', UPLOAD_FILE);
+
+
+                // Evento para la barra de progreso
+                xhr.upload.addEventListener('progress', e => {
+                    var percent = e.lengthComputable ? (e.loaded / e.total) * 100 : 0;
+                    $progressBarFill.style.width = percent.toFixed(2) + '%';
+                    $progressBarText.textContent = percent.toFixed(2) + '%';
+                });
+
+                // Evento para controlar el error
+                xhr.upload.addEventListener('error', function (e) {
+                    sweetAlert('Error de carga de archivo', 'Carga de archivo interrumpida. \nSu conexión de internet es inestable.', 'error', 'Aceptar');
+                    console.log(e);
+                    resetFileModal();
+                    return;
+                });
+
+                // Evento para controlar el tiempo de espera al subir el archivo
+                xhr.upload.addEventListener('timeout', function (e) {
+                    $('#modal_layer').fadeOut();
+                    sweetAlert('Error de carga', 'El tiempo de espera se ha agotado. \nInténtelo de nuevo más tarde. ', 'error', 'Aceptar');
+                    console.log(e);
+                    return;
+                });
+
+                //Evento que se ejecuta cuando el archivo a subido completamente
+                xhr.addEventListener('readystatechange', function (e) {
+                    if (this.readyState === 4) {
+                        let responseServer = JSON.parse(this.response);
+                        if (responseServer.response_status === 1) {
+                            _hashDate = responseServer.response_message;
+                            sweetAlert('Capas', 'Archivo cargado con éxito. \n Iniciando el proceso de publicación de la capa, espere unos instantes por favor.', 'info', 'Aceptar', false);
+
+                            //Agregamos un timeout para dar tiempo que el API libere el archivo subido y descomprimido
+                            setTimeout(() => {
+                                onComplete();
+                            }, 5000);
+                        } else {
+                            sweetAlert('Error de carga', responseServer.response_message, 'error', 'Aceptar');
+                            console.error(e);
+                            resetFileModal();
+                            return;
+                        }
+                    }
+                });
+
+                //Enviamos la petición
+                xhr.send(oDataUpload);
+                async function onComplete() {
+
+                    let tipoCapa = '';
+
+                    switch (Number(_idtipo)) {
+                        case 1: tipoCapa = 'polygon'; break;
+                        case 2: tipoCapa = 'line'; break;
+                        case 3: tipoCapa = 'point'; break;
+                        default: tipoCapa = 'point'; break;
+                    }
+
+                    var oDataPublish = new FormData();
+                    oDataPublish.append("layer", _uext.substr(0, _uext.length - 4).toString());
+                    oDataPublish.append("workspace", "subsistemas");
+                    oDataPublish.append("ubigeo", UBIGEO_GENERAL);
+                    oDataPublish.append("tipo", tipoCapa);
+                    oDataPublish.append("hashdate", _hashDate);
+
+                    //Cuando se completa la carga, mandamos el segundo API que publicará el layer
+                    if (_idfuen === 3 || _idfuen === 4) {
+
+                        const URL_PUBLISH_CURRENT = _idfuen === 3 ? PUBLISH_SHAPE : PUBLISH_RASTER;
+
+                        const respJSON = await fetch(URL_PUBLISH_CURRENT, { method: 'PUT', body: oDataPublish }).then(resp => resp.json());
+
+                        if (respJSON.response_status === 1) {
+                            data.append('hash', _hashDate);
+
+                            //Habilitamos el botón de SLD
+                            $('#divSld').css('display', 'block');
+
+                            //Llamamos a la función para generar el archivo content.ftl sólo si es un shape
+                            if (_idfuen === 3) await generateMetadata(_uext, _hashDate);
+
+                            //Guardamos el registro en la base de datos
+                            sweetAlert('Capas', 'Capa publicada con éxito. \n Iniciando el proceso de publicación de la capa, espere unos instantes por favor.', 'info', 'Aceptar', false);
+                            await saveDataLayer(data, _idtematica, _idsubt, _idlyer, _capa, false, _hashDate);
+                        }
+                        else {
+                            $('.modal_wait').fadeOut();
+                            $('#modal_layer').fadeOut();
+                            sweetAlert('Publicación de Capa', 'No se pudo publicar la capa debido a que el archivo está dañado.\nVuelva a intentarlo, de persistir el error comuníquese con el equipo de Geo Perú.', 'error', 'Aceptar');
+                            return;
+                        }
+                    }
+                    else if (_idfuen == 6) {
+                        //Si es GeoJSON guardamos la capa
+                        saveDataLayer(data, _idtematica, _idsubt, _idlyer, _capa, true);
+                    }
+                }
+
+            }
+
+            else if ((_idfuen == 4) && flagInsert) {
+                //Si el archivo es raster, debemos crear la URL
+                var signedFormData = new FormData();
+                signedFormData.append('ubigeo', UBIGEO_GENERAL);
+                signedFormData.append('layer', _uext.replace('.zip', ''));
+                signedFormData.append('archivo', _uext);
+                fetch(UPLOAD_SIGNED_URL, { method: 'POST', body: signedFormData, redirect: 'follow' })
+                    .then(respSigned => respSigned.text())
+                    .then(respSignedTEXT => {
+                        console.log(respSignedTEXT)
+                        let respSignedJSON = JSON.parse(respSignedTEXT);
+                        var headersRaster = new Headers();
+                        headersRaster.append("Host", respSignedJSON.response_header);
+                        headersRaster.append("Content-Type", "application/zip");
+
+                        var requestOptions = {
+                            method: 'PUT',
+                            headers: headersRaster,
+                            body: blobFile,
+                            redirect: 'follow',
+                        };
+                        var urlSignedKey = respSignedJSON.response_message.replace('AccessKeyId', 'AWSAccessKeyId');
+                        fetch(urlSignedKey, requestOptions)
+                            .then(response => response.text())
+                            .then(result => {
+
+                                console.log('Archivo subido, enviamos a descargar al servidor');
+                                var copyFormData = new FormData();
+                                copyFormData.append('objectname', 'test');
+                                copyFormData.append('ubigeo', UBIGEO_GENERAL);
+                                copyFormData.append('layer', _uext.replace('.zip', ''));
+                                copyFormData.append('archivo', _uext);
+                                fetch(UPLOAD_COPY_FILE_OBS, { method: 'POST', body: copyFormData })
+                                    .then(respCopyFile => respCopyFile.text())
+                                    .then(respCopyFileTEXT => {
+                                        let respCopyFileJSON = JSON.parse(respCopyFileTEXT);
+                                        if (respCopyFileJSON.response_status === 1) {
+                                            //Llamamos el método que publica raster
+                                            var rasterFormData = new FormData();
+                                            rasterFormData.append('ubigeo', UBIGEO_GENERAL);
+                                            rasterFormData.append('workspace', 'subsistemas');
+                                            rasterFormData.append('layer', _uext.replace('.zip', ''));
+                                            fetch(PUBLISH_RASTER, { method: 'POST', body: rasterFormData })
+                                                .then(respRaster => respRaster.json())
+                                                .then(respRasterJSON => {
+                                                    console.log(respRasterJSON);
+                                                })
+                                        }
+                                        else {
+                                            //Enviamos el mensaje de error.
+                                        }
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+                                        return;
+                                    })
+
+                            })
+                            .catch(error => {
+                                console.log('error', error);
+                                return;
+                            });
+                    })
+                    .catch(err => {
+                        console.log('No se generó la URL firmada.')
+                        return;
+                    })
+
+            }
+            else if (_idfuen == 7 && flagInsert) {
+
+                let files = $inputFile.files;
+                let file = files[0];
+
+                let today = new Date();
+                let hash = `${today.getFullYear()}${pad(today.getMonth() + 1)}${pad(today.getDate())}${pad(today.getHours())}${pad(today.getMinutes())}${pad(today.getSeconds())}${pad(today.getMilliseconds(), 4)}`
+                
+                let iconGJ = $('#url_icon').val();
+
+                // const responseOBSH = await fetch(`${URL_REPO_FILES_ICON}visor/modulos/geojson/${hash}/${file.name}`, { method: 'PUT', body: blobFile }).then(resp => resp.text());
+
+                let typeFile = 'application/json'
+                let fData = new FormData();
+                fData.append('hash', hash);
+                fData.append('icon', file.name);
+                fData.append('type', typeFile)
+                const oDataSign = await fetch(UPLOAD_SIGNED_CDN, { method: 'PUT', body: fData, redirect: 'follow' }).then(resp => resp.json());
+                
+                var headersIcon = new Headers();
+                // headersIcon.append("Host", oDataSign.response_header);
+                headersIcon.append('Content-Type', typeFile);
+                headersIcon.append('content', oDataSign.response_header)
+
+                var requestOptions = {
+                    method: 'PUT',
+                    headers: headersIcon,
+                    body: blobFile,
+                    redirect: 'follow',
+                };
+                const oDataStr = await fetch(oDataSign.response_message, requestOptions).then(resp => resp.text());
+
+                await saveDataLayer(data, _idtematica, _idsubt, _idlyer, _capa, false, hash, iconGJ);
+            }
+            else {
+                $('.modal_wait').fadeIn();
+                saveDataLayer(data, _idtematica, _idsubt, _idlyer, _capa);
+            }
+        }
+
+        function pad(num, size = 2) {
+            num = num.toString();
+            while (num.length < size) num = "0" + num;
+            return num;
+        }
+
+        //Función para leer, generar y transferir el archivo de la metadata
+        async function generateMetadata(_uext, _hash) {
+
+            let init_ftl = `<table><caption>Capa: META_TITLE</caption><thead><tr>`,
+                body_ftl = `</tr></thead><tbody><#assign odd = false><#list features as feature><#if odd><tr class="odd"><#else><tr></#if><#assign odd = !odd>`,
+                foot_ftl = `</tr></#list></tbody></table>`;
+
+            let oDataDBF = new FormData();
+            oDataDBF.append('ubigeo', UBIGEO_GENERAL);
+            oDataDBF.append('url', _uext.substr(0, _uext.length - 4).toString());
+            oDataDBF.append('hash', _hash);
+            const responseDBF = await fetch(READ_DBF_FILE, { method: 'PUT', body: oDataDBF }).then(resp => resp.text());
+
+            let columnsFromDbf = responseDBF.split('|');
+            let ths = '', tds = '';
+            columnsFromDbf.forEach(function (atributo) {
+                if (atributo.length > 0) {
+                    ths += '<th>' + atributo + '</th>';
+                    tds += '<td>${feature.' + atributo + '.value}</td>';
+                }
+            });
+
+            let content = `${init_ftl.replace('META_TITLE', _uext.substr(0, _uext.length - 4))} ${ths} ${body_ftl} ${tds} ${foot_ftl}`
+
+            var oDataFTL = new FormData();
+            oDataFTL.append('ubigeo', UBIGEO_GENERAL);
+            oDataFTL.append('url', _uext.substr(0, _uext.length - 4));
+            oDataFTL.append('content', content);
+            oDataFTL.append('hash', _hash);
+            const oResponseFTL = await fetch(CREATE_FTL_FILE, { method: 'PUT', body: oDataFTL }).then(resp => resp.json());
+
+            if (oResponseFTL.response_status === 1) {
+
+                let oDataCOPY = new FormData();
+                oDataCOPY.append('ubigeo', UBIGEO_GENERAL);
+                oDataCOPY.append('url', _uext.substr(0, _uext.length - 4));
+                oDataCOPY.append('hash', _hash);
+                const oResponseCOPY = await fetch(COPY_FTL_FILE, { method: 'POST', body: oDataCOPY }).then(resp => resp.json());
+
+                if (oResponseCOPY === null) {
+                    alertToast('No se ha podido copiar el archivo de la metadata.')
+                    return;
+                };
+                alertToast(oResponseCOPY.response_message);
+            }
+            else {
+                console.log('No se ha podido leer el archivo de la metadata.');
+                return;
+            }
+        }
+
+
+        //Función para guardar el layer en las tablas correspondientes.
+        async function saveDataLayer(data, _idtematica, _idsubt, _idlyer, _capa, closeModal = true, _hash = '', _icon = '') {
+            try {
+                data.append('hash', _hash);
+                data.append('icon', _icon);
+
+                const responseSaveJSON = await fetch(FN_LAYER, { method: 'PUT', body: data }).then(resp => resp.json())
+
+                if (responseSaveJSON[0].status_response === 1) {
+                    if (closeModal)
+                        $('#modal_layer').fadeOut();
+                    sweetAlert('Capas', 'Se ha guardado la capa con éxito', 'success', 'Aceptar');
+                    get_all_layers(0, _idtematica, _idsubt);
+                    if (responseSaveJSON[0].status_response == 1)
+                        saveLog('Capa', responseSaveJSON[0].scope_identity, _capa, (flagInsert) ? 'Agregado' : 'Modificado', IdUsuarioCurrent, IdSubsistemaCurrent);
+                    saveBlock = false;
+                    $('.modal_wait').fadeOut();
+                }
+                else {
+                    alertToast(responseSaveJSON[0].description_response);
+                    $('.modal_wait').fadeOut();
+                }
+            } catch (error) {
+                sweetAlert('Error de carga', 'Ha ocurrido un error mientras se guardaba la capa. \nIntente subir de nuevo la capa por favor.', 'error', 'Aceptar');
+                $('.modal_wait').fadeOut();
+            }
+        }
+
+        function openModalInfo() {
+            let codigoCapaCurrent = $(this).attr('data-layer');
+            let idCapaCurrent = $(this).attr('data-id');
+
+            window.open(`/subsistema/administracion/info.html?layer=${codigoCapaCurrent}&id=${idCapaCurrent}`, '_blank');
+        }
+
+        function openModalRprt() {
+            let codigoCapaCurrent = $(this).attr('data-layer');
+            window.open(`/subsistema/administracion/diccionario.html?layer=${codigoCapaCurrent}`, '_blank');
+        }
+
+        function openModalTgle() {
+            $("#modal_confirm").fadeIn();
+            $('#lblIdLayerToggle').val($(this).attr('data-id'));
+            $('#lblOperacion').val('toggle');
+        }
+
+        function openModalDlte() {
+            $("#modal_confirm").fadeIn();
+            $('#lblIdLayerToggle').val($(this).attr('data-id'));
+            $('#lblOperacion').val('delete');
+        }
+
+        function openModalMeta() {
+            let codigoCapaCurrent = $(this).attr('data-layer');
+            var objectLayer = objectLayers.find(i => i.nombre_capa == codigoCapaCurrent);
+
+            if (objectLayer === undefined) {
+                alertToast('La capa seleccionada no está disponible. Inténtelo más tarde.')
+                return;
+            }
+            else {
+                if (objectLayer.idestado != 1) {
+                    alertToast('Sólo se permite editar la metadata a capas que estén activas');
+                    return;
+                }
+                if (objectLayer.idfuente !== 3) {
+                    alertToast('Sólo se permite editar la metadata a capas que tengan como fuente archivos Shape');
+                    return;
+                }
+                else {
+                    window.open(`/subsistema/administracion/metadata.html?layer=${codigoCapaCurrent}&idlayer=${objectLayer.id}&hc=${objectLayer.hashcode}`, '_blank');
+                }
+            }
+        }
+
+        function deleteLayer() {
+            var data = new FormData();
+            data.append('iduser', IdUsuarioCurrent);
+            data.append('idlayer', $('#lblIdLayerToggle').val());
+            data.append('idsubs', IdSubsistemaCurrent);
+
+            fetch(DLT_LAYER, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    alertToast('Se ha eliminado el registro.');
+                    let objectFilter = objectLayers.filter(i => i.id == $('#lblIdLayerToggle').val());
+                    if (objectFilter.length > 0)
+                        saveLog('Capa', objectFilter[0].id, objectFilter[0].nombre_capa, 'Eliminado', IdUsuarioCurrent, IdSubsistemaCurrent);
+
+                    get_all_layers(0, $('#cboTematica').val(), $('#cboSubtematica').val(), $('#filtro_capa').val());
+                })
+                .catch(err => {
+                    console.log(err);
+                    alertToast('No se ha podido guardar los cambios');
+                    return;
+                });
+
+            $("#modal_confirm").fadeOut();
+        }
+
+        function toggleLayer() {
+            var data = new FormData();
+            data.append('iduser', IdUsuarioCurrent);
+            data.append('idlayer', $('#lblIdLayerToggle').val());
+            data.append('idsubs', IdSubsistemaCurrent);
+
+            fetch(TGL_LAYER, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    alertToast('Se ha activado/desactivado el registro.');
+                    let objectFilter = objectLayers.filter(i => i.id == $('#lblIdLayerToggle').val());
+                    if (objectFilter.length > 0)
+                        saveLog('Capa', objectFilter[0].id, objectFilter[0].nombre_capa, (objectFilter[0].idestado != 1) ? 'Activado' : 'Desactivado', IdUsuarioCurrent, IdSubsistemaCurrent);
+
+                    get_all_layers(0, $('#cboTematica').val(), $('#cboSubtematica').val(), $('#filtro_capa').val());
+                })
+                .catch(err => {
+                    console.log(err);
+                    alertToast('No se ha podido guardar los cambios');
+                    return;
+                });
+
+            $("#modal_confirm").fadeOut();
+        }
+
+        function evalFuente(_idFuente) {
+
+            $('#cboServer').val('0');
+            $('#cboServer').prop("disabled", false);
+            $('#cboServer').formSelect();
+
+            if (_idFuente == 1) {
+
+                $('#divServer').css('display', 'block');
+                $('#divTipo').css('display', 'block');
+                $('#divNombre').css('display', 'block');
+                $('#divCodigo').css('display', 'block');
+                $('#divMinimo').css('display', 'block');
+                $('#divMaximo').css('display', 'block');
+                $('#divTooltip').css('display', 'block');
+                $('#divOrden').css('display', 'block');
+                $('#divObservacion').css('display', 'block');
+
+                $('#divVista').css('display', 'block');
+                $('#divUrlExterno').css('display', 'none');
+                $('#divButton').css('display', 'none');
+                $('#divWMSExterno').css('display', 'none');
+                $('#divFile').css('display', 'none');
+                $('#divSld').css('display', 'none');
+
+                $('#divUrlIcon').css('display', 'none');
+
+                $('#codigo_layer').prop('disabled', false);
+            }
+            else if (_idFuente == 2 || _idFuente == 5 || _idFuente == 8 || _idFuente == 9) {
+
+                $('#divServer').css('display', 'block');
+                $('#divTipo').css('display', 'block');
+                $('#divNombre').css('display', 'block');
+                $('#divCodigo').css('display', 'block');
+                $('#divMinimo').css('display', 'block');
+                $('#divMaximo').css('display', 'block');
+                $('#divTooltip').css('display', 'block');
+                $('#divOrden').css('display', 'block');
+                $('#divObservacion').css('display', 'block');
+
+                $('#divVista').css('display', 'none');
+                $('#divUrlExterno').css('display', 'block');
+                $('#divButton').css('display', 'block');
+                $('#divWMSExterno').css('display', 'block');
+                $('#divFile').css('display', 'none');
+                $('#divSld').css('display', 'none');
+                $('#divUrlIcon').css('display', 'none');
+
+                $('#codigo_layer').prop('disabled', true);
+
+                if (_idFuente == 8) {
+                    $('#divUrlIcon').css('display', 'block');
+                    $('#divNombre').css('display', 'block');
+                    $('#divWMSExterno').css('display', 'none');
+                    $('#divCodigo').css('display', 'none');
+                }
+            }
+            else if (_idFuente == 3 || _idFuente == 4 || _idFuente == 6 || _idFuente == 7) {
+                $('#divServer').css('display', 'block');
+                $('#divTipo').css('display', 'block');
+                $('#divNombre').css('display', 'block');
+                $('#divCodigo').css('display', 'none');
+                $('#divMinimo').css('display', 'block');
+                $('#divMaximo').css('display', 'block');
+                $('#divTooltip').css('display', 'block');
+                $('#divOrden').css('display', 'block');
+                $('#divObservacion').css('display', 'block');
+
+                $('#divVista').css('display', 'none');
+                $('#divUrlExterno').css('display', 'none');
+                $('#divButton').css('display', 'none');
+                $('#divWMSExterno').css('display', 'none');
+                if (!flagInsert) {
+                    //Editar
+                    $('#divSld').css('display', 'block');
+                    $('#divFile').css('display', 'none');
+                }
+                else {
+                    //Insertar
+                    $('#divSld').css('display', 'none');
+                    $('#divFile').css('display', 'block');
+                }
+                $('#codigo_layer').prop('disabled', true);
+
+                //Bloqueamos el servidor, por defecto seleccionamos GeoServer
+                $('#cboServer').val('GEOSERVER');
+                $('#cboServer').prop("disabled", true);
+                $('#cboServer').formSelect();
+
+                if (_idFuente == 7) {
+                    $('#divUrlIcon').css('display', 'block');
+                }
+            }
+            else {
+                $('#divServer').css('display', 'none');
+                $('#divTipo').css('display', 'none');
+                $('#divNombre').css('display', 'none');
+                $('#divCodigo').css('display', 'none');
+                $('#divMinimo').css('display', 'none');
+                $('#divMaximo').css('display', 'none');
+                $('#divTooltip').css('display', 'none');
+                $('#divOrden').css('display', 'none');
+                $('#divObservacion').css('display', 'none');
+
+                $('#divVista').css('display', 'none');
+                $('#divUrlExterno').css('display', 'none');
+                $('#divButton').css('display', 'none');
+                $('#divWMSExterno').css('display', 'none');
+                $('#divFile').css('display', 'none');
+                $('#divSld').css('display', 'none');
+            }
+        }
+
+        $('#cboFuente').change(function () {
+            evalFuente(this.value);
+        });
+
+        $('#btnElimnarProceder').on('click', function () {
+            if ($('#lblOperacion').val() == 'toggle')
+                toggleLayer();
+            if ($('#lblOperacion').val() == 'delete')
+                deleteLayer();
+        });
+
+        $('#btnEliminarCancelar').on('click', function () {
+            $('#modal_confirm').fadeOut();
+        });
+
+        $('#btnReadWms').on('click', function () {
+            if ($('#cboFuente').val() == 2) ReadWMS($('#url_externo').val());
+            else if ($('#cboFuente').val() == 5) convertWWFS2WMS($('#url_externo').val());
+            else if ($('#cboFuente').val() == 9) readWMTS($('#url_externo').val());
+            // ReadWFS($('#url_externo').val());
+        });
+
+        $('#url_externo').on('keypress', function (e) {
+            if (e.keyCode == 13) {
+                if ($('#cboFuente').val() == 2)
+                    ReadWMS(this.value.trim());
+                else if ($('#cboFuente').val() == 5) convertWWFS2WMS(this.value.trim());
+                // ReadWFS(this.value.trim());
+            }
+        });
+
+        async function readWMTS(strUrl) {
+
+            strUrl = strUrl.slice(0, strUrl.indexOf('/WMTS') + 5);
+            $('#url_externo').val(strUrl);
+
+            alertToast('Espere mientras consultamos el servicio...');
+            $('.modal_wait').fadeIn();
+
+            const oStr = await fetch(strUrl).then(resp => resp.text());
+            const xmlWMTS = new window.DOMParser().parseFromString(oStr, "text/xml");
+
+            const contentXML = xmlWMTS.getElementsByTagName("Contents")[0];
+            const mLayers = contentXML.getElementsByTagName("Layer");
+
+            if (mLayers.length > 0) {
+                $('#cboCapaExterna').empty();
+                $('#cboCapaExterna').append(`<option value="-1">Seleccione una capa</option>`);
+
+                for (let i = 0; i < mLayers.length; i++) {
+
+                    const xmlLayer = mLayers[i];
+                    const xmlTitle = xmlLayer.getElementsByTagName('ows:Title')[0];
+                    const xmlIdentifier = xmlLayer.getElementsByTagName('ows:Identifier')[0];
+                    const xmlTileMatrixSet = xmlLayer.getElementsByTagName('TileMatrixSetLink')[0].getElementsByTagName('TileMatrixSet')[0];
+
+                    const codeLayer = xmlIdentifier.textContent;
+                    const matrixLayer = xmlTileMatrixSet.textContent;
+
+                    if (xmlIdentifier === undefined || xmlTileMatrixSet === undefined) {
+                        alertToast('No se puede leer el identificador de la capa');
+                        return;
+                    }
+
+                    $('#cboCapaExterna').append(`<option value="${codeLayer}___${matrixLayer}">${xmlTitle.textContent}</option>`);
+                }
+                alertToast('Seleccione una capa');
+                $('#cboCapaExterna').formSelect();
+            }
+            else alertToast('No se encotraron capas en el servicio.');
+
+            $('.modal_wait').fadeOut();
+
+        }
+
+        function ReadWMS(strUrl) {
+            //Verificamos si existe la variable
+            $('#cboCapaExterna').empty();
+            
+            if (strUrl.indexOf('?') <= 0) strUrl += '?';
+            if (strUrl.toLowerCase().indexOf('service=wms') <= 0) strUrl += '&service=WMS';
+            if (strUrl.toLowerCase().indexOf('request=getcapabilities') <= 0) strUrl += '&request=GetCapabilities';
+            alertToast('Espere mientras consultamos el servicio...');
+            $('.modal_wait').fadeIn();
+
+            strUrl = strUrl.replace(' ', '').trim();
+            var headerControl = {};
+            if (strUrl.indexOf('@') >= 0) {
+                //Extraemos las credenciales
+                // let credencialesWMS = strUrl.substr(strUrl.indexOf('//') + 2, strUrl.indexOf('@') - (strUrl.indexOf('//') + 2));
+                // strUrl = `https://espacialg.geoperu.gob.pe/geoserver/subsistemas/wms?SERVICE=WMS&REQUEST=GetCapabilities`;
+                // headerControl = {
+                //     'Authorization': 'Basic ' + window.btoa(credencialesWMS)
+                // }
+
+                // Create a new URL object
+                const parsedUrl = new URL(strUrl);
+
+                // Extract the domain, path, and query
+                const domain = parsedUrl.hostname;
+                const path = parsedUrl.pathname;
+                const query = parsedUrl.search;
+
+                console.log("Domain:", domain);
+                console.log("Path:", path);
+                console.log("Query:", query);
+
+            }
+
+            // var var_url = strUrl.indexOf('https') >= 0 ? strUrl : `${URL_PROXY}${strUrl}`;
+            //var var_url = `${URL_PROXY}${strUrl}`;
+            $.ajax({
+                type: "get",
+                url: strUrl,
+                dataType: "xml",
+                headers: headerControl,
+                done: function (data) {
+                    console.log(data)
+                    success(data);
+                },
+                success: function (data) {
+                    /* handle data here */
+                    console.log(data)
+                    var currentUrl = '';
+
+                    //Extraemos la URL
+                    currentUrl = strUrl.substr(0, strUrl.indexOf('?') + 1);
+                    let urlSSL = currentUrl.indexOf('https') > 0 ? true : false;
+                    
+                    var strAllLayer = '';
+                    $('Layer', data).each(function (i) {
+                        let xmlPadre = (data.getElementsByTagName('Layer')[i]);
+                        let layersWMS = xmlPadre.getElementsByTagName('Layer');
+
+                        for (var i = 0; i < layersWMS.length; i++) {
+                            if (layersWMS[i] === undefined) continue;
+                            let tagNameLayer = layersWMS[i].getElementsByTagName('Name')[0].textContent;
+                            let tagTitleLayer = layersWMS[i].getElementsByTagName('Title')[0].textContent;
+                            let tagStyleLayer = layersWMS[i].getElementsByTagName('Style')[0];
+
+                            if (tagNameLayer === undefined) continue;
+                            if (tagTitleLayer === undefined) tagTitleLayer = tagNameLayer;
+
+                            if (tagStyleLayer === undefined) continue;
+                            if (tagStyleLayer.getElementsByTagName('OnlineResource')[0] === undefined) continue;
+
+                            let tagLegendLayer = tagStyleLayer.getElementsByTagName('OnlineResource')[0].getAttribute('xlink:href').toString().replace('https,', '')
+
+                            if (!urlSSL) tagLegendLayer = tagLegendLayer.replace('https', 'http').replace(':443', '');
+
+                            if (tagNameLayer === 'default' || tagNameLayer === 'Raster') continue;
+
+                            strAllLayer += tagNameLayer + '|' + tagTitleLayer + '|' + tagLegendLayer + '___|___';
+                        }
+                    });
+
+                    if (strAllLayer.length === 0) {
+                        //Probamos con capabilities
+                        $('Capability', data).each(function (i) {
+                            let xmlPadre = (data.getElementsByTagName('Capability')[i]);
+                            let layersWMS = xmlPadre.getElementsByTagName('Layer');
+                            
+                            for (var i = 0; i < layersWMS.length; i++) {
+                                if (layersWMS[i] === undefined) continue;
+                                let tagNameLayer = layersWMS[i].getElementsByTagName('Name')[0].textContent;
+                                let tagTitleLayer = layersWMS[i].getElementsByTagName('Title')[0].textContent;
+                                let tagStyleLayer = layersWMS[i].getElementsByTagName('Style')[0];
+
+                                if (tagNameLayer === undefined) continue;
+                                if (tagTitleLayer === undefined) tagTitleLayer = tagNameLayer;
+
+                                if (tagStyleLayer === undefined) continue;
+                                if (tagStyleLayer.getElementsByTagName('OnlineResource')[0] === undefined) continue;
+
+                                let tagLegendLayer = tagStyleLayer.getElementsByTagName('OnlineResource')[0].getAttribute('xlink:href').toString().replace('https,', '')
+
+                                if (!urlSSL) tagLegendLayer = tagLegendLayer.replace('https', 'http').replace(':443', '');
+
+                                if (tagNameLayer === 'default' || tagNameLayer === 'Raster') continue;
+
+                                strAllLayer += tagNameLayer + '|' + tagTitleLayer + '|' + tagLegendLayer + '___|___';
+                            }
+                        });
+                    }
+
+                    if (strAllLayer.length > 0) {
+                        strAllLayer = strAllLayer.replace('MS,', '');
+                        strAllLayer = strAllLayer.substring(0, strAllLayer.length - 1);
+                        $('#cboCapaExterna').append(`<option value="-1">Seleccione una capa</option>`)
+
+                        //Con las capas depuradas debemos recorrer para crear el control y ponerlos en un objeto.
+                        let arrayLayers = strAllLayer.split('___|___');
+                        for (var i = 0; i < arrayLayers.length; i++) {
+                            let currentCapaWMS = arrayLayers[i].split('|');
+                            let idCurrentCapaWMS = currentCapaWMS[0].toString().replace(':', '_');
+                            let nameCurrentCapaWMS = currentCapaWMS[1].toString().replace(':', '_');
+                            let urlLegendCapaWMS = currentCapaWMS[2].toString().replace(':', '_');
+                            $('#cboCapaExterna').append(`<option value="${idCurrentCapaWMS}">${nameCurrentCapaWMS}</option>`);
+
+                        }
+                        $('#cboCapaExterna').formSelect();
+                        alertToast('Se han cargado las capas disponibles del WMS.');
+                    }
+                    else {
+                        alertToast('No se han encontrado capas válidas para ser cargadas');
+                        $('.modal_wait').fadeOut();
+                        return;
+                    }
+
+                    $('.modal_wait').fadeOut();
+                },
+                error: function (xhr, status) {
+                    alertToast('No se puede leer la URL especificada.')
+                    $('.modal_wait').fadeOut();
+                }
+            });
+        }
+
+        function convertWWFS2WMS(strUrl) {
+            let urlBaseCurrent = strUrl.trim().replace(' ', '');
+            if (urlBaseCurrent.toLowerCase().indexOf('wfsserver') > 0) {
+                let urlRootCurrent = urlBaseCurrent.substr(0, urlBaseCurrent.toLowerCase().indexOf('wfsserver'));
+                let urlConvertCurrent = `${urlRootCurrent}wmsserver?service=WMS&request=GetCapabilities`
+
+                ReadWMS(urlConvertCurrent);
+            }
+            else if (urlBaseCurrent.toLowerCase().indexOf('wfs?') > 0) {
+                let urlRootCurrent = urlBaseCurrent.substr(0, urlBaseCurrent.toLowerCase().indexOf('wfs?'));
+                let urlConvertCurrent = `${urlRootCurrent}wms?service=WMS&request=GetCapabilities`
+
+                ReadWMS(urlConvertCurrent);
+            }
+            else {
+                alertToast('No se puede leer la URL especificada.')
+                $('.modal_wait').fadeOut();
+            }
+        }
+
+        function ReadWFS(strUrl) {
+
+            //Verificamos si existe la variable
+            if (strUrl.indexOf('?') <= 0) strUrl += '?';
+            if (strUrl.indexOf('service=WFS') <= 0) strUrl += '&service=WFS';
+            if (strUrl.indexOf('request=GetCapabilities') <= 0) strUrl += 'request=GetCapabilities';
+            alertToast('Espere mientras consultamos el servicio...');
+            $('.modal_wait').fadeIn();
+
+            $('#cboCapaExterna').empty();
+            strUrl = strUrl.replace(' ', '').trim();
+            //var var_url = strUrl.indexOf('https') >= 0 ? strUrl : `${URL_PROXY}${strUrl}`;
+            $.ajax({
+                type: "get",
+                url: strUrl,
+                dataType: "xml",
+                done: function (data) {
+                    console.log(data)
+                    success(data);
+                },
+                success: function (data) {
+                    /* handle data here */
+                    console.log(data)
+                    var currentUrl = '';
+
+                    //Extraemos la URL
+                    currentUrl = strUrl.substr(0, strUrl.indexOf('?') + 1);
+                    let urlSSL = currentUrl.indexOf('https') >= 0 ? true : false;
+
+                    var strAllLayer = '';
+
+                    $('FeatureType', data).each(function (i) {
+                        let wsNameStr = '';
+                        let wsWFS = '', nameWFS = '', titleWFS = '', descriptionWFS = '';
+                        wsNameStr = (this.getElementsByTagName('Name')[0] !== undefined) ? this.getElementsByTagName('Name')[0].textContent : '';
+                        wsWFS = (wsNameStr.split(':')[0] !== undefined) ? wsNameStr.split(':')[0] : '';
+                        nameWFS = (wsNameStr.split(':')[1] !== undefined) ? wsNameStr.split(':')[1] : '';
+                        titleWFS = (this.getElementsByTagName('Title')[0] !== undefined) ? this.getElementsByTagName('Title')[0].textContent : '';
+                        descriptionWFS = (this.getElementsByTagName('Abstract')[0] !== undefined) ? this.getElementsByTagName('Abstract')[0].textContent : '';
+
+                        strAllLayer += wsWFS + '|' + nameWFS + '|' + titleWFS + '|' + descriptionWFS + '&&';
+                    });
+
+                    $('FeatureType', data.childNodes[0].childNodes).each(function (item) {
+                        console.log(item)
+                    })
+
+
+                    if (strAllLayer.length > 0) {
+                        // strAllLayer = strAllLayer.replace('MS,', '');
+                        strAllLayer = strAllLayer.substring(0, strAllLayer.length - 1);
+                        $('#cboCapaExterna').append(`<option value="-1">Seleccione una capa</option>`)
+
+                        //Con las capas depuradas debemos recorrer para crear el control y ponerlos en un objeto.
+                        let arrayLayers = strAllLayer.split('&&');
+                        for (var i = 0; i < arrayLayers.length; i++) {
+                            let currentCapaWMS = arrayLayers[i].split('|');
+                            let idCurrentCapaWMS = `${currentCapaWMS[0]}__${currentCapaWMS[1]}`
+                            let nameCurrentCapaWMS = currentCapaWMS[2];
+                            let titleCurrentCapaWMS = currentCapaWMS[3];
+                            // let urlLegendCapaWMS = currentCapaWMS[2].toString().replace(':', '_');
+                            $('#cboCapaExterna').append(`<option value="${idCurrentCapaWMS}" title="${titleCurrentCapaWMS}">${nameCurrentCapaWMS}</option>`);
+
+                        }
+                        $('#cboCapaExterna').formSelect();
+                        alertToast('Se han cargado las capas disponibles del WMS.');
+                    }
+                    else {
+                        alertToast('No se han encontrado capas válidas para ser cargadas');
+                        $('.modal_wait').fadeOut();
+                        return;
+                    }
+
+                    $('.modal_wait').fadeOut();
+
+                },
+                error: function (xhr, status) {
+                    alertToast('No se puede leer la URL especificada.')
+                    $('.modal_wait').fadeOut();
+                }
+            });
+        }
+
+        $('#cboCapaExterna').change(function () {
+            $('#codigo_layer').val(this.value);
+        });
+
+        $('#btnSld').on('click', function () {
+            $('#modal_sld').fadeIn();
+            mListIconReplace = [];
+            getIconCategory();
+        });
+
+        $('#btnCancelSld').on('click', function () {
+            $('#modal_sld').fadeOut();
+            mListIconReplace = [];
+        });
+
+        var sldText = '';
+        var sldTextValid = '';
+        const icons = []
+
+        const iconsSupported = ['square', 'circle', 'triangle', 'star', 'cross', 'x', 'crossfill']
+        var labelsNotSupported = ['<sld:FeatureTypeName>', '</sld:FeatureTypeName>']
+
+        labelsNotSupported.forEach(function (elementOpen, index) {
+            if (index % 2 === 0) {
+                if (sldText.indexOf(elementOpen) > 0) {
+                    let elementClose = labelsNotSupported[index + 1];
+                    sldText = sldText.substr(0, sldText.indexOf(elementOpen)) +
+                        sldText.substr(sldText.indexOf(elementClose), sldText.length)
+                            .replace(elementClose, '');
+                }
+            }
+        });
+
+        $inputFileSld.addEventListener('change', function () {
+            var fr = new FileReader();
+            fr.onload = function () {
+                sldText = fr.result;
+                let initEtiqueta = sldText.indexOf('<sld:FeatureTypeName>');
+                let finEtiqueta = sldText.indexOf('</sld:FeatureTypeName>');
+                if (initEtiqueta > 0 && finEtiqueta > 0)
+                    sldTextValid = sldText.substr(0, sldText.indexOf('<sld:FeatureTypeName>')) + sldText.substr(sldText.indexOf('</sld:FeatureTypeName>'), sldText.length).replace('</sld:FeatureTypeName>', '');
+                else
+                    sldTextValid = sldText;
+                // sldTextValid = sldTextValid.replace(/SvgParameter/g, 'CssParameter').replace(/cross_fill/g, 'crossfill').replace('<se:Rotation/>', '');
+                sldTextValid = sldTextValid.replace(/cross_fill/g, 'crossfill').replace('<se:Rotation/>', '');
+                sldTextValid = sldTextValid.replace(/á/g, '&#225;').replace(/é/g, '&#233;').replace(/í/g, '&#237;').replace(/ó/g, '&#243;').replace(/ú/g, '&#250;')
+                    .replace(/Á/g, '&#193;').replace(/É/g, '&#201;').replace(/Í/g, '&#205;').replace(/Ó/g, '&#211;').replace(/Ú/g, '&#218;');
+            }
+            fr.readAsText($inputFileSld.files[0]);
+        });
+
+        const ONLINE_RESOURCE_GEOSERVER = `<se:OnlineResource xlink:href="${PATH_IMAGES_GEOSERVER.replace('https', 'http')}` //Le quitamos el https porque genera errrores en el estilo (se ven cuadrados)
+        var iconsGallery = '';  //Variable que debe tener la galería de íconos disponibles.
+        async function readIconsGallery() {
+            // let responseGallery = await fetch(READ_ICON_GALLERY);
+            let responseGallery = await fetch(ICONS_GEOSERVER_GALLERY);
+            let responseGalleryJson = await responseGallery.json();
+            if (responseGalleryJson.response_status === 1) {
+                iconsGallery = responseGalleryJson.response_message;
+            }
+            else {
+                console.log(responseGalleryJson.response_message);
+                return;
+            }
+        }
+
+        var iconsCollection = [];   //Variable que almacenará los íconos que tiene que subir el usuario.
+
+        async function checkIconsSld() {
+            existeIcon = true;
+            let existsExternalIcon = false;
+            let positionExternalIcon = sldTextValid.indexOf('</se:ExternalGraphic>');
+            let sldTextResult = '';
+            //Verificamos si contiene íconos externos.
+            if (positionExternalIcon > 0) {
+                //Si contiene iconos externos, traemos la lista.
+                $('#rowIcons').empty();
+                $('#rowIcons').css('display', 'block');
+
+                iconsCollection = await readIconsGallery();
+                let listExternal = sldTextValid.split('</se:ExternalGraphic>');
+                for (var i = 0; i < listExternal.length; i++) {
+                    let strExternal = listExternal[i].split('<se:ExternalGraphic>')[1];
+                    if (strExternal === undefined) {
+                        if (listExternal[i] !== undefined)
+                            sldTextResult += listExternal[i];
+                    }
+                    else {
+                        if (strExternal.indexOf('?') > 0) {
+                            sldTextResult += listExternal[i].split('<se:ExternalGraphic>')[0] + '<se:ExternalGraphic>'
+                            let listPropertiesExternal = strExternal.split('?');
+                            let buildOnlineResource = '';
+                            for (var j = 0; j <= listPropertiesExternal.length; j++) {
+                                if (listPropertiesExternal[j] !== undefined) {
+                                    if (j === 0) {
+                                        let iconSelected = listPropertiesExternal[j].substr(listPropertiesExternal[j].lastIndexOf('/')).replace('/', '').replace(/=/g, '-');
+
+                                        //Buscamos el icono en el array mListIconReplace, en caso de encontrarlo, reemplzarlo por el sustituto
+                                        mListIconReplace.forEach(function (jsonIcon) {
+                                            if (jsonIcon.original === iconSelected) {
+                                                iconSelected = `${jsonIcon.sustituto}.svg`;
+                                            }
+                                        })
+                                        //Ahora que tenemos el icono externo debemos compararlo con alguna lista de iconos permitidos.
+                                        if (iconsGallery.indexOf(iconSelected) <= 0) {
+                                            let htmlControlesIcon = `<div class="row" style="margin: 0px 0px;" id="row_${iconSelected.substr(0, iconSelected.indexOf('.'))}">
+                                                                    <div class="col s1">
+                                                                        <img id="imgPreview_${iconSelected.substr(0, iconSelected.indexOf('.'))}" alt="Icono faltante" src="images/buttons_icons/icon_sld.png"
+                                                                            style="margin-left: 15px; margin-top: 10px; width: 40px; height: 40px; background-color: #fff; border: 1px solid #aaa">
+                                                                    </div>
+                                                                    <div class="file-field input-field col s8">
+                                                                        <div class="btn"
+                                                                            style="float: right; background-color: #fff; border: 1px #fff solid; color: #828282; font-size: 18px; font-weight: 500; ">
+                                                                            <span style="text-transform: capitalize;">Agregar archivo</span>
+                                                                            <input type="file" id="${iconSelected.substr(0, iconSelected.indexOf('.'))}" name="avatar" accept="image/*">
+                                                                        </div>
+                                                                        <div class="file-path-wrapper" style="padding-left: 0px;">
+                                                                            <input id="file_${iconSelected.substr(0, iconSelected.indexOf('.'))}" class="file-path validate" type="text"
+                                                                                placeholder="${iconSelected}" style="color: #fff;">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col s2">
+                                                                        <div id="btnSustituir" data-icon="${iconSelected}" onclick="openModalGallery('${iconSelected}')">
+                                                                            <span>Sustituir desde galería</span>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="imgChangeResult_${iconSelected.substr(0, iconSelected.indexOf('.'))}" class="col s1">
+                                                                        
+                                                                    </div>
+                                                                    </div>`
+                                            // $('#rowIcons').append(`<div class="col s8"><input type="file" id="${iconSelected.substr(0, iconSelected.indexOf('.'))}" name="avatar" accept="image/png, image/jpeg, image/svg"></div><div class="col s4"><span style="color: #fff" id="span_${iconSelected.substr(0, iconSelected.indexOf('.'))}">(${iconSelected})</span></div>`)
+                                            $('#rowIcons').append(htmlControlesIcon);
+                                            existeIcon = false;
+                                        }
+                                        //Si pasara la validación, debemos colocar la referencia absoluta
+                                        buildOnlineResource = ONLINE_RESOURCE_GEOSERVER + iconSelected + '?';
+                                    }
+                                    else {
+                                        // buildOnlineResource += listPropertiesExternal[j] + ';';
+                                        buildOnlineResource += listPropertiesExternal[j].substr(0, listPropertiesExternal[j].indexOf("\"")) + ';' + listPropertiesExternal[j].substr(listPropertiesExternal[j].indexOf("\""), listPropertiesExternal[j].length);
+                                    }
+                                }
+                            }
+                            sldTextResult += buildOnlineResource + '</se:ExternalGraphic>';
+                        }
+                        else {
+                            sldTextResult += '<se:ExternalGraphic>' + strExternal + '</se:ExternalGraphic>';
+                        }
+                    }
+                }
+                sldTextValid = sldTextResult;
+            }
+            var $inputFileIcons = document.getElementsByName('avatar');
+            $inputFileIcons.forEach(function ($inputFileIcon) {
+                $inputFileIcon.addEventListener('change', function () {
+                    uploadIconAvatar($inputFileIcon);
+                })
+            });
+            return existeIcon;
+        }
+
+        var mListIconReplace = [];
+        function openModalGallery(_icon) {
+            $('#modal_gallery').fadeIn();
+            $('#span_IconOriginal').text(_icon);
+
+            let jsonIconReplace = { original: _icon, sustituto: '' };
+            mListIconReplace.push(jsonIconReplace);
+        }
+
+        async function uploadIconAvatar(_element) {
+            alertToast('Espere mientras sube el icono.');
+            // document.getElementById(_element.id).disabled = true;
+            $('#' + _element.id).prop('disabled', 'disabled');
+
+            if (objectTemporal === undefined)
+                objectTemporal = objectLayers.find(i => i.capa === $('#nombre_layer').val() && i.url_fuente === $('#archivo_shape').val());
+
+            if (objectTemporal === undefined) {
+                alertToast('Por favor recargue la página para continuar.');
+                return;
+            }
+
+            var iconData = new FormData();
+            iconData.append('icon', _element.files[0]);
+            iconData.append('ubigeo', UBIGEO_GENERAL);
+            iconData.append('layer', objectTemporal.url_fuente.replace('.zip', ''));
+            let responseIcon = await fetch(UPLOAD_FILE_ICON, { method: 'POST', body: iconData });
+            let responseIconText = await responseIcon.text();
+
+
+            let responseIconJson = JSON.parse(responseIconText);
+
+            if (responseIconJson.response_status === 1) {
+                var iconDataTransfer = new FormData();
+                iconDataTransfer.append('icon', _element.files[0].name);
+                iconDataTransfer.append('ubigeo', UBIGEO_GENERAL);
+                iconDataTransfer.append('layer', objectTemporal.url_fuente.replace('.zip', ''));
+                let responseTransferIcon = await fetch(COPY_FILE_ICON, { method: 'POST', body: iconDataTransfer });
+                let responseTransferIconText = await responseTransferIcon.text();
+                let responseTransferIconJson = JSON.parse(responseTransferIconText);
+
+                alertToast(responseTransferIconJson.response_message);
+                //Renderizar el icono en el preview
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#imgPreview_' + _element.id).attr('src', e.target.result);
+                }
+                reader.readAsDataURL(_element.files[0]);
+
+                $('#imgChangeResult_' + _element.id).empty();
+                let htmlResult = `<img alt="Icono resultado" src="images/buttons_icons/ITEM_STATUS.png" style="margin-left: 15px; margin-top: 15px; width: 24px; height: 24px;">`
+                if (responseTransferIconJson.response_status === 1)
+                    $('#imgChangeResult_' + _element.id).append(`${htmlResult.replace('ITEM_STATUS', 'status_ok')}`);
+                else
+                    $('#imgChangeResult_' + _element.id).append(`${htmlResult.replace('ITEM_STATUS', 'status_error')}`);
+            }
+            else {
+                //Debemos señalar que el ícono no se ha podido subir.
+                console.log(responseIconJson.response_message);
+                alertToast(responseIconJson.response_message);
+            }
+        }
+
+        $('#btnProccedSld').on('click', async function () {
+            let respModal = await checkIconsSld();
+
+            if (!respModal) {
+                sweetAlert('Publicación de Estilo', 'Hemos detectado que existen íconos que no tenemos en nuestra galería, por favor sugerimos puedas subirlos para que tu estilo funcione correctamente.', 'warning', 'Aceptar');
+                return;
+            }
+
+            if (objectTemporal === undefined) {
+                //Buscamos la capa en el objectList
+                objectTemporal = objectLayers.find(i => i.capa === $('#nombre_layer').val() && i.url_fuente === $('#archivo_shape').val());
+                if (objectTemporal === undefined) {
+                    alertToast('No existe la capa.');
+                    return;
+                }
+            }
+
+            alertToast('Espere mientas subimos y publicamos el estilo');
+            $('.modal_wait').fadeIn();
+
+            let headerStyle = new Headers();
+            headerStyle.append('Accept-Charset', 'utf-8');
+
+            let oDataUPL = new FormData();
+            oDataUPL.append('ubigeo', UBIGEO_GENERAL);
+            oDataUPL.append('carpeta', objectTemporal.url_fuente.replace('.zip', ''));
+            oDataUPL.append('content', sldTextValid);
+            oDataUPL.append('hashdate', objectTemporal.hashcode);
+
+            let respStyleUPL = await fetch(CREATE_FILE_STYLE, { method: 'PATCH', headers: headerStyle, body: oDataUPL }).then(resp => resp.json());
+
+            if (respStyleUPL === undefined || respStyleUPL === null) {
+                sweetAlert('Publicación de Estilo', respStyleUPL.response_message, 'error', 'Aceptar');
+                $('.modal_wait').fadeOut();
+                return;
+            }
+
+            if (respStyleUPL.response_status === 1) {
+
+                //Cuando se completa la carga, mandamos el segundo API que publicará el estilo
+                let oDataGEO = new FormData();
+                oDataGEO.append("layer", objectTemporal.url_fuente.replace('.zip', ''));
+                oDataGEO.append("workspace", "subsistemas");
+                oDataGEO.append("ubigeo", UBIGEO_GENERAL);
+                oDataGEO.append("hashdate", objectTemporal.hashcode);
+
+                let dataStyleGEO = await fetch(PUBLISH_STYLE, { method: 'PATCH', body: oDataGEO }).then(resp => resp.json());
+
+                if (dataStyleGEO === undefined || dataStyleGEO === null) {
+                    sweetAlert('Publicación de Estilo', dataStyleGEO.response_message, 'error', 'Aceptar');
+                    $('.modal_wait').fadeOut();
+                    return;
+                }
+
+                if (dataStyleGEO.response_status === 1) {
+                    mListIconReplace = [];
+                    sweetAlert('Publicación de Estilo', dataStyleGEO.response_message, 'success', 'Aceptar');
+
+                    $('.modal_wait').fadeOut();
+                    $('#modal_layer').fadeOut();
+                    $('#modal_sld').fadeOut();
+                }
+                else {
+                    sweetAlert('Publicación de estilo', dataStyleGEO.response_message, 'error', 'Aceptar');
+                    $('.modal_wait').fadeOut();
+                    return;
+                }
+            }
+            else {
+                sweetAlert('Transferencia de estilo', dataStyleGEO.response_message, 'error', 'Aceptar');
+                $('.modal_wait').fadeOut();
+                return;
+            }
+        });
+
+        var role_allowed = [1, 3];
+        function setUser() {
+            // var mToken = localStorage.getItem('geoToken');
+            var mToken = getCookie('geoToken');
+            var decoded = jwt_decode(mToken);
+            $('#lblUsuario').text(decoded.usuario);
+            $('#lblRol').text(decoded.rol);
+            IdUsuarioCurrent = decoded.idusuario;
+            IdSubsistemaCurrent = decoded.idsubs;
+            if (!role_allowed.includes(decoded.idrol)) {
+                window.location.replace("/subsistema/administracion/unauthorized.html");
+                return;
+            }
+            get_tematica();
+            setMenuByRol(decoded.idrol);
+            readIconsGallery();
+        }
+
+        function sweetAlert(_title, _message, _icon, _textButton, _confirmButton = true) {
+            Swal.fire({
+                title: _title,
+                text: _message,
+                icon: _icon,
+                confirmButtonText: _textButton,
+                showConfirmButton: _confirmButton,
+            })
+        }
+
+        $(document).ready(function () {
+            validarToken();
+            $(".modal_wait").fadeIn("100");
+            $("#menu").load("../administracion/template/index.html", function () {
+                $('#mnuCapa').css('background-color', menuSeleccionado);
+                setTimeout(() => {
+                    setUser();
+                    set_usuario_avatar();
+                }, 500);
+            });
+            $('select').formSelect();
+            M.updateTextFields();
+        });
+
+    </script>
+
+
+</body>
+
+</html>

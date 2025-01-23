@@ -1,0 +1,88 @@
+.leaflet-control-minimap {
+    border: solid rgba(255, 255, 255, 1.0) 1px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+    border-radius: 5px;
+    background: #f8f8f9;
+    transition: all .6s;
+    position: absolute;
+    top: 60px;
+    right: 50px;
+}
+
+.leaflet-control-minimap a {
+    background-color: transparent;
+    background-repeat: no-repeat;
+    z-index: 10000;
+    transition: all .6s;
+}
+
+.leaflet-control-minimap a.minimized-bottomright {
+    border-radius: 0px;
+}
+
+.leaflet-control-minimap a.minimized-topleft {
+    border-radius: 0px;
+}
+
+.leaflet-control-minimap a.minimized-bottomleft {
+    border-radius: 0px;
+}
+
+.leaflet-control-minimap a.minimized-topright {
+    border-radius: 0px;
+}
+
+.leaflet-control-minimap-toggle-display {
+    background-image: url('../../images/general/toggle-minimap.svg');
+    background-size: cover;
+    position: absolute;
+}
+
+.leaflet-oldie .leaflet-control-minimap-toggle-display {
+    background-image: url('../../images/general/toggle-minimap.svg');
+}
+
+.leaflet-control-minimap-toggle-display-bottomright {
+    bottom: 0;
+    right: 0;
+}
+
+.leaflet-control-minimap-toggle-display-topleft {
+    top: 0;
+    left: 0;
+}
+
+.leaflet-control-minimap-toggle-display-bottomleft {
+    bottom: 0;
+    left: 0;
+}
+
+.leaflet-control-minimap-toggle-display-topright {
+    top: 0;
+    right: 0;
+}
+
+/* Old IE */
+.leaflet-oldie .leaflet-control-minimap {
+    border: 1px solid #999;
+}
+
+.leaflet-oldie .leaflet-control-minimap a {
+    background-color: #fff;
+}
+
+.leaflet-oldie .leaflet-control-minimap a.minimized {
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+}
+
+@media(min-width: 481px) and (max-width: 767px) {
+    .leaflet-control-minimap {
+        display: none;
+    }
+}
+
+@media(max-width: 480px) {
+    .leaflet-control-minimap {
+        display: none;
+    }
+}

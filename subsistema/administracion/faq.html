@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preguntas Frecuentes</title>
+
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+    <style>
+        p {
+            text-align: justify;
+            padding-right: 10px;
+            font-size: 14px;
+        }
+
+        .divCollapse {
+            margin-top: 2.8rem;
+            max-height: 800px;
+            overflow: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="menu">
+    </div>
+
+    <div class="contenido">
+        <div class="container">
+            <div class="row">
+                <div class="col s4">
+                    <h1>Preguntas Frecuentes</h1>
+                    <p>Encuentre respuesta a las principales dudas sobre el módulo de administración. </p>
+                    <p>Para otras consultas o asesoría en el funcionamiento del módulo, puede escribirnos a
+                        <b>info@geoperu.gob.pe</b></p>
+                </div>
+                <div class="col s8 divCollapse">
+                    <ul class="collapsible expandable" id="listFaq">
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal_wait">
+        <div class="ventana">
+            <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        function getFaq() {
+            var data = new FormData();
+            data.append('idfaq', 0);
+            fetch(GET_FAQ, { method: 'POST', body: data })
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJson => {
+                    if (respJson != undefined && respJson != null) {
+                        $.each(respJson, function () {
+                            $('#listFaq').append(`<li id="${this.id}">
+                                                    <div class="collapsible-header" style="font-size: 14px; font-weight: 600">${this.pregunta}</div>
+                                                    <div class="collapsible-body" style="font-size: 14px"><span>${this.respuesta}</span></div>
+                                                </li>`)
+                        });
+                    }
+
+                    $(".modal_wait").fadeOut();
+                });
+
+        }
+
+        function setUser() {
+            // var mToken = localStorage.getItem('geoToken');
+            var mToken = getCookie('geoToken');
+            var decoded = jwt_decode(mToken);
+            $('#lblUsuario').text(decoded.usuario);
+            $('#lblRol').text(decoded.rol);
+            IdUsuarioCurrent = decoded.idusuario;
+            IdSubsistemaCurrent = decoded.idsubs;
+            setMenuByRol(decoded.idrol);
+            getFaq();
+        }
+
+        $(document).ready(function () {
+            $(".modal_wait").fadeIn("100");
+            validarToken();
+
+            $("#menu").load("../administracion/template/index.html", function () {
+                $('#mnuFaq').css('background-color', menuSeleccionado);
+                setTimeout(() => {
+                    setUser();
+                    set_usuario_avatar();
+                }, 500);
+            });
+            $('select').formSelect();
+            $('.datepicker').datepicker();
+            M.updateTextFields();
+
+            var elem = document.querySelector('.collapsible.expandable');
+            var instance = M.Collapsible.init(elem, {
+                accordion: false
+            });
+        });
+    </script>
+</body>
+
+</html>

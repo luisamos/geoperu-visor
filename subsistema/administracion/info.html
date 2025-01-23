@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Información de Capas</title>
+
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+
+
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script type="text/javascript" src="./js/sweetalert2.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+
+    <style>
+        .button__upload {
+            float: left !important;
+            background-color: #fff !important;
+            border: 1px #fff solid !important;
+            color: #828282 !important;
+            font-size: 18px !important;
+            font-weight: 500 !important;
+        }
+
+        .col__delete {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            text-align: right;
+            font-size: 18px;
+            color: #828282;
+        }
+
+        .button__delete {
+            color: #828282 !important;
+            height: 35px !important;
+            bottom: 0 !important;
+            background-color: #fff !important;
+            border: 1px solid #fff !important;
+            height: 3rem !important;
+            box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2) !important;
+            cursor: pointer !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="menu">
+    </div>
+
+    <div class="contenido">
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <h3 id="lblTitle">Información de Capa</h3>
+                    <p style="font-size: 18px;">Edita la información de tus capas geográficas para brindarle al usuario
+                        un mayor entendimiento acerca de ella.</p>
+                </div>
+                <div class="input-field col s12">
+                    <input id="nombre_capa" type="text" class="validate" value=" ">
+                    <label for="nombre_capa">Capa</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="nombre_tematica" type="text" class="validate" value=" " disabled>
+                    <label for="nombre_tematica">Temática</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="nombre_subtematica" type="text" class="validate" value=" " disabled>
+                    <label for="nombre_subtematica">Sub-temática</label>
+                </div>
+                <div class="input-field col s12">
+                    <textarea id="definicion_capa" class="materialize-textarea" value="-" placeholder=" "></textarea>
+                    <label for="definicion_capa">Definición</label>
+                </div>
+                <div class="input-field col s6">
+                    <input type="text" class="validate" id="escala" value=" " placeholder=" ">
+                    <label>Escala</label>
+                </div>
+                <div class="input-field col s6">
+                    <select id="cboFrecuencia">
+                    </select>
+                    <label>Frecuencia de Actualización</label>
+                </div>
+                <div class="input-field col s6">
+                    <input type="text" class="validate" id="fecha_actualizacion" value=" " placeholder=" ">
+                    <label>Fecha de Actualización</label>
+                </div>
+                <div class="input-field col s6">
+                    <input type="text" class="validate" id="anio_actualizacion" value=" " placeholder=" ">
+                    <label>Año</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="web_capa" type="text" class="validate" value=" " placeholder=" ">
+                    <label for="web_capa">Página web</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="fuente_capa" type="text" class="validate" value=" " placeholder=" ">
+                    <label for="fuente_capa">Fuente</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="link_metadato" type="text" class="validate" value=" " placeholder=" ">
+                    <label for="link_metadato">Link metadatos</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="link_descarga" type="text" class="validate" value=" " placeholder=" ">
+                    <label for="link_descarga">Link descarga</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s6">
+                    <span>Subir documentos para descargar:</span>
+                    <div class="file-field input-field col s10">
+                        <div class="btn button__upload">
+                            <span style="text-transform: capitalize;">Agregar archivo</span>
+                            <input type="file" id="btnFile_1" name="fileInfo" accept="*" data-item="1">
+                        </div>
+                        <div class="file-path-wrapper" style="padding-left: 0px;">
+                            <input id="txtFile_1" class="file-path validate" type="text"
+                                placeholder="Nombre del archivo" style="padding-left: 10px;">
+                        </div>
+                    </div>
+                    <div class="col s2 right col__delete">
+                        <button id="btnDeleteFile_1" data-item="1" class="button__delete">Eliminar</button>
+                    </div>
+                    <div class="file-field input-field col s10">
+                        <div class="btn button__upload">
+                            <span style="text-transform: capitalize;">Agregar archivo</span>
+                            <input type="file" id="btnFile_2" name="fileInfo" accept="*" data-item="2">
+                        </div>
+                        <div class="file-path-wrapper" style="padding-left: 0px;">
+                            <input id="txtFile_2" class="file-path validate" type="text"
+                                placeholder="Nombre del archivo" style="padding-left: 10px">
+                        </div>
+                    </div>
+                    <div class="col s2 right col__delete">
+                        <button id="btnDeleteFile_2" data-item="2" class="button__delete">Eliminar</button>
+                    </div>
+                    <div class="file-field input-field col s10">
+                        <div class="btn button__upload">
+                            <span style="text-transform: capitalize;">Agregar archivo</span>
+                            <input type="file" id="btnFile_3" name="fileInfo" accept="*" data-item="3">
+                        </div>
+                        <div class="file-path-wrapper" style="padding-left: 0px;">
+                            <input id="txtFile_3" class="file-path validate" type="text"
+                                placeholder="Nombre del archivo" style="padding-left: 10px;">
+                        </div>
+                    </div>
+                    <div class="col s2 right col__delete">
+                        <button id="btnDeleteFile_3" data-item="3" class="button__delete">Eliminar</button>
+                    </div>
+                </div>
+                <div class="col s6">
+                    <a id="btnCancelar" href="#!" class="right"><img alt="Cancelar"
+                            src="images/buttons_letters/cancelar.png" onmouseover="hover(this);"
+                            onmouseout="unhover(this);" data-img="cancelar" data-file="buttons_letters"></a>
+
+                    <a id="btnAceptar" href="#!" class="right" style="margin-right: 30px;"><img alt="Aceptar"
+                            src="images/buttons_letters/aceptar.png" onmouseover="hover(this);"
+                            onmouseout="unhover(this);" data-img="aceptar" data-file="buttons_letters"
+                            style="margin: 0px 20px 0px 0px;"></a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal_wait">
+        <div class="ventana">
+            <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var objInformacion = {};
+        var IdUsuarioCurrent = 0, codigoCurrent = '';
+        var IdSubsistemaCurrent = 0;
+        var nombreCurrent = '';
+        var existeInfo = undefined;
+
+        function getFrecuencia() {
+            fetch(GET_FRECUENCIA)
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    if (responseJson != null && responseJson != undefined) {
+                        $('#cboFrecuencia').append(`<option value="0">Seleccione la frecuencia</option>`);
+                        $.each(responseJson, function () {
+                            $('#cboFrecuencia').append(`<option value="${this.idfrecuencia}">${this.frecuencia}</option>`)
+                        });
+                        $("#cboFrecuencia").formSelect();
+
+                        // getInfoPrincipal(codigoCurrent);
+                        // getInfoByCapa(codigoCurrent);
+                        getInfoPrincipalxId(idCurrent);
+                        getInfoByCapaxId(idCurrent);
+                    }
+                });
+        }
+
+        var $inputFileInfo = document.getElementsByName('fileInfo');
+        $inputFileInfo.forEach(function ($inputFileIcon) {
+            $inputFileIcon.addEventListener('change', function () {
+                uploadFileInfo($inputFileIcon);
+            })
+        });
+
+        var $buttonsDelete = document.querySelectorAll('.button__delete');
+        $buttonsDelete.forEach(function ($btnDelete) {
+            $btnDelete.addEventListener('click', onDeleteFile);
+        });
+
+        function onDeleteFile() {
+
+            var dataFileDelete = new FormData();
+            dataFileDelete.append('ubigeo', UBIGEO_GENERAL);
+            dataFileDelete.append('capa', codigoCurrent);
+            dataFileDelete.append('item', this.dataset.item);
+            dataFileDelete.append('idcapa', idCurrent);
+
+            fetch(DELETE_FILE_INFO_X_ID, { method: 'POST', body: dataFileDelete })
+                .then(respDeleteFile => {
+                    return respDeleteFile.json();
+                })
+                .then(respDeleteJSON => {
+                    let oResponseJSONDelete = respDeleteJSON[0];
+                    alertToast(oResponseJSONDelete.description_response);
+                    if (oResponseJSONDelete.status_response === 1) {
+                        getInfoFilesByCapa();
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    return;
+                })
+        }
+
+        function typeContent(_filename) {
+            let extension = _filename.indexOf('.')
+        }
+
+        async function uploadFileInfo(_element) {
+
+            sweetAlert('Cargando archivo...', 'Por favor, espere mientas se sube el archivo.', 'info', 'Aceptar', false);
+
+            let fileInfoData = new FormData();
+            fileInfoData.append('archivo', _element.files[0]);
+            fileInfoData.append('ubigeo', UBIGEO_GENERAL);
+            fileInfoData.append('layer', codigoCurrent);
+
+            await convertFile2ArrayBuffer(_element);
+            // let responseSIGN = await fetch(UPLOAD_FILE_INFO, { method: 'PUT', body: fileInfoData }).then(resp => resp.json());
+            let responseSIGN = await fetch(UPLOAD_FILE_INFO, { method: 'POST', body: fileInfoData }).then(resp => resp.json());
+            
+            if(Number(responseSIGN.response_status) === 1){
+                onComplete(_element);
+            }else{
+                sweetAlert('Error de carga', 'No se pudo autentificar el archivo o la extensión no es permitida.', 'error', 'Aceptar');
+                return;
+            }
+
+            // Se deshabilita la subida de archivos al Bucket de OBS ***
+            // if (responseSIGN.response_status === 1) {
+            //     let headerOBS = new Headers({
+            //         'Host': responseSIGN.response_header,
+            //         'Content-Type': responseSIGN.response_ctype,
+            //         'content': 'text',
+            //     });
+
+            //     try {
+            //         const responseOBSH = fetch(responseSIGN.response_message, {
+            //             method: 'PUT', headers: headerOBS, body: blobFile
+            //         }).then(resp => resp.text());
+            //         onComplete(_element);
+
+            //     } catch (error) {
+            //         sweetAlert('Error de carga', 'No se pudo cargar el archivo. Por favor inténtelo más tarde.', 'error', 'Aceptar');
+            //         console.error(e);
+            //         return;
+            //     }
+            // }
+            // else {
+            //     sweetAlert('Error de carga', 'No se pudo autentificar el archivo o la extensión no es permitida.', 'error', 'Aceptar');
+            //     return;
+            // }
+        }
+
+
+        var blobFile;
+        async function convertFile2ArrayBuffer(_controlFile) {
+
+            let fileCurrent = _controlFile.files[0];
+            let readerCurrent = new FileReader();
+            readerCurrent.onload = (event) => {
+                blobFile = event.target.result;
+            }
+            readerCurrent.readAsArrayBuffer(fileCurrent);
+        }
+
+        var xhr = new XMLHttpRequest();
+        function uploadFileInfo2(_element) {
+            sweetAlert('Cargando archivo...', 'Por favor, espere mientas se sube el archivo.', 'info', 'Aceptar', false);
+
+            var fileInfoData = new FormData();
+            fileInfoData.append('archivo', _element.files[0]);
+            fileInfoData.append('ubigeo', UBIGEO_GENERAL);
+            fileInfoData.append('layer', codigoCurrent);
+
+            xhr.open('POST', UPLOAD_FILE_INFO);
+            xhr.upload.addEventListener('progress', e => {
+                var percent = e.lengthComputable ? (e.loaded / e.total) * 100 : 0;
+                console.log(percent.toFixed(2) + '%');
+            });
+
+            xhr.upload.addEventListener('error', function (e) {
+                sweetAlert('Error de carga', 'No se ha podido cargar el archivo. ', 'error', 'Aceptar');
+                console.error(e);
+                return;
+            });
+
+            xhr.upload.addEventListener('timeout', function (e) {
+                sweetAlert('Error de carga', 'El tiempo de espera se ha agotado. Inténtelo de nuevo más tarde. ', 'error', 'Aceptar');
+                console.warn(e);
+                return;
+            });
+
+            xhr.addEventListener('readystatechange', function (e) {
+                if (this.readyState === 4) {
+                    let responseServer = JSON.parse(this.response);
+                    if (responseServer.response_status === 1) {
+                        onComplete(_element);
+                    } else {
+                        sweetAlert('Error de carga', responseServer.response_message, 'error', 'Aceptar');
+                        console.error(e);
+                        return;
+                    }
+                }
+            });
+
+            xhr.send(fileInfoData);
+        }
+        function onComplete(_element) {
+            let itemFile = parseInt(_element.dataset.item)
+            var fileInfoSave = new FormData();
+            fileInfoSave.append('nombre', _element.files[0].name);
+            fileInfoSave.append('ubigeo', UBIGEO_GENERAL);
+            fileInfoSave.append('capa', codigoCurrent);
+            fileInfoSave.append('item', itemFile);
+            fileInfoSave.append('idcapa', idCurrent);
+
+            fetch(SAVE_FILE_INFO_X_ID, { method: 'POST', body: fileInfoSave })
+                .then(responseSaveInfo => {
+                    return responseSaveInfo.json();
+                })
+                .then(responseSaveInfoJSON => {
+                    if (responseSaveInfoJSON[0].status_response === 1)
+                        sweetAlert('Archivo cargado', responseSaveInfoJSON.response_message, 'success', 'Aceptar', true);
+                    else
+                        sweetAlert('Error al cargar el archivo', responseSaveInfoJSON.response_message, 'error', 'Aceptar', true);
+                })
+                .catch(err => {
+                    console.log(err);
+                    sweetAlert('Error al cargar el archivo', err, 'error', 'Aceptar', true);
+                });
+        }
+
+        function getInfoPrincipal(_capa) {
+            let urlTemporal = GET_INFO_GENERAL + '/' + _capa;
+            fetch(urlTemporal)
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    objInformacion = responseJson;
+                    if (responseJson.length > 0) {
+                        existeInfo = true;
+                        nombreCurrent = responseJson[0].capa;
+                        $('#lblTitle').text(`${responseJson[0].capa} > Información de capa`)
+                        $('#nombre_capa').val(responseJson[0].capa);
+                        $('#nombre_tematica').val(responseJson[0].tematico);
+                        $('#nombre_subtematica').val(responseJson[0].subtematico_descripcion);
+                    }
+                });
+        }
+
+        function getInfoPrincipalxId(_IdCapa) {
+            
+            let urlTemporal = GET_INFO_LAYER_GENERAL + '/' + _IdCapa;
+            fetch(urlTemporal)
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    objInformacion = responseJson;
+                    if (responseJson.length > 0) {
+                        existeInfo = true;
+                        nombreCurrent = responseJson[0].capa;
+                        $('#lblTitle').text(`${responseJson[0].capa} > Información de capa`)
+                        $('#nombre_capa').val(responseJson[0].capa);
+                        $('#nombre_tematica').val(responseJson[0].tematico);
+                        $('#nombre_subtematica').val(responseJson[0].subtematico_descripcion);
+                    }
+                });
+        }
+
+        function getInfoByCapa(_capa) {
+            let urlTemporal = GET_INFO_LAYER + '/' + _capa;
+            fetch(urlTemporal)
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    objInformacion = responseJson;
+
+                    if (responseJson.length > 0) {
+                        existeInfo = true;
+                        $('#definicion_capa').val(responseJson[0].definicion);
+                        $('#escala').val(responseJson[0].escala);
+                        $('#fecha_actualizacion').val(responseJson[0].fec_actualizacion);
+                        $('#anio_actualizacion').val(responseJson[0].annio);
+                        $('#web_capa').val(responseJson[0].pagweb);
+                        $('#fuente_capa').val(responseJson[0].fuente);
+                        $('#link_metadato').val(responseJson[0].linkmetadatos);
+                        $('#link_descarga').val(responseJson[0].link_desacarga);
+                        $('#cboFrecuencia').val(responseJson[0].idfrecuencia);
+
+                        M.updateTextFields();
+                        M.textareaAutoResize($('#definicion_capa'));
+                        $("#cboFrecuencia").formSelect();
+                        getInfoFilesByCapa();
+                    }
+                    else {
+                        existeInfo = false;
+                        alertToast('No hay información para esta capa.');
+                        alertToast('Complete la información y presione "Aceptar".');
+                    }
+
+                    $('.modal_wait').fadeOut();
+                });
+        }
+
+        function getInfoByCapaxId(_idcapa) {
+            let urlTemporal = GET_INFO_IDLAYER + '/' + _idcapa;
+            fetch(urlTemporal)
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    objInformacion = responseJson;
+
+                    if (responseJson.length > 0) {
+                        existeInfo = true;
+                        $('#definicion_capa').val(responseJson[0].definicion);
+                        $('#escala').val(responseJson[0].escala);
+                        $('#fecha_actualizacion').val(responseJson[0].fec_actualizacion);
+                        $('#anio_actualizacion').val(responseJson[0].annio);
+                        $('#web_capa').val(responseJson[0].pagweb);
+                        $('#fuente_capa').val(responseJson[0].fuente);
+                        $('#link_metadato').val(responseJson[0].linkmetadatos);
+                        $('#link_descarga').val(responseJson[0].link_desacarga);
+                        $('#cboFrecuencia').val(responseJson[0].idfrecuencia);
+
+                        M.updateTextFields();
+                        M.textareaAutoResize($('#definicion_capa'));
+                        $("#cboFrecuencia").formSelect();
+                        getInfoFilesByCapa();
+                    }
+                    else {
+                        existeInfo = false;
+                        alertToast('No hay información para esta capa.');
+                        alertToast('Complete la información y presione "Aceptar".');
+                    }
+
+                    $('.modal_wait').fadeOut();
+                });
+        }
+
+        function getInfoFilesByCapa() {
+            var filesGetData = new FormData();
+
+            filesGetData.append('idcapa', idCurrent);
+            fetch(GET_FILES_INFO_X_ID, { method: 'POST', body: filesGetData })
+                .then(respGetFiles => {
+                    return respGetFiles.json();
+                })
+                .then(respGetFilesJson => {
+
+                    $('.modal_wait').fadeOut();
+                    if (respGetFilesJson === null) return;
+                    if (respGetFilesJson === undefined) return;
+
+                    if (respGetFilesJson.filter(i => i.item === 1)[0] !== undefined)
+                        $('#txtFile_1').val(respGetFilesJson.filter(i => i.item === 1)[0].nombre);
+                    else
+                        $('#txtFile_1').val('');
+
+                    if (respGetFilesJson.filter(i => i.item === 2)[0] !== undefined)
+                        $('#txtFile_2').val(respGetFilesJson.filter(i => i.item === 2)[0].nombre);
+                    else
+                        $('#txtFile_2').val('')
+
+                    if (respGetFilesJson.filter(i => i.item === 3)[0] !== undefined)
+                        $('#txtFile_3').val(respGetFilesJson.filter(i => i.item === 3)[0].nombre);
+                    else
+                        $('#txtFile_3').val('')
+                })
+                .catch(err => {
+                    console.log(err);
+                    $('.modal_wait').fadeOut();
+                    alertToast('No se pudieron cargar los archivos de la capa.')
+                })
+        }
+
+        function saveInfo(_definicion, _idfrencuencia, _fecha, _pweb, _fuente, _annio, _escala, _metadato, _descarga, _nombreCapa) {
+            var data = new FormData();
+            data.append('funcion', (existeInfo) ? 'update' : 'insert');
+            data.append('iduser', IdUsuarioCurrent);
+            data.append('codigo', codigoCurrent);
+            data.append('definicion', _definicion);
+            data.append('idfrecuencia', _idfrencuencia);
+            data.append('fecha', _fecha);
+            data.append('pweb', _pweb);
+            data.append('fuente', _fuente);
+            data.append('escala', _escala);
+            data.append('annio', _annio);
+            data.append('metadato', _metadato);
+            data.append('descarga', _descarga);
+            data.append('nombre', _nombreCapa);
+            data.append('idlayer', parseInt(idCurrent));
+
+            let urlSave = FN_INFO_SAVE;
+            fetch(urlSave, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    //Consultamos si hubo respuesta 
+                    if (responseJson.length > 0) {
+                        //Consultamos el status de la respuesta
+                        if (responseJson[0].status_response == 1) {
+                            alertToast('Se han guardado los cambios.');
+                            saveLog('Capa > Información', 0, nombreCurrent, 'Modificado', IdUsuarioCurrent, IdSubsistemaCurrent);
+                            setTimeout(() => {
+                                window.close();
+                            }, 2000);
+                        } else {
+                            //Si la respuesta no es correcta, sólo enviamos el mensaje de error
+                            alertToast(responseJson[0].description_response);
+                            return;
+                        }
+                    }
+                });
+        }
+
+        function closeForm() {
+            window.top.close();
+        }
+
+        $('#btnAceptar').on('click', function () {
+
+            let defi = $('#definicion_capa').val();
+            let frec = $('#cboFrecuencia').val();
+            let fech = $('#fecha_actualizacion').val();
+            let fuen = $('#fuente_capa').val();
+            let pweb = $('#web_capa').val();
+            // let anio = (fech.length >= 4) ? fech.substring(fech.length - 4) : (new Date).getFullYear();
+            let esca = $('#escala').val();
+            let anio = $('#anio_actualizacion').val();
+            let meta = $('#link_metadato').val();
+            let desc = $('#link_descarga').val();
+            let nomb = $('#nombre_capa').val();
+
+            if (defi.trim().length <= 0) {
+                alertToast('Complete la definición');
+                return;
+            }
+
+            if (frec == 0) {
+                alertToast('Elija la frecuencia de actualización');
+                return;
+            }
+
+            if (fech.trim().length <= 0) {
+                alertToast('Complete la fecha de actualización');
+                return;
+            }
+
+            if (anio.trim().length <= 0) {
+                alertToast('Complete el año');
+                return;
+            }
+
+            if (fuen.trim().length <= 0) {
+                alertToast('Complete la fuente de la información.');
+                return;
+            }
+
+            saveInfo(defi, frec, fech, pweb, fuen, anio, esca, meta, desc, nomb);
+        });
+
+        $('#btnCancelar').on('click', function () {
+            closeForm();
+        });
+
+        var role_allowed = [1, 3];
+        function setUser() {
+            // var mToken = localStorage.getItem('geoToken');
+            var mToken = getCookie('geoToken');
+            var decoded = jwt_decode(mToken);
+            $('#lblUsuario').text(decoded.usuario);
+            $('#lblRol').text(decoded.rol);
+
+            IdUsuarioCurrent = decoded.idusuario;
+            IdSubsistemaCurrent = decoded.idsubs;
+            if (!role_allowed.includes(decoded.idrol)) {
+                window.location.replace("/subsistema/administracion/unauthorized.html");
+                return;
+            }
+            setMenuByRol(decoded.idrol);
+        }
+
+        function sweetAlert(_title, _message, _icon, _textButton, _confirmButton = true) {
+            Swal.fire({
+                title: _title,
+                text: _message,
+                icon: _icon,
+                confirmButtonText: _textButton,
+                showConfirmButton: _confirmButton,
+            })
+        }
+
+        $(document).ready(function () {
+            $(".modal_wait").fadeIn("100");
+            validarToken();
+
+            getFrecuencia();
+            const queryString = window.location.search;
+            var urlParams = new URLSearchParams(queryString);
+            codigoCurrent = urlParams.get('layer');
+            idCurrent = urlParams.get('id');
+
+            if (codigoCurrent == undefined) {
+                alertToast('No se ha encontrado información');
+                return;
+            }
+
+            $("#menu").load("../administracion/template/index.html", function () {
+                $('#mnuCapa').css('background-color', menuSeleccionado);
+                setTimeout(() => {
+                    setUser();
+                    set_usuario_avatar();
+                }, 500);
+            });
+            $('select').formSelect();
+            $('.datepicker').datepicker();
+            M.updateTextFields();
+        });
+    </script>
+</body>
+
+</html>

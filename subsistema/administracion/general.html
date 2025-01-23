@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración General</title>
+
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+    <style>
+        .novedades {
+            border: 1px solid #3b3b3b;
+            height: 150px;
+            border-radius: 10px;
+        }
+
+        .novedades-title {
+            text-transform: uppercase;
+            color: #193D74;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .novedades ul {
+            padding: 0px 10px;
+            font-size: 14px;
+            padding: 0px 10px;
+            font-size: 14px;
+            overflow-y: scroll;
+            max-height: 130px;
+            height: 130px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="menu">
+
+    </div>
+    <div class="contenido">
+        <div class="container">
+            <div class="row">
+                <div class="col s2">
+                    <br /><br />
+                    <img alt="Imagen principal" src="images/image_general.png">
+                </div>
+                <div class="col s10">
+                    <h3>Bienvenido</h3>
+                    <p style="font-size: 18px;">En el módulo de administración de la plataforma Geo Perú, usted puede
+                        gestionar nuevas capas de información <br />
+                        geográfica, permisos de usuarios para su equipo de trabajo o activar/desactivar los controles
+                        principales.</p>
+                </div>
+            </div>
+            <br />
+
+            <div class="row">
+                <div class="col s12 m12 l6">
+                    <div class="row">
+                        <div class="col s5 center">
+                            <h5>Logo actual</h5>
+                            <img id="logo_actual" alt="Logo actual" src="images/logo.png"
+                                style="width: 220px; height: 60px;">
+                        </div>
+                        <div class="col s2 center">
+                            <br /><br /><br />
+                            <img alt="arrow" src="images/arrow.png">
+                        </div>
+                        <div class="col s5 center">
+                            <h5>Logo nuevo</h5>
+                            <img id="logo_nuevo" alt="Logo nuevo" src="images/logo.png"
+                                style="width: 220px; height: 60px;">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12">
+                            <div class="file-field input-field">
+                                <div class="btn" style="float: right; background-color: #fff;">
+                                    <span style="color: #27A5CE;
+                                    font-weight: 600;">Examinar</span>
+                                    <input type="file" id="file_logo">
+                                </div>
+                                <div class="file-path-wrapper">
+                                    <input class="file-path validate" type="text" placeholder="Ruta del archivo">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m12 l6">
+                    <div class="col s12">
+                        <h5><b>Requerimientos:</b></h6>
+                            <ul style="font-size: 16px; text-align: left;">
+                                <li>• La imagen a subir debe ser de 56 px (alto) y 300 px (ancho).</li>
+                                <li>• Los únicos formatos admitidos son JPEG y PNG.</li>
+                                <li>• Elegir la variante horizontal del logo, no la vertical.</li>
+                                <li>• Subir el logo en su versión positiva (con fondo blanco) y a colores.</li>
+                                <li>• No elegir variantes con fondo de color o en escala de grises.</li>
+                            </ul>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col s7 center">
+                    <a id="btnGuardar" href="#"><img alt="Guardar cambios" src="images/buttons_letters/guardar.png"
+                            onmouseover="hover(this);" onmouseout="unhover(this);" data-img="guardar"
+                            data-file="buttons_letters"></a>
+                </div>
+            </div>
+            <div class="row">
+                <br />
+            </div>
+            <div class="row">
+                <div class="col s12 m12 l6">
+                    <span class="novedades-title">Últimas
+                        Novedades en Geo Perú</span>
+                    <div class="novedades">
+                        <ul id="novedades-list">
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="col s12 m12 l6">
+                    <span class="novedades-title">Últimas
+                        Novedades - Subsistema</span>
+                    <div class="novedades">
+                        <ul id="novedades-list-subs">
+
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div class="modal_wait">
+        <div class="ventana">
+            <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        var IdUsuarioCurrent = 0;
+        var IdSubsistemaCurrent = 0;
+
+        function get_novedades_general() {
+            var data = new FormData();
+            data.append('idsubs', 0);
+            fetch(GET_LOG, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    $.each(responseJson, function () {
+                        $('#novedades-list').append(`<li>(${this.fecha}) <b>${this.tabla}:</b> ${this.registro}, ${this.accion} por ${this.usuario}</li>`);
+                    });
+                    $('.modal_wait').fadeOut();
+                });
+        }
+
+        function get_novedades_subsistema() {
+            let idParam = (IdSubsistemaCurrent == 0) ? -1 : IdSubsistemaCurrent;
+            var data = new FormData();
+            data.append('idsubs', idParam);
+            fetch(GET_LOG, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    $.each(responseJson, function () {
+                        if (this.idsubsistema != 0)
+                            $('#novedades-list-subs').append(`<li>(${this.fecha}) <b>${this.tabla}:</b> ${this.registro}, ${this.accion} por ${this.usuario} (${this.subsistema})</li>`);
+                    });
+                    $('.modal_wait').fadeOut();
+                });
+        }
+
+        function getBase64(_file) {
+            var reader = new FileReader();
+            reader.readAsDataURL(_file);
+            reader.onload = function () {
+                var theImg = document.getElementById('logo_nuevo');
+                theImg.height = 46;
+                theImg.width = 171;
+                $('#logo_nuevo').attr("src", reader.result);
+                return reader.result;
+            };
+            reader.onerror = function (error) {
+                console.log('Error: ', error);
+            };
+        }
+
+        function get_subsistema() {
+            fetch(GET_SUBSISTEMA + '/' + 0)
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJson => {
+                    if (respJson.length > 0) {
+                        $.each(respJson, function () {
+                            if (this.idsubsistema == IdSubsistemaCurrent) {
+                                console.log('Cambiando el logo...')
+                                $('#btnBack').attr('href', this.url_subsistema);
+                                $('#logo_actual').attr('src', this.logo)
+                            }
+                        })
+                    }
+                    $('.modal_wait').fadeOut();
+                })
+                .catch(err => {
+                    console.log(err);
+                    $('.modal_wait').fadeOut();
+                    return;
+                })
+        }
+
+        $('#file_logo').on('change', function () {
+            var file_img = document.querySelector('#file_logo').files[0];
+            var result = getBase64(file_img);
+        });
+
+        $('#btnGuardar').on('click', function () {
+            $('.modal_wait').fadeIn();
+            let logo = '';
+            logo = $('#logo_nuevo').attr('src');
+            if (logo == 'images/logo.png') {
+                alertToast('Por favor primero elija su nuevo logo');
+                return;
+            }
+            else {
+                var data = new FormData();
+                data.append('idsubs', IdSubsistemaCurrent);
+                data.append('logo', logo);
+                data.append('iduser', IdUsuarioCurrent);
+
+                fetch(EDT_LOGO, { method: 'POST', body: data })
+                    .then(resp => {
+                        return resp.json();
+                    })
+                    .then(respJson => {
+                        if (respJson.length > 0) {
+                            get_subsistema();
+                            $('#logo_nuevo').attr('src', 'images/logo.png');
+                            alertToast(respJson[0].description_response);
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        alertToast('No se pudo cambiar el logo');
+
+                        $('.modal_wait').fadeOut();
+                        return;
+                    });
+            }
+
+        });
+
+        function setUser() {
+            // var mToken = localStorage.getItem('geoToken');
+            var mToken = getCookie('geoToken');
+            var decoded = jwt_decode(mToken);
+            $('#lblUsuario').text(decoded.usuario);
+            $('#lblRol').text(decoded.rol);
+
+            IdUsuarioCurrent = decoded.idusuario;
+            IdSubsistemaCurrent = decoded.idsubs;
+            // if (decoded.logo.length > 0)
+            //     $('#logo_actual').attr('src', decoded.logo)
+            setMenuByRol(decoded.idrol);
+            get_subsistema();
+        }
+
+        $(document).ready(function () {
+
+            $(".modal_wait").fadeIn("100");
+            validarToken();
+            checkCoockieInterval();
+            get_novedades_general();
+            get_novedades_subsistema();
+            $("#menu").load("../administracion/template/index.html", function () {
+                $('#mnuGeneral').css('background-color', menuSeleccionado);
+                setTimeout(() => {
+                    setUser();
+                    set_usuario_avatar();
+                }, 500);
+            });
+        });
+    </script>
+</body>
+
+</html>

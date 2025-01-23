@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Metadata de Capas</title>
+
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+
+
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/purify.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+
+    <style>
+        .text--disabled {
+            background-color: #ededed;
+            color: #efefef;
+            border: 1px solid #3e3e3e;
+        }
+
+        .ventana_clonar {
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+        }
+
+        .button__combinado,
+        .button__merge {
+            width: 150px;
+            height: 34px;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #EB3030;
+            color: #ffffff;
+            border: none;
+            font-weight: 600;
+        }
+
+        .button__delete {
+            width: 150px;
+            height: 34px;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #BDBDBD;
+            color: #333333;
+            border: none;
+            font-weight: 600;
+        }
+
+        .button__combinado:hover,
+        .button__merge:hover {
+            border: 1px solid #EB3030;
+            background-color: #ffffff;
+            color: #EB3030;
+        }
+
+        .button__delete:hover {
+            border: 1px solid #333333;
+            background-color: #ffffff;
+        }
+
+        .button__combinado:focus,
+        .button__merge:focus {
+            outline: none;
+            background-color: #EB3030;
+            color: #ffffff;
+        }
+
+        .button__delete:focus {
+            outline: none;
+            background-color: #BDBDBD;
+            color: #333333;
+        }
+
+        .buttons__merge {
+            display: flex;
+            justify-content: space-evenly;
+        }
+
+        .options__merge {
+            display: grid;
+            grid-template-columns: repeat(5, 115px);
+        }
+
+        #txtCombinado {
+            box-shadow: none;
+        }
+    </style>
+</head>
+
+<body style="overflow-y: hidden; overflow-x: hidden;">
+    <div id="menu">
+    </div>
+
+    <div class="contenido">
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <h3 id="lblTitle" style="font-size: 3.6vh;">Metadata</h3>
+                    <p style="font-size: 1.8vh;">Selecciona y coloca un alias a los campos que elijas.<br />
+                        Si su metadata contiene un reporte externo por favor habilite la opción indicada e ingrese la
+                        URL de su reporte, así mismo deberá seleccionar los campos que se incluirán en su reporte
+                    </p>
+                </div>
+            </div>
+            <div class="row" style="height: 0px;">
+                <div class="input-field col s6" style="margin: 0 0;">
+                    <input placeholder="" id="url_base" type="text" disabled
+                        style="border: 1px solid #3e3e3e; border-radius: 5px; margin-top: 5px; padding: 0 5px; height: 3.7vh;">
+                    <label for="url_base">Ingrese su URL base aquí:</label>
+                </div>
+                <div class="switch input-field col s3" style="margin: 0 0;">
+                    <label style="font-size: 2vh !important;">Deshabilitar
+                        <input id="toggleReporte" type="checkbox" onchange="toggleReporteChange(this);"
+                            style="height: 3.7vh;">
+                        <span class="lever"></span>Habilitar Reporte
+                    </label>
+                </div>
+                <div class="input-field col s3" style="margin: 0 0;">
+                    <a id="btnGuardar" href="#!" class="right"><img alt="Generar"
+                            src="images/buttons_letters/guardar.png" onmouseover="hover(this);"
+                            onmouseout="unhover(this);" data-img="guardar" data-file="buttons_letters"
+                            style="height: 4.3vh;"></a>
+                </div>
+                <div class="input-field col s9" style="margin: 0.5vh 0;">
+                    <input placeholder="" id="url_generate" type="text" disabled
+                        style="border: 1px solid #3e3e3e; border-radius: 5px; margin-top: 5px; padding: 0 5px; height: 3.7vh; width: 65vw;">
+                    <label for="url_generate">Su URL se verá así:</label>
+                </div>
+                <div class="input-field col s12" style="display: block;
+                height: 45vh;
+                max-height: 45vh;
+                overflow-y: scroll;">
+                    <!-- height: 450px;
+                max-height: 450px; -->
+                    <table class="table-responsive" id="tblLayers" style="background-color: #fff;">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px; text-align: center;">N°</th>
+                                <th style="width: 300px; text-align: center;">
+                                    <div class="switch">
+                                        <label
+                                            style="color: #000; font-weight: 400px !important; font-size: 12px !important;">
+                                            Deshabilitar todos
+                                            <input id="checkbox_all" type="checkbox" checked
+                                                onchange="toggleAll(this);">
+                                            <span class="lever"></span>
+                                            Habilitar todos
+                                        </label>
+                                    </div>
+                                </th>
+                                <th>Columna</th>
+                                <th>Alias</th>
+                                <th style="width: 180px; text-align: center;">Incluir en URL de Reporte</th>
+                                <th> </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="input-field col s12">
+                    <button class="button__combinado">Generar campo combinado</button>
+                </div>
+            </div>
+            <br />
+
+            <div class="row" style="max-height: 600px; overflow-y: auto;">
+                <div class="col s12">
+                    <table class="highlight" id="tblLayers"
+                        style="background-color: #fff; height: 300px; max-height: 300px; overflow-y: auto;">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px; text-align: center;">N°</th>
+                                <th style="width: 300px; text-align: center;">Habilitado</th>
+                                <th>Columna</th>
+                                <th>Alias</th>
+                                <th style="width: 180px; text-align: center;">Incluir en URL de Reporte</th>
+                            </tr>
+                        </thead>
+                        <tbody style="display: block; overflow-y: scroll; max-height: 300px;">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal_wait">
+        <div class="ventana">
+            <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+        </div>
+    </div>
+
+    <div id="modal_merge" class="modal-popup">
+        <div class="ventana_clonar clonar__content">
+            <h5>Creación de campo combinado en la metadata</h5>
+            <img class="modal-close" alt="Cerrar ventana" src="images/buttons_icons/close.png" />
+            <p>1. Seleccione los campos que desea combinar en el orden que usted considere conveniente</p>
+
+            <div class="options__merge">
+
+            </div>
+            <br />
+
+            <p>2. Asigne un nombre para su campo combinado y luego haga clic en 'Aceptar'</p>
+            <div>
+                <label id="lblIdCampoCombinado" style="display: none;"></label>
+                <label id="lblCombinado"></label>
+                <input id="txtCombinado"
+                    style="border: 1px solid #3e3e3e; padding-left: 10px; width: 90%; border-radius: 5px;" type="text"
+                    value="Campo combinado" />
+            </div>
+            <div class="buttons__merge">
+
+                <button class="button__merge" id="btnAceptarMerge">Aceptar</button>
+                <button class="button__delete" id="btnDeleteMerge">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_confirm" class="modal-popup">
+        <div class="ventana_confirmacion" style="border-radius: 5px;">
+            <div class="row">
+                <label id="lblIdCampoCombinadoDlt" style="visibility: hidden;"></label>
+                <label id="lblAtributosDlt" style="visibility: hidden;"></label>
+                <label id="lblAliasDlt" style="visibility: hidden;"></label>
+                <div class="col s12 center">
+                    <h6>¿Está seguro que desea eliminar el campo combinado?</h6>
+                    <br />
+                    <a id="btnElimnarProceder" href="#" style="margin-right: 30px;"><img alt="Aceptar"
+                            src="images/buttons_letters/aceptar.png" onmouseover="hover(this);"
+                            onmouseout="unhover(this);" data-img="aceptar" data-file="buttons_letters"></a>
+                    <a id="btnEliminarCancelar" href="#"><img alt="Cancelar" src="images/buttons_letters/cancelar.png"
+                            onmouseover="hover(this);" onmouseout="unhover(this);" data-img="cancelar"
+                            data-file="buttons_letters"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var mObjectMeta = [];
+        var titleMeta = '';
+        var ubigeo = '', urlFile = '', hashCode = '';
+        var registro_layer_template = `<table><tr data-row="ITEM_COUNT">
+                                            <td style="display: none;">ITEM_META</td>
+                                            <td class="td__count" style="text-align: center;">ITEM_COUNT</td>
+                                            <td style="text-align: center;"><div class="switch"><label>Deshabilitar<input class="control_switch" id="checkbox_ITEM_META" type="checkbox" checked onchange="changeSwitch(this);"><span class="lever"></span>Habilitar</label></div></td>
+                                            <td style="font-size: 16px;">ITEM_META</td>
+                                            <td><input id="text_ITEM_META" style="border: 1px solid #3e3e3e; padding-left: 10px; width: 90%; border-radius: 5px;" type="text" value="ITEM_META" /></td>
+                                            <td style="text-align: center;"><p><label><input id="check_ITEM_META" type="checkbox" class="filled-in" onchange="changeCheck(this)" /><span>Incluir</span></label></p></td>
+                                            <td>
+                                                <img title="Subir fila" class="button__order up" data-move="up" alt="Subir fila" src="./images/buttons_icons/fi_arrow-up.png" />
+                                                <img title="Bajar fila" class="button__order down" data-move="down" alt="Bajar fila" src="./images/buttons_icons/fi_arrow-up.png" />
+                                            </td>
+                                        </tr></table>`;
+        var registro_layer_template_combinado = `<table><tr>
+                                            <td style="display: none;">ITEM_META</td>
+                                            <td class="td__count" style="text-align: center;">ITEM_COUNT</td>
+                                            <td style="text-align: center;"><div class="switch"><label>Deshabilitar<input class="control_switch" id="checkbox_ITEM_META" type="checkbox" checked onchange="changeSwitch(this);"><span class="lever"></span>Habilitar</label></div></td>
+                                            <td style="font-size: 16px;width: 300px; max-width: 300px; word-break: break-word;">ITEM_META</td>
+                                            <td><input id="text_ITEM_META" style="border: 1px solid #3e3e3e; padding-left: 10px; width: 90%; border-radius: 5px;" type="text" value="ITEM_LABEL" /></td>
+                                            <td style="text-align: center;">
+                                                <a style="display: DISP_LAYER;" href="#!" title="Editar campo combinado" class="openEditCombinado" data-id="ID_CAMPOCOMBINADO" data-count="ITEM_COUNT" data-atributos="ITEM_META" data-alias="ITEM_LABEL"><img alt="Editar campo combinado" src="images/buttons_icons/layer_report.png" onmouseover="hover(this);" onmouseout="unhover(this);" data-img="layer_report" data-file="buttons_icons"></a>
+                                                <a style="display: DISP_LAYER;" href="#!" title="Eliminar campo combinado" class="openDlteCombinado" data-id="ID_CAMPOCOMBINADO" data-count="ITEM_COUNT" data-atributos="ITEM_META" data-alias="ITEM_LABEL"><img alt="Eliminar campo combinado" src="images/buttons_icons/layer_delete.png" onmouseover="hover(this);" onmouseout="unhover(this);" data-img="layer_delete" data-file="buttons_icons"></a>
+                                            </td>
+                                            <td>
+                                                empty    
+                                            </td>
+                                        </tr></table>`;
+        // <p><label><input id="check_ITEM_META" type="checkbox" class="filled-in" disabled/><span>Incluir</span></label></p>
+        function toggleReporteChange(element) {
+            if (element.checked)
+                $('#url_base').prop('disabled', false);
+            else {
+                $('#url_base').prop('disabled', true);
+                $('#url_base').val('');
+                $('#url_generate').val('');
+            }
+        }
+
+        $('#url_base').on('change', function () {
+            let url = $('#url_base').val();
+            let validURL = isUrl(url);
+            if (!validURL) {
+                alertToast('La URL ingresada no es válida, por favor corregirla.')
+                return;
+            }
+            if (url.length <= 0)
+                $('#url_generate').val('');
+            else
+                $('#url_generate').val(url + '?');
+        })
+        const $toggleReporte = document.getElementById('toggleReporte');
+
+        function changeCheck(element) {
+            if (!$toggleReporte.checked) {
+                alertToast("Primero haga click sobre 'Habilitar Reporte'")
+                $('#' + element.id).prop('checked', false);
+                return;
+            }
+            if (!isUrl($('#url_base').val())) {
+                alertToast('No puede incluir parámetros porque la URL ingresada no es correcta. <br />Por favor, primero corrija la URL.');
+                $('#' + element.id).prop('checked', false);
+                return;
+            }
+
+            //Si está checkeado debemos agregarlo a la URL
+            if (element.checked) {
+                let urlGenerate = $('#url_generate').val();
+                // urlGenerate += element.id.replace('check_', '') + '=valor_X&'
+                urlGenerate += element.id.replace('check_', '') + '=${feature.' + element.id.replace('check_', '') + '.value}&'
+                $('#url_generate').val(urlGenerate);
+            }
+            else {
+                let urlGenerate = $('#url_generate').val();
+                // let replaceParametro = element.id.replace('check_', '') + '=valor_X&';
+                let replaceParametro = element.id.replace('check_', '') + '=${feature.' + element.id.replace('check_', '') + '.value}&'
+                urlGenerate = urlGenerate.replace(replaceParametro, '');
+                $('#url_generate').val(urlGenerate);
+            }
+        }
+
+        function isUrl(s) {
+            var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+            return regexp.test(s);
+        }
+        var codigoCapa = '';
+        var metadataEdit = '';
+        var metadataUrl = '';
+        function getDataLayer(_layer) {
+            var data = new FormData();
+            data.append('layers', _layer);
+            fetch(GET_CAPA_POR_CODIGO, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    objInformacion = responseJson;
+                    titleMeta = responseJson[0].capa;
+                    ubigeo = responseJson[0].ubigeo;
+                    urlFile = responseJson[0].url_fuente;
+                    metadataEdit = responseJson[0].metadatadefault;
+                    metadataUrl = responseJson[0].urlmetadata;
+                    hashCode = responseJson[0].hashcode;
+
+                    $('#lblTitle').text(`${responseJson[0].capa} > Metadata`)
+                    if (responseJson.length > 0) {
+                        $('#tblLayers > tbody > tr').remove();
+                        var $controlTemporal = $('#tblLayers');
+                        dbfRead(ubigeo, urlFile, hashCode);
+
+                    }
+                    else {
+                        $('.modal_wait').fadeOut();
+                        alertToast('No hay información, presione el botón generar.');
+                        return;
+                    }
+                });
+        }
+
+        var camposDbf;
+        function dbfRead(_ubigeo, _url, _hash = '') {
+            var data = new FormData();
+            data.append('ubigeo', _ubigeo);
+            data.append('url', _url);
+            data.append('hash', _hash);
+
+            let verbHTTP = (_hash.length > 0) ? 'PUT' : 'POST';
+
+            fetch(READ_DBF_FILE, { method: verbHTTP, body: data })
+                .then(response => response.text())
+                .then(responseText => {
+                    $('#tblLayers > tbody > tr').remove();
+                    let $controlTemporal = $('#tblLayers > tbody');
+                    let camposArray = responseText.split('|');
+                    camposDbf = camposArray;
+                    fillTable(camposArray, $controlTemporal);
+                })
+                .catch(err => {
+                    console.error(err);
+                    return;
+                })
+            $('.modal_wait').fadeOut();
+        }
+
+        function fillTable(_list, _control) {
+
+            mObjectMeta = [];
+            for (var i = 0; i < _list.length; i++) {
+                if (_list[i].length > 0) {
+                    let oMeta = {
+                        id: _list[i],
+                        alias: _list[i],
+                        disponible: true
+                    }
+                    mObjectMeta.push(oMeta);
+
+                    let new_row = registro_layer_template
+                        .replace(/ITEM_COUNT/g, i + 1)
+                        .replace(/ITEM_META/g, _list[i])
+
+                    // _control.append(new_row);
+                    _control[0].innerHTML += DOMPurify.sanitize(new_row, CONFIG_SANITIZE);
+                }
+            }
+
+            //Añadimos el evento al control 'control_switch'
+            let _switchs = _control[0].getElementsByClassName('control_switch');
+            let $controlUp = _control[0].querySelectorAll('.button__order');
+
+            for (i = 0; i < _switchs.length; i++) {
+                _switchs[i].addEventListener('change', changeSwitch);
+            }
+
+            $controlUp.forEach($el => {
+                $el.addEventListener('click', moveRow);
+            })
+
+            loadConfig();
+            $('.modal_wait').fadeOut();
+        }
+
+        async function loadConfig() {
+
+            if (metadataUrl.indexOf('?') > 0) {
+
+                $('#url_base').val(metadataUrl.split('?')[0] + '?');
+                $('#url_generate').val(metadataUrl);
+            }
+
+            if (metadataEdit.length > 0) {
+                //Quitamos la check a todos
+                $('#checkbox_all').prop('checked', false);
+                let $controlGeneral = document.getElementById('checkbox_all');
+                toggleAll($controlGeneral);
+
+                let mListCustom = metadataEdit.split(';;');
+                
+                for (var i = 0; i < mListCustom.length; i++) {
+                    let oCustom = mListCustom[i].split('|');
+                    //El primer elemento es el name y el segundo el alias
+                    $('#checkbox_' + oCustom[0]).prop('checked', true);
+                    $('#text_' + oCustom[0]).val(oCustom[1]);
+                    $('#text_' + oCustom[0]).prop('disabled', false);
+                }
+            }
+
+            //Traemos los campos combinados
+            var formDataLoadCombinado = new FormData();
+            formDataLoadCombinado.append('idlayer', idCurrent);
+            let respCombinadoLoad = await fetch(GET_CAMPOCLONADO, { method: 'POST', body: formDataLoadCombinado });
+            let respCombinadoLoadJSON = await respCombinadoLoad.json();
+
+            if (respCombinadoLoadJSON.length <= 0) return;
+
+            let $controlTemporal = $('#tblLayers > tbody');
+            respCombinadoLoadJSON.forEach(function (rowCampoCombinado) {
+                let lastChildItem = $controlTemporal[0].lastChild.querySelector('.td__count').innerText;
+                if (lastChildItem === null) lastChildItem = 0;
+                if (lastChildItem === undefined) lastChildItem = 0;
+
+                let new_row = registro_layer_template_combinado
+                    .replace(/ITEM_COUNT/g, parseInt(lastChildItem) + 1)
+                    .replace(/ID_CAMPOCOMBINADO/g, rowCampoCombinado.idcampocombinado)
+                    .replace(/ITEM_META/g, rowCampoCombinado.atributos)
+                    .replace(/ITEM_LABEL/g, rowCampoCombinado.alias);
+
+                // $controlTemporal.append(new_row);
+                $controlTemporal[0].innerHTML += DOMPurify.sanitize(new_row, CONFIG_SANITIZE);
+
+                //Bindeamos los eventos
+                $('.openEditCombinado').bind('click', verCampoCombinado);
+                $('.openDlteCombinado').bind('click', confirmarCampoCombinado);
+            });
+        }
+
+        var role_allowed = [1, 3];
+        function setUser() {
+            // var mToken = localStorage.getItem('geoToken');
+            var mToken = getCookie('geoToken');
+            var decoded = jwt_decode(mToken);
+            $('#lblUsuario').text(decoded.usuario);
+            $('#lblRol').text(decoded.rol);
+            IdUsuarioCurrent = decoded.idusuario;
+            IdSubsistemaCurrent = decoded.idsubs;
+            if (!role_allowed.includes(decoded.idrol)) {
+                window.location.replace("/subsistema/administracion/unauthorized.html");
+                return;
+            }
+            setMenuByRol(decoded.idrol);
+        }
+
+        var mListGenerador = []
+        $('#btnGuardar').on('click', function () {
+            if ($('#toggleReporte').is(':checked')) {
+                //verificamos si la URL es correcta
+                if (!isUrl($('#url_generate').val())) {
+                    alertToast('La URL generada no es correcta, verifique por favor.')
+                    return;
+                }
+            }
+
+            $('.modal_wait').fadeIn();
+            mListGenerador = [];
+            let ordenField = 0;
+            $("#tblLayers tr").each(function () {
+                ordenField += 1;
+                let self = $(this);
+                let codigoMeta = self.find("td:eq(0)").text().trim();
+                if (codigoMeta.length > 0) {
+                    //Verificamos la propiedad checked
+                    let control_checkbox = $('#checkbox_' + codigoMeta);
+                    let oObjectGenerador = {};
+                    if (control_checkbox[0].checked) {
+                        oObjectGenerador = {
+                            name: codigoMeta,
+                            alias: $('#text_' + codigoMeta).val(),
+                            combinado: codigoMeta.indexOf('___') > 0 ? true : false,
+                            orden: (codigoMeta.toLowerCase() === 'fuente') ? 99999 : ordenField
+                        }
+                        if (mListGenerador.filter(i => i.name === oObjectGenerador.name).length === 0)
+                            mListGenerador.push(oObjectGenerador);
+                    }
+                }
+            });
+            
+            generateFTL(mListGenerador.sort(function (a, b) { return a.orden - b.orden }));
+        });
+
+        var init_ftl = `<table><caption>Capa: META_TITLE</caption><thead><tr>`;
+        var body_ftl = `</tr></thead><tbody><#assign odd = false><#list features as feature><#if odd><tr class="odd"><#else><tr></#if><#assign odd = !odd>`
+        var foot_ftl = `</tr></#list></tbody></table>`
+
+        function generateFTL(_mList) {
+            let ths = '';
+            let tds = '';
+
+            _mList.forEach(function (atributo) {
+                if (!atributo.combinado) metadataEdit += atributo.name + '|' + atributo.alias + ';;';
+                ths += '<th>' + atributo.alias + '</th>'
+                if (!atributo.combinado) tds += '<td>${feature.' + atributo.name + '.value}</td>'
+                else {
+                    let camposSplit = atributo.name.split('___');
+                    let filaCombinada = '';
+                    camposSplit.forEach(function (fieldCurrent) {
+                        if (fieldCurrent.trim() !== '') filaCombinada += '${feature.' + fieldCurrent + '.value} '
+                    });
+                    tds += '<td>' + filaCombinada + '</td>'
+                }
+            });
+            //Si está habilitado, generamos una columna adicional
+            if ($toggleReporte.checked) {
+                let urlGenerate = $('#url_generate').val();
+                ths += '<th>Reporte</th>'
+                tds += `<td>
+                            <button onclick="window.open('${urlGenerate}','_blank');" 
+                            type="button" class="btn btn-primary btn-sm">
+                            </button>
+                        </td>`
+            }
+            let content = `${init_ftl.replace('META_TITLE', titleMeta)} ${ths} ${body_ftl} ${tds} ${foot_ftl}`
+            content = content
+                .replace(/á/g, '&aacute;')
+                .replace(/é/g, '&eacute;')
+                .replace(/í/g, '&iacute;')
+                .replace(/ó/g, '&oacute;')
+                .replace(/ú/g, '&uacute;')
+                .replace(/Á/g, '&Aacute;')
+                .replace(/É/g, '&Eacute;')
+                .replace(/Í/g, '&Iacute;')
+                .replace(/Ó/g, '&Oacute;')
+                .replace(/Ú/g, '&Uacute;');
+
+            var data = new FormData();
+            data.append('ubigeo', ubigeo);
+            data.append('url', urlFile.replace('.zip', ''));
+            data.append('content', content);
+            data.append('hash', hashCode)
+            let vertHTTP = hashCode.trim().length > 0 ? 'PUT' : 'POST';
+            fetch(CREATE_FTL_FILE, { method: vertHTTP, body: data })
+                .then(response => response.json())
+                .then(responseJson => {
+                    if (responseJson.response_status === 1) {
+                        var dataTransfer = new FormData();
+                        dataTransfer.append('ubigeo', ubigeo);
+                        dataTransfer.append('url', urlFile.replace('.zip', ''));
+                        dataTransfer.append('hash', hashCode);
+                        fetch(COPY_FTL_FILE, { method: vertHTTP, body: dataTransfer })
+                            .then(resp => resp.json())
+                            .then(respJson => {
+
+                                alertToast(responseJson.response_message);
+                                alertToast('Espere unos segundos más mientras guardamos la configuración');
+                                $('.modal_wait').fadeOut();
+
+                                metadataUrl = $('#url_generate').val();
+                                var dataSave = new FormData();
+                                dataSave.append('layer', codigoCurrent);
+                                dataSave.append('metadata', metadataEdit);
+                                dataSave.append('url', metadataUrl);
+                                //Si el archivo se genera y se transfiere con éxito, debemos guardar la variable
+                                fetch(SAVE_CONFIG_FILE, { method: 'POST', body: dataSave })
+                                    .then(respSave => respSave.json())
+                                    .then(respSaveJson => {
+
+                                        alertToast(respSaveJson[0].description_response);
+                                    })
+                                    .catch(err => {
+                                        alertToast('No se pudo guardar la configuración. Inténtalo más tarde.');
+                                        console.log(err);
+                                        return;
+                                    });
+
+                            })
+                            .catch(err => {
+                                $('.modal_wait').fadeOut();
+                                console.error(err);
+                                return;
+                            })
+                    }
+                })
+                .catch(err => {
+                    $('.modal_wait').fadeOut();
+                    console.error(err);
+                    return;
+                });
+        }
+
+        function changeSwitch(_control) {
+            let control_text = _control.target.id.replace('checkbox', 'text');
+            if (_control.target.checked)
+                $('#' + control_text).prop('disabled', false);
+            else
+                $('#' + control_text).prop('disabled', true);
+        }
+
+        function toggleAll(_control) {
+            let $tabla = document.getElementById('tblLayers');
+            let $listElementos = $tabla.getElementsByClassName('control_switch');
+            for (var i = 0; i < $listElementos.length; i++) {
+                let $element = $listElementos[i];
+                let control_text = $element.id.replace('checkbox', 'text');
+                $('#' + $element.id).prop('checked', _control.checked);
+                $('#' + control_text).prop('disabled', !_control.checked);
+            }
+        }
+
+        const $button__combinado = document.querySelector('.button__combinado');
+        $button__combinado.addEventListener('click', addMergeField);
+
+        function addMergeField() {
+
+            let $options__merge = document.querySelector('.options__merge');
+            $options__merge.innerHTML = '';
+            let optionTemplate = `<label><input id="checkmerge_ITEM_META" type="checkbox" class="filled-in checkbox__merge" /><span>ITEM_META</span></label>`
+
+            camposDbf.forEach(function (el) {
+                if (el.trim().length > 0)
+                    $options__merge.insertAdjacentHTML('beforeend', optionTemplate.replace(/ITEM_META/g, el));
+            });
+            let $checkboxs__merge = document.querySelectorAll('.checkbox__merge');
+            $checkboxs__merge.forEach(function ($el) {
+                $el.addEventListener('click', toggleNameFieldMerge);
+            });
+
+            $lblIdCampoCombinado.value = 0;
+            $lblCombinado.value = '';
+            $lblCombinado.innerHTML = '';
+            $txtCombinado.value = 'Campo combinado'
+            $('#modal_merge').fadeIn();
+        }
+
+        const $lblIdCampoCombinadoDlt = document.querySelector('#lblIdCampoCombinadoDlt');
+        const $lblAtributosDlt = document.querySelector('#lblAtributosDlt');
+        const $lblAliasDlt = document.querySelector('#lblAliasDlt');
+        function confirmarCampoCombinado() {
+            $("#modal_confirm").fadeIn();
+            $lblIdCampoCombinadoDlt.value = this.dataset.id;
+            $lblAtributosDlt.value = this.dataset.atributos;
+            $lblAliasDlt.value = this.dataset.alias;
+
+        }
+        const $btnElimnarProceder = document.querySelector('#btnElimnarProceder');
+        $btnElimnarProceder.addEventListener('click', deleteCampoCombinado);
+        async function deleteCampoCombinado() {
+            var dataDeleteCampoCombinado = new FormData();
+            dataDeleteCampoCombinado.append('idcampocombinado', $lblIdCampoCombinadoDlt.value);
+            dataDeleteCampoCombinado.append('idlayer', idCurrent);
+            dataDeleteCampoCombinado.append('atributos', $lblAtributosDlt.value);
+            dataDeleteCampoCombinado.append('alias', $lblAliasDlt.value);
+            dataDeleteCampoCombinado.append('idestado', 2);
+
+            respDelete = await fetch(UPD_CAMPOCLONADO, { method: 'POST', body: dataDeleteCampoCombinado });
+            respDeleteJson = await respDelete.json();
+
+            alertToast(respDeleteJson[0].description_response);
+            if (respDeleteJson[0].status_response === 1)
+                dbfRead(ubigeo, urlFile, hashCode);
+            $("#modal_confirm").fadeOut();
+        }
+
+        function verCampoCombinado() {
+            addMergeField();
+
+            $lblIdCampoCombinado.value = this.dataset.id;
+            $txtCombinado.value = this.dataset.alias;
+            $lblCombinado.value = this.dataset.atributos;
+            $lblCombinado.innerHTML = $lblCombinado.value.replace(/___/g, ' > ');
+
+            this.dataset.atributos.split('___').forEach(function (itemSplit) {
+                if (itemSplit.trim().length > 0) {
+                    let nameCurrentControl = `checkmerge_${itemSplit}`;
+                    let $currentControlFieldMerge = document.getElementById(nameCurrentControl);
+                    $currentControlFieldMerge.checked = true;
+                }
+            })
+        }
+
+        let $lblCombinado = document.querySelector('#lblCombinado');
+        let $txtCombinado = document.querySelector('#txtCombinado');
+        let $lblIdCampoCombinado = document.querySelector('#lblIdCampoCombinado');
+        let $modalClose = document.querySelector('.modal-close');
+        $modalClose.addEventListener('click', closeModalCombinado);
+
+        function closeModalCombinado() {
+            $('#modal_merge').fadeOut();
+        }
+
+        function toggleNameFieldMerge() {
+            if ($lblCombinado.value === undefined) $lblCombinado.value = '';
+
+            if (this.checked)
+                $lblCombinado.value += this.id.replace('checkmerge_', '') + '___';
+            else
+                $lblCombinado.value = $lblCombinado.value.replace(this.id.replace('checkmerge_', '') + '___', '');
+
+            console.log($lblCombinado.value);
+            if ($lblCombinado.value.trim().length <= 0) {
+                alertToast('Seleccione al menos un campo para combinar.')
+                return;
+            }
+
+            if ($txtCombinado.value.trim().length <= 0) {
+                alertToast('Indique el alias del campo combinado.')
+                return;
+            }
+
+            $lblCombinado.innerHTML = $lblCombinado.value.replace(/___/g, ' > ');
+        }
+
+        const $btnAceptarMerge = document.querySelector('#btnAceptarMerge');
+        $btnAceptarMerge.addEventListener('click', saveCampoCombinado);
+
+        async function saveCampoCombinado() {
+            
+            let idCampoCombinadoCurrent = parseInt($lblIdCampoCombinado.value);
+
+            let formDataCombinado = new FormData();
+            formDataCombinado.append('idlayer', idCurrent);
+            formDataCombinado.append('atributos', $lblCombinado.value);
+            formDataCombinado.append('alias', $txtCombinado.value);
+            formDataCombinado.append('idestado', 1);
+            if (idCampoCombinadoCurrent !== 0)
+                formDataCombinado.append('idcampocombinado', idCampoCombinadoCurrent);
+            const API_CAMPOCLONADO = idCampoCombinadoCurrent === 0 ? ADD_CAMPOCLONADO : UPD_CAMPOCLONADO;
+            let respCombinado = await fetch(API_CAMPOCLONADO, { method: 'POST', body: formDataCombinado })
+            let respCombinadoJson = await respCombinado.json();
+
+            alertToast(respCombinadoJson[0].description_response);
+            if (respCombinadoJson[0].status_response === 1) {
+                $('#tblLayers > tbody > tr').remove();
+                var $controlTemporal = $('#tblLayers');
+                dbfRead(ubigeo, urlFile, hashCode);
+
+                $('#modal_merge').fadeOut();
+
+            }
+        }
+
+        function moveRow() {
+
+            let $rowTemporal = this.parentElement.parentElement;
+            let moveType = this.dataset.move;
+            let oldRowPosition = parseInt($rowTemporal.dataset.row);
+            let newRowPosition = oldRowPosition + ((moveType === 'down') ? +1 : -1);
+            if (newRowPosition <= 0) return;
+            let $allRows = document.querySelectorAll('#tblLayers > tbody > tr'); 
+            if (newRowPosition > $allRows.length) return;
+            let $tableBody = document.querySelector('#tblLayers > tbody');
+            $tableBody.innerHTML = '';
+
+            let itemRow = 1;
+            $allRows.forEach($row => {
+                let rowPosition = parseInt($row.dataset.row);
+                if (rowPosition === oldRowPosition) return;
+
+
+                if (rowPosition === newRowPosition) {
+                    if (moveType === 'down') {
+                        $tableBody.insertAdjacentElement('beforeend', $row);
+                        $tableBody.insertAdjacentElement('beforeend', $rowTemporal);
+                    }
+                    else {
+
+                        $tableBody.insertAdjacentElement('beforeend', $rowTemporal);
+                        $tableBody.insertAdjacentElement('beforeend', $row);
+                    }
+                }
+                else {
+
+                    $tableBody.insertAdjacentElement('beforeend', $row);
+                }
+                itemRow += 1;
+            });
+
+            //Recorremos todo para corregir numeración
+            let newOrder = 1;
+            let $allNewRows = document.querySelectorAll('#tblLayers > tbody > tr');
+            $allNewRows.forEach($newRow => {
+                $newRow.dataset.row = newOrder;
+                $newRow.querySelector('.td__count').innerHTML = newOrder;
+
+                newOrder += 1;
+            });
+
+        }
+
+        var idCurrent = 0;
+        $(document).ready(function () {
+            $(".modal_wait").fadeIn("100");
+
+            validarToken();
+
+            const queryString = window.location.search;
+            var urlParams = new URLSearchParams(queryString);
+            codigoCurrent = urlParams.get('layer');
+            idCurrent = urlParams.get('idlayer');
+            getDataLayer(codigoCurrent);
+
+            $("#menu").load("../administracion/template/index.html", function () {
+                $('#mnuCapa').css('background-color', menuSeleccionado);
+                setTimeout(() => {
+                    setUser();
+                    set_usuario_avatar();
+                }, 500);
+            });
+            $('select').formSelect();
+            $('.datepicker').datepicker();
+            M.updateTextFields();
+        });
+    </script>
+</body>

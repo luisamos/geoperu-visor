@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sub-sistemas Geo Perú</title>
+
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+
+    <script src="../../data/ubigeo.js"></script>
+    <script src="../../js/fuse.min.js"></script>
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/purify.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+    <style>
+        #imgLogo {
+            border-radius: 15px;
+            margin: auto;
+            width: 120px;
+            height: 120px;
+            display: block;
+
+            background-repeat: no-repeat;
+            background-position: 50%;
+            /* border-radius: 50%; */
+            /* background-size: 100% auto; */
+            /* border: 1px solid #000; */
+        }
+
+        #img_limpiar {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        #listUbigeo {
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        #listUbigeo:hover li span.active {
+            background-color: #fff;
+        }
+
+        #listUbigeo li span.active,
+        #listUbigeo li span.active:hover,
+        #listUbigeo li span:hover {
+            background: #FFE350;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="menu">
+    </div>
+
+    <div class="contenido">
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <h3>Nuevos subsistemas</h3>
+                    <p style="font-size: 18px;">Permite la creación nuevos subsistemas derivados del visor
+                        georrefenciado para distintos niveles de gobierno.</p>
+                </div>
+                <div class="input-field col s3">
+                    <select id="cboNivel">
+                        <option value="0">Todos</option>
+                        <option value="Departamental">Departamental</option>
+                        <option value="Provincial">Provincial</option>
+                        <option value="Distrital">Distrital</option>
+                    </select>
+                    <label>Nivel territorial</label>
+                </div>
+                <div class="input-field col s5">
+                    <input id="txtFiltro" type="text" class="validate" value=""
+                        placeholder="Ingrese el nombre completo">
+                    <label for="txtFiltro">Nombre del lugar</label>
+                </div>
+                <a id="btnFiltro" href="#!" class="right"><img alt="Buscar" src="images/buttons_letters/buscar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="buscar"
+                        data-file="buttons_letters"></a>
+            </div>
+            <div class="row" style="height: 10px;">
+                <a id="btnAgregar" href="#!" class="right"><img alt="Buscar" src="images/buttons_letters/agregar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="agregar"
+                        data-file="buttons_letters"></a>
+            </div>
+            <br />
+            <div class="row" style="max-height: 600px;  overflow-y: auto;">
+                <div class="col s12">
+                    <table class="highlight" id="tblSubsistema" style="background-color: #fff;">
+                        <thead>
+                            <tr>
+                                <th style="padding-left: 20px;">N° Ubigeo</th>
+                                <th>Nivel territorial</th>
+                                <th>Nombre</th>
+                                <!-- <th>Usuario responsable</th> -->
+                                <th>Requiere identificación</th>
+                                <th>Fecha de creación</th>
+                                <th>Opciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_login" class="modal-popup">
+        <div class="ventana_login">
+            <div class="row">
+                <label id="lblIdSubsistemaCurrent" style="visibility: hidden;"></label>
+                <div class="col s12 center">
+                    <br />
+                    <h6>¿Desea que su visor tenga identificación de usuario?</h5>
+                </div>
+                <div class="switch">
+                    <label>
+                        Desactivar
+                        <input type="checkbox" id="chkLogin">
+                        <span class="lever"></span>
+                        Activar
+                    </label>
+                </div>
+            </div>
+
+            <div class="row">
+                <h6 class="center">Imagen del login:</h6>
+                <img id="imgPerfilLogin" src="../administracion/images/buttons_icons/login_default.png"
+                    alt="Imagen de Perfil" style="width: 190px; height: 257px;">
+                <div class="upload-btn-wrapper">
+                    <button id="btnUploadLogin" class="btn">Examinar</button>
+                    <input id="fileUploadLogin" type="file" name="myfile" />
+                </div>
+            </div>
+
+            <div class="tipo--option">
+                <button class="button__acept" id="btnAceptarLogin">Aceptar</button>
+                <button class="button__cancel" id="btnCancelLogin">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_tipo" class="modal-popup">
+        <div class="ventana_tipo">
+            <div class="tipo--title">
+                Seleccione una opción:
+                <span>&nbsp;&nbsp;x&nbsp;&nbsp;</span>
+            </div>
+            <div class="tipo--option">
+                <button id="btnLocalidad">Es una localidad</button>
+                <button id="btnClonacion">Es una clonación</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_subsistema" class="modal-popup">
+        <div class="ventana_layer">
+            <div class="row center">
+                <h5>Ingrese todos los datos:</h5>
+            </div>
+            <div class="row">
+                <label id="lblIdSubsistema" style="visibility: hidden;"></label>
+                <div class="input-field col s3">
+                    <input id="codigo_ubigeo" type="text" class="validate" value=" " disabled>
+                    <label for="codigo_ubigeo">Código Ubigeo</label>
+                </div>
+                <div class="input-field col s9">
+                    <input id="nombre_subsistema" type="text" class="search-box" value=" "
+                        style="text-transform:uppercase">
+                    <label for="nombre_subsistema">Nombre del Departamento, Provincia o Distrito</label>
+                    <ul id="listUbigeo" class="dropdown-trigger"
+                        style="position: float; border-radius: 10px; padding: 5px; position: absolute; z-index: 2; background-color: #fff;">
+                    </ul>
+                </div>
+                <div class="col s12">
+                    <div class="file-field input-field">
+                        <div class="btn" style="float: right; background-color: #4A4A4A;">
+                            <span>Examinar</span>
+                            <input type="file" id="file_logo">
+                        </div>
+                        <div class="file-path-wrapper">
+                            <input class="file-path validate" type="text" placeholder="Ruta del archivo">
+                        </div>
+                    </div>
+                </div>
+                <div class="col s2">
+                    <h6>Vista previa: </h6>
+                </div>
+                <div class="col s4">
+                    <img id="img_logo" alt="Logo actual" style="object-fit: cover;" src="images/logo.png">
+                </div>
+                <div class="col s2 left">
+                    <img id="img_limpiar" alt="Logo actual" style="object-fit: cover;"
+                        src="images/buttons_letters/limpiar.png">
+                </div>
+                <div class="col s12">
+                    <br />
+                </div>
+                <div class="input-field col s6" style="display: none;">
+                    <select id="cboUsuario">
+                    </select>
+                    <label>Usuario responsable</label>
+                </div>
+            </div>
+            <div class="row center">
+                <a id="btnProcced" href="#" style="margin-right: 30px;"><img alt="Aceptar"
+                        src="images/buttons_letters/aceptar.png" onmouseover="hover(this);" onmouseout="unhover(this);"
+                        data-img="aceptar" data-file="buttons_letters"></a>
+                <a id="btnCancel" href="#"><img alt="Cancelar" src="images/buttons_letters/cancelar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="cancelar"
+                        data-file="buttons_letters"></a>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="modal_clon" class="modal-popup">
+        <div class="ventana_layer">
+            <div class="row center">
+                <h5>Ingrese todos los datos:</h5>
+            </div>
+            <div class="row">
+                <label id="lblIdSubsistemaClon" style="visibility: hidden;"></label>
+                <div class="input-field col s6">
+                    <input id="nombre_subsistema_clon" type="text" class="search-box" value=""
+                        placeholder="GEOPERU SUBSISTEMA EJEMPLO" style="text-transform:uppercase">
+                    <label for="nombre_subsistema_clon">Nombre del Subsistema</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="url_subsistema_clon" type="text" class="search-box" value=" "
+                        style="text-transform:uppercase" disabled>
+                    <label for="url_subsistema_clon">URL del subsistema</label>
+                </div>
+                <div class="col s12">
+                    <div class="file-field input-field">
+                        <div class="btn" style="float: right; background-color: #4A4A4A;">
+                            <span>Examinar</span>
+                            <input type="file" id="file_logo_clon">
+                        </div>
+                        <div class="file-path-wrapper">
+                            <input class="file-path validate" type="text" placeholder="Ruta del archivo">
+                        </div>
+                    </div>
+                </div>
+                <div class="col s2">
+                    <h6>Vista previa: </h6>
+                </div>
+                <div class="col s4">
+                    <img id="img_logo_clon" alt="Logo actual" style="object-fit: cover;" src="images/logo.png">
+                </div>
+                <div class="col s2 left">
+                    <img id="img_limpiar_clon" alt="Logo actual" style="object-fit: cover;"
+                        src="images/buttons_letters/limpiar.png">
+                </div>
+                <div class="col s12">
+                    <br />
+                </div>
+                <div class="input-field col s6" style="display: none;">
+                    <select id="cboUsuarioClon">
+                    </select>
+                    <label>Usuario responsable</label>
+                </div>
+            </div>
+            <div class="row center">
+                <a id="btnProccedClon" href="#" style="margin-right: 30px;"><img alt="Aceptar"
+                        src="images/buttons_letters/aceptar.png" onmouseover="hover(this);" onmouseout="unhover(this);"
+                        data-img="aceptar" data-file="buttons_letters"></a>
+                <a id="btnCancelClon" href="#"><img alt="Cancelar" src="images/buttons_letters/cancelar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="cancelar"
+                        data-file="buttons_letters"></a>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_confirm" class="modal-popup">
+        <div class="ventana_confirmacion" style="border-radius: 5px;">
+            <div class="row">
+                <label id="lblIdToggle" style="visibility: hidden;"></label>
+                <div class="col s12 center">
+                    <h6>¿Está seguro que desea activar/desactivar el registro?</h6>
+                    <br />
+                    <a id="btnElimnarProceder" href="#" style="margin-right: 30px;"><img alt="Aceptar"
+                            src="images/buttons_letters/aceptar.png" onmouseover="hover(this);"
+                            onmouseout="unhover(this);" data-img="aceptar" data-file="buttons_letters"></a>
+                    <a id="btnEliminarCancelar" href="#"><img alt="Cancelar" src="images/buttons_letters/cancelar.png"
+                            onmouseover="hover(this);" onmouseout="unhover(this);" data-img="cancelar"
+                            data-file="buttons_letters"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_info_subsistema" class="modal-popup">
+        <div class="ventana_layer" style="width: 628px; height: 420px;">
+            <div class="row center">
+                <span style="font-size: 40px; display: block;">Felicitaciones</span>
+                <span style="font-size: 18px; display: block;">¡Ha creado un nuevo subsistema!</span>
+                <img id="imgLogo" src="../administracion/images/buttons_icons/congratulations.png"
+                    style="padding-top: 10px;" alt="Logo del Subsistema" style="width: 220px; height: 60px;">
+
+                <span style="font-size: 18px; display: block; margin-top: 15px;">Dirección URL</span>
+                <div class="input-field col s10 push-s1">
+                    <input placeholder="" id="urlLocalidad" type="text" class="validate" disabled>
+                </div>
+                <div class="row center">
+                    <a id="btnCopiar" href="#"><img alt="Copiar al Portapapeles"
+                            src="images/buttons_letters/copiar.png"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal_wait">
+        <div class="ventana">
+            <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        var IdUsuarioCurrent = 0;
+        var IdSubsistemaCurrent = 0;
+        var IdCurrent = 0;
+        var flagInsert = false;
+        var objectList = {};
+        var registro_template = `<table><tr><td style="padding-left: 20px;">ITEM_UBIG</td><td>ITEM_NIVE</td><td>ITEM_NOMB</td><td>ITEM_LOGIN</td><td>ITEM_FECH</td><td>
+                                        <a href="#!" title="Ver subsistema" class="openURL" data-id="ITEM_ID"><img alt="Ver Subsistema" src="images/buttons_icons/layer_info.png"></a>
+                                        <a href="#!" title="Editar subsistema" class="openEdit" data-id="ITEM_ID"><img alt="Editar Subsistema" src="images/buttons_icons/layer_edit.png"></a>
+                                        <a href="#!" title="Activar/Desactivar subsistema" class="openTgle" data-id="ITEM_ID"><img alt="Activar/Desactivar Subsistema" src="images/buttons_icons/layer_toggle.png"></a>
+                                        <a href="#!" title="Activar/Desactivar identificación de usuario" class="openLogin" data-id="ITEM_ID" data-login="ITEM_LGIN" data-ubigeo="ITEM_UBIG"><img alt="Asignar login" src="images/buttons_icons/layer_locked.png"></a>
+                                        </td></tr></table>`;
+
+        const $nombre_subsistema_clon = document.querySelector('#nombre_subsistema_clon');
+        const $url_subsistema_clon = document.querySelector('#url_subsistema_clon');
+        $nombre_subsistema_clon.addEventListener('keyup', buildURL);
+
+        var imgDefault = '';
+        $('#fileUploadLogin').on('change', function () {
+
+            convertImageToBase64('fileUploadLogin', 'imgPerfilLogin', imgDefault);
+        });
+
+        function convertImageToBase64(_buttonControl, _imageControl, _iconDefault) {
+            var files = document.getElementById(_buttonControl).files;
+            if (files.length == 0) {
+                document.getElementById(_imageControl)
+                    .setAttribute(
+                        'src', _iconDefault
+                    );
+                return;
+            }
+            var file = files[0];
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function () {
+                document.getElementById(_imageControl)
+                    .setAttribute(
+                        'src', reader.result
+                    );
+            };
+        }
+
+        $('#btnAceptarLogin').on('click', function () {
+            let idSubsistemaCurrent = $('#lblIdSubsistemaCurrent').val();
+            let loginRequired = ($('#chkLogin').is(':checked')) ? 1 : 0;
+            let imagenLogin = $('#imgPerfilLogin')[0].src;
+
+            if (imagenLogin.substr(imagenLogin.lastIndexOf('/') + 1) === 'login_default.png')
+                imagenLogin = '';
+
+            saveLoginState(idSubsistemaCurrent, loginRequired, imagenLogin);
+
+        });
+
+        async function saveLoginState(_idsubsistema, _loginrequired, _imglogin) {
+            var formDataLogin = new FormData();
+            formDataLogin.append('idsubs', _idsubsistema);
+            formDataLogin.append('lgin', _loginrequired);
+            formDataLogin.append('limg', _imglogin);
+            formDataLogin.append('idusua', IdUsuarioCurrent);
+
+            let responseLogin = await fetch(FN_SUBSISTEMA_LOGIN, { method: 'POST', body: formDataLogin });
+            let responseLoginJSON = await responseLogin.json();
+
+            let oResponseLogin = responseLoginJSON[0];
+
+            alertToast(oResponseLogin.description_response);
+            $('#modal_login').fadeOut();
+            await getSubsistema();
+        }
+
+        function buildURL() {
+            let textFiltro = $nombre_subsistema_clon.value;
+            $url_subsistema_clon.value = textFiltro.replace(/ /g, '_');
+        }
+
+        async function getSubsistema() {
+
+            try {
+                $('.modal_wait').fadeIn();
+                let response = await fetch(GET_SUBSISTEMA + '/' + 0);
+                let responseJson = await response.json();
+                objectList = responseJson;
+                if (responseJson == null || responseJson == undefined) {
+                    alertToast('Por favor volver a cargar la página.');
+                    return;
+                }
+                objectSubsistema = responseJson;
+
+                $('#tblSubsistema > tbody > tr').remove();
+                var $controlTemporal = $('#tblSubsistema');
+
+                fillTable(objectSubsistema, $controlTemporal);
+            } catch (error) {
+                alertToast('Error al cargar el subsistema');
+                alertToast('Volveremos a cargar la página, por favor espere.');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+                return;
+            }
+            $('.modal_wait').fadeOut();
+        }
+
+        function fillTable(_list, _control) {
+            for (var i = 0; i < _list.length; i++) {
+                let new_row = registro_template
+                    .replace(/ITEM_ID/g, _list[i].idsubsistema)
+                    .replace(/ITEM_UBIG/g, _list[i].ubigeo)
+                    .replace(/ITEM_NIVE/g, _list[i].nivel)
+                    .replace(/ITEM_NOMB/g, _list[i].nombre)
+                    .replace(/ITEM_LOGIN/g, (_list[i].loginrequired === 1) ? 'Sí' : 'No')
+                    // .replace(/ITEM_USER/g, _list[i].idresponsable)
+                    .replace(/ITEM_FECH/g, _list[i].fechaalta)
+                    .replace(/ITEM_LGIN/g, _list[i].loginrequired)
+                
+                _control[0].innerHTML += DOMPurify.sanitize(new_row, CONFIG_SANITIZE);
+            }
+            $('.openURL').bind('click', openModalURL);
+            $('.openEdit').bind('click', openModalEdit);
+            $('.openTgle').bind('click', openModalTgle);
+            $('.openLogin').bind('click', openModalLogin);
+        }
+
+        async function get_users(_control) {
+            var data = new FormData();
+            data.append('idrol', 3);
+
+            let response = await fetch(GET_USUARIO_X_ROL, { method: 'POST', body: data });
+            let responseJson = await response.json();
+            $('#' + _control).empty();
+            if (responseJson != null && responseJson != undefined) {
+                $('#' + _control).append(`<option value="0">Seleccione un responsable</option>`);
+                $.each(responseJson, function () {
+                    $('#' + _control).append(`<option value="${this.idusuario}">${this.email_usuario}</option>`)
+                });
+                $("#" + _control).formSelect();
+            }
+        }
+
+        function openModalURL() {
+            let IdCurrentTemporal = $(this).attr('data-id');
+            let objectTemporal;
+            $.each(objectList, function () {
+                if (this.idsubsistema == IdCurrentTemporal) {
+                    objectTemporal = this;
+                }
+            });
+
+            if (objectTemporal != null && objectTemporal != undefined) {
+                $('#urlLocalidad').val(objectTemporal.url_subsistema);
+                $("#modal_info_subsistema").fadeIn();
+            }
+        }
+
+        $('#btnCopiar').on('click', function () {
+            // document.execCommand($('#urlLocalidad').val());
+
+            var $temp = $("<input>");
+            $("body").append($temp);
+            let urlCurrent = $('#urlLocalidad').val();
+            $temp.val(urlCurrent).select();
+            document.execCommand("copy");
+            $temp.remove();
+
+            alertToast('URL copiada al portapapeles');
+            $('#modal_info_subsistema').fadeOut();
+        })
+
+        async function openModalEdit() {
+            let IdCurrentTemporal = $(this).attr('data-id');
+            let objectTemporal;
+            $.each(objectList, function () {
+                if (this.idsubsistema == IdCurrentTemporal) {
+                    objectTemporal = this;
+                }
+            });
+
+            $('#img_logo').css('width', '220px');
+            $('#img_logo').css('height', '60px');
+            $('#img_logo').css('border', '1px solid #000');
+
+            if (objectTemporal != null && objectTemporal != undefined) {
+                IdCurrent = objectTemporal.idsubsistema;
+                $('#lblIdSubsistema').val(objectTemporal.idsubsistema);
+                $('#codigo_ubigeo').val(objectTemporal.ubigeo);
+                $('#nombre_subsistema').val(objectTemporal.nombre);
+                if (objectTemporal.logo.length > 0)
+                    $('#img_logo').attr('src', objectTemporal.logo);
+                let tipoComboUser = (objectTemporal.isclon) ? 'cboUsuarioClon' : 'cboUsuario';
+
+                await get_users(tipoComboUser);//cboUsuario
+                // $('#' + tipoComboUser).val(objectTemporal.idresponsable);
+                // $('#' + tipoComboUser).formSelect();
+                $('#' + tipoComboUser).val(4);
+
+                if (objectTemporal.isclon) $("#modal_clon").fadeIn();
+                else $("#modal_subsistema").fadeIn();
+            }
+            flagInsert = false;
+        }
+
+        function openModalTgle() {
+            $("#modal_confirm").fadeIn();
+            $('#lblIdToggle').val($(this).attr('data-id'));
+        }
+
+        $('#btnCancelLogin').on('click', function () {
+            $('#modal_login').fadeOut();
+        });
+
+        function openModalLogin() {
+            $('#lblIdSubsistemaCurrent').val($(this).attr('data-id'));
+            if ($(this).attr('data-login') == 1) $('#chkLogin').prop('checked', 'checked');
+            else $('#chkLogin').prop('checked', '');
+
+            var formDataImage = new FormData();
+            formDataImage.append('ubigeo', $(this).attr('data-ubigeo'))
+
+            fetch(URL_LOGIN_IMAGE, { method: 'POST', body: formDataImage })
+                .then(responseLogin => { return responseLogin.json(); })
+                .then(responseLoginJSON => {
+
+                    let imageCurrent = responseLoginJSON[0].imglogin;
+                    const $imgPerfilLogin = document.querySelector('#imgPerfilLogin');
+                    if (imageCurrent.trim().length !== 0) {
+                        $imgPerfilLogin.src = imageCurrent;
+                        $imgPerfilLogin.style.width = '190px';
+                        $imgPerfilLogin.style.height = '257px';
+                    }
+                    else {
+                        $imgPerfilLogin.src = '../administracion/images/buttons_icons/login_default.png';
+                    }
+
+                    $('#modal_login').fadeIn();
+                })
+                .catch(err => {
+                    $('#modal_login').fadeIn();
+                    return;
+                })
+        }
+
+        function toggleLayer() {
+            var data = new FormData();
+            data.append('iduser', IdUsuarioCurrent);
+            data.append('idlayer', $('#lblIdToggle').val());
+
+            fetch(TGL_LAYER, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    console.log(responseJson);
+                    alertToast('Se ha activado/desactivado el registro.');
+                    get_all_layers();
+                });
+
+            $("#modal_confirm").fadeOut();
+        }
+
+        $('#btnElimnarProceder').on('click', function () {
+            toggleLayer();
+        });
+
+        $('#btnEliminarCancelar').on('click', function () {
+            $("#modal_confirm").fadeOut();
+            $('#lblIdToggle').val(0);
+        })
+
+        function clearForm() {
+            $('#lblIdSubsistema').val(0);
+            $('#codigo_ubigeo').val('');
+            $('#nombre_subsistema').val('');
+            $('#file_logo').val('');
+            $('#img_logo').attr('src', 'images/logo.png');
+            get_users('cboUsuario');
+            $('#cboUsuario').val(4);
+            $("#cboUsuario").formSelect();
+        }
+
+        function clearFormClon() {
+            $('#lblIdSubsistemaClon').val(0);
+            $('#nombre_subsistema_clon').val('');
+            $('#url_subsistema_clon').val('');
+            $('#url_subsistema_clon').val('');
+            $('#file_logo_clon').val('');
+            $('#img_logo_clon').attr('src', 'images/logo.png');
+            get_users('cboUsuarioClon');
+            $('#cboUsuarioClon').val(4);
+            $("#cboUsuarioClon").formSelect();
+        }
+
+        function GetUbigeo() {
+            fetch(URL_UBIGEO_ALL)
+                .then(respuesta => {
+                    return respuesta.json();
+                })
+                .then(dataUbigeo => {
+                    var dataDepartamento = dataUbigeo.filter(item => item.nivel == 1);
+                    dataDepartamento.children = [];
+                    for (var i = 0; i < dataDepartamento.length; i++) {
+                        let dataProvincia = dataUbigeo.filter(item => item.nivel == 2 && item.codigo.substring(0, 2) == dataDepartamento[i].codigo);
+                        dataDepartamento[i].children = dataProvincia;
+                        for (var j = 0; j < dataDepartamento[i].children.length; j++) {
+                            let dataDistrito = dataUbigeo.filter(p => p.nivel == 3 && p.codigo.substring(0, 4) == dataDepartamento[i].children[j].codigo);
+                            dataDepartamento[i].children[j].children = dataDistrito;
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    alertToast('Ubigeo: ' + ERROR_MSG);
+                });
+        }
+
+        function getBase64(_file, _imgControl) {
+            var reader = new FileReader();
+            reader.readAsDataURL(_file);
+            reader.onload = function () {
+                var theImg = document.getElementById(_imgControl);
+                theImg.height = 60;
+                theImg.width = 220;
+                $('#' + _imgControl).attr("src", reader.result);
+            };
+            reader.onerror = function (error) {
+                console.log('Error: ', error);
+            };
+        }
+
+        $('#file_logo').on('change', function () {
+            var file_img = document.querySelector('#file_logo').files[0];
+            var result = getBase64(file_img, 'img_logo');
+        });
+
+        $('#file_logo_clon').on('change', function () {
+            var file_img = document.querySelector('#file_logo_clon').files[0];
+            var result = getBase64(file_img, 'img_logo_clon');
+        });
+
+        $('#btnAgregar').on('click', function () {
+            $('#modal_tipo').fadeIn();
+        });
+
+        $('#btnLocalidad').on('click', function () {
+
+            $('#modal_tipo').fadeOut();
+            IdCurrent = 0;
+            clearForm();
+            flagInsert = true;
+            $('#modal_subsistema').fadeIn();
+            get_users('cboUsuario');
+        });
+
+        $('#btnClonacion').on('click', function () {
+
+            $('#modal_tipo').fadeOut();
+            IdCurrent = 0;
+            clearFormClon();
+            flagInsert = true;
+            $('#modal_clon').fadeIn();
+            // get_users('cboUsuarioClon');
+        });
+
+        $('#img_limpiar').on('click', function () {
+            var data = new FormData();
+            data.append('idsubs', $('#lblIdSubsistema').val());
+            data.append('iduser', IdUsuarioCurrent);
+            fetch(CLR_LOGO, {
+                method: 'POST', body: data
+            })
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJson => {
+                    alertToast(respJson[0].description_response);
+                    $('#img_logo').attr('src', 'images/logo.png');
+                })
+                .catch(err => {
+                    console.log(err);
+                    return;
+                })
+        });
+
+        $('#img_limpiar_clon').on('click', function () {
+            var data = new FormData();
+            data.append('idsubs', $('#lblIdSubsistemaClon').val());
+            data.append('iduser', IdUsuarioCurrent);
+            fetch(CLR_LOGO, {
+                method: 'POST', body: data
+            })
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJson => {
+                    alertToast(respJson[0].description_response);
+                    $('#img_logo_clon').attr('src', 'images/logo.png');
+                })
+                .catch(err => {
+                    console.log(err);
+                    return;
+                })
+        });
+
+        var options = {
+            shouldSort: true,
+            threshold: 0.0,
+            minMatchCharLength: 0,
+            findAllMatches: true,
+            limit: 100,
+            tokenize: true,
+            // threshold: 0.4,
+            keys: [
+                'nom_dpto',
+                'nom_prov',
+                'nom_dist'
+            ]
+        };
+        var $searchbar = $('#nombre_subsistema');
+        var fuse = new Fuse(Ubigeo, options)
+        $searchbar.on('input', function () {
+            var search = fuse.search($searchbar.val(), { limit: 25 });
+            var $res = $('#listUbigeo');
+            $res.empty();
+            if ($searchbar.val().length < 1) {
+                $('#listUbigeo').css('background-color', '')
+                return;
+            }
+            $('#listUbigeo').css('background-color', '#ffffff')
+            search.forEach(function (el) {
+                $res.append(`<li class="li_lnkUbigeo">
+            <span id="dpto" class="lnkUbigeo ubigeo-departamento" onclick="vClick('${el.cod_dpto.toString()}', '${el.nom_dpto.toString()}')">${el.nom_dpto}</span> > 
+            <span id="prov" class="lnkUbigeo ubigeo-provincia" onclick="vClick('${el.cod_prov.toString()}', '${el.nom_prov.toString()}')">${el.nom_prov}</span> > 
+            <span class="lnkUbigeo ubigeo-distrito" onclick="vClick('${el.cod_dist.toString()}', '${el.nom_dist.toString()}')">${el.nom_dist}</span>
+        </li>`);
+            });
+        });
+
+        function vClick(cod, nom) {
+            $('#codigo_ubigeo').val(cod.toString());
+            $('#nombre_subsistema').val(nom.toString());
+            $('#listUbigeo').css('background-color', '')
+            $('#Filtro').val('');
+            $('#listUbigeo').empty();
+        }
+
+        $('#btnProcced').on('click', function () {
+            let codi = '', nomb = '', logo = '', idresp = 0;
+
+            codi = $('#codigo_ubigeo').val();
+            nomb = $('#nombre_subsistema').val();
+            logo = $('#img_logo').attr('src');
+            // idresp = $('#cboUsuario').val();
+            idresp = 4;
+
+            if (codi.toString().length < 0 || codi.toString().length > 6) {
+                alertToast('El código de ubigeo no es correcto.');
+                return;
+            }
+
+            if (nomb.toString().length <= 0) {
+                alertToast('El nombre no es correcto.');
+                return;
+            }
+
+            if (logo.length <= 0) {
+                alertToast('El logo no es correcto');
+                return;
+            }
+            if (!flagInsert) {
+                if (idresp <= 0 || idresp == undefined) {
+                    alertToast('Debe seleccionar un usuario.');
+                    return;
+                }
+            }
+
+            saveSubsistema((flagInsert) ? 'insert' : 'update', codi, nomb, logo, idresp);
+
+        });
+
+        function saveSubsistema(_funcion, _ubig, _nomb, _logo, _idresp) {
+            var data = new FormData();
+            data.append('idsubs', IdCurrent);
+            data.append('funcion', _funcion);
+            data.append('ubig', _ubig);
+            data.append('nomb', _nomb);
+            data.append('logo', _logo);
+            data.append('idresp', _idresp);
+
+            fetch(FN_SUBSISTEMA, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    if (responseJson[0].status_response === 1) {
+                        $('#modal_subsistema').fadeOut();
+                        alertToast(`Se ha ${(flagInsert) ? 'ingresado' : 'actualizado'} el registro`);
+                        getSubsistema();
+                    }
+                    else {
+                        alertToast(responseJson[0].description_response);
+                        return;
+                    }
+
+                    $('#txtFiltro').val(_nomb);
+                    setFiltro();
+                });
+        }
+
+        $('#btnProccedClon').on('click', function () {
+            let codi = '', nomb = '', logo = '', idresp = 0, url = '';
+
+            codi = '';
+            nomb = $('#nombre_subsistema_clon').val();
+            logo = $('#img_logo_clon').attr('src');
+            // idresp = $('#cboUsuarioClon').val();
+            idresp = 4;
+            url = $('#url_subsistema_clon').val();
+
+            if (nomb.toString().length <= 0) {
+                alertToast('El nombre no es correcto.');
+                return;
+            }
+            if (url.toString().length <= 0) {
+                alertToast('La URL generada no es correcta.');
+                return;
+            }
+            if (logo.length <= 0) {
+                alertToast('El logo no es correcto');
+                return;
+            }
+            if (!flagInsert) {
+                if (idresp <= 0 || idresp == undefined) {
+                    alertToast('Debe seleccionar un usuario.');
+                    return;
+                }
+            }
+
+            saveSubsistemaClon((flagInsert) ? 'insert' : 'update', codi, nomb, logo, idresp, url);
+        })
+
+        function saveSubsistemaClon(_funcion, _ubig, _nomb, _logo, _idresp, _url) {
+            var data = new FormData();
+            data.append('idsubs', IdCurrent);
+            data.append('funcion', _funcion);
+            data.append('ubig', _ubig);
+            data.append('nomb', _nomb);
+            data.append('logo', _logo);
+            data.append('idresp', _idresp);
+            data.append('url', _url);
+
+
+            fetch(FN_SUBSISTEMA_CLON, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    if (responseJson[0].status_response === 1) {
+                        $('#modal_clon').fadeOut();
+                        alertToast(`Se ha ${(flagInsert) ? 'ingresado' : 'actualizado'} el registro`);
+                        getSubsistema();
+                    }
+                    else {
+                        alertToast(responseJson[0].description_response);
+                        return;
+                    }
+
+                    $('#txtFiltro').val(_nomb);
+                    setFiltro();
+                });
+        }
+
+        $('#btnCancel').on('click', function () {
+            $('#modal_subsistema').fadeOut();
+        });
+
+        $('#btnCancelClon').on('click', function () {
+            $('#modal_clon').fadeOut();
+        });
+
+        $('#btnFiltro').on('click', function () {
+            setFiltro();
+        });
+
+        function setFiltro() {
+            let nivelFiltro = $('#cboNivel').val();
+            let textoFiltro = $('#txtFiltro').val().toLowerCase();
+
+            let objectListFiltro = objectList;
+            if (nivelFiltro != 0) {
+                objectListFiltro = objectListFiltro.filter(i => i.nivel == nivelFiltro);
+            }
+
+            if (textoFiltro.trim().length > 0) {
+                objectListFiltro = objectListFiltro.filter(i => i.nombre.toLowerCase().includes(textoFiltro));
+            }
+
+            $('#tblSubsistema > tbody > tr').remove();
+            var $controlTemporal = $('#tblSubsistema');
+
+            fillTable(objectListFiltro, $controlTemporal);
+        }
+
+        var role_allowed = [1, 2];
+
+        function setUser() {
+            // var mToken = localStorage.getItem('geoToken');
+            var mToken = getCookie('geoToken');
+            var decoded = jwt_decode(mToken);
+            $('#lblUsuario').text(decoded.usuario);
+            $('#lblRol').text(decoded.rol);
+            IdUsuarioCurrent = decoded.idusuario;
+            IdSubsistemaCurrent = decoded.idsubs;
+            if (!role_allowed.includes(decoded.idrol)) {
+                window.location.replace("/subsistema/administracion/unauthorized.html");
+                return;
+            }
+            setMenuByRol(decoded.idrol);
+        }
+
+        $(document).ready(function () {
+            $(".modal_wait").fadeIn("100");
+            validarToken();
+
+            getSubsistema();
+            $("#menu").load("../administracion/template/index.html", function () {
+                $('#mnuSubsistema').css('background-color', menuSeleccionado);
+                setTimeout(() => {
+                    setUser();
+                    set_usuario_avatar();
+                }, 500);
+            });
+            $('select').formSelect();
+            M.updateTextFields();
+            GetUbigeo();
+        });
+    </script>
+</body>
+
+</html>

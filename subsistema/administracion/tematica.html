@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Categorías/Subcategorías</title>
+
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/perfect-scrollbar.css">
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="../../css/nav.css">
+
+    <script type="text/javascript" src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script src="./js/perfect-scrollbar.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/purify.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+</head>
+<style>
+    .collection a {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+
+    button {
+        font-size: 18px;
+        font-weight: 700;
+        background-color: #fff;
+        color: #27A5CE;
+        border: 1px solid #27A5CE;
+        border-radius: 5px;
+        width: auto;
+        height: 42px;
+        text-transform: uppercase;
+        cursor: pointer;
+        padding: 0px 20px;
+    }
+
+    button:hover {
+        color: #fff;
+        background-color: #27A5CE;
+    }
+
+    .derecha {
+        float: right;
+    }
+
+    .clonar__content {
+        height: 50vh;
+    }
+
+    #category__content {
+        height: calc(50vh - 50px);
+    }
+
+    #category__buttons {
+        height: 50px;
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        border-top: 1px solid #F5F5F5;
+    }
+
+    .category input {
+        position: unset !important;
+        opacity: 1 !important;
+    }
+
+    .category ul li section label {
+        width: 250px;
+    }
+
+    .category__list {
+        margin-top: 0;
+    }
+
+    [type="checkbox"]:not(:checked),
+    [type="checkbox"]:checked {
+        pointer-events: initial !important;
+    }
+</style>
+
+<body>
+    <div id="menu">
+
+    </div>
+    <div class="contenido">
+        <div class="container">
+            <div class="row" style="overflow-x: auto;">
+                <div class="col s10">
+                    <h3>Administración de categorías y sub-categorías</h3>
+                    <button class="derecha" id="btnClonar" style="display: none;">Clonar Capas</button>
+                    <p style="font-size: 18px;">Seleccione el contenido que se mantendrá visible en su subsistema y
+                        ordenelo de para su comodidad.</p>
+
+                </div>
+                <div id="div-tematica" class="col s4">
+                    <h5>Categorías</h5>
+                    <div class="col s7">
+                        <div class="contenedor-lista"
+                            style="background-color: #fff; width: 100%;height: 600px; max-height: 600px; overflow: auto; font-size: 14px;">
+
+                            <ul id="collection-tematica" class="collection"></ul>
+
+                        </div>
+                    </div>
+                    <div class="col s5">
+                        <div class="contenedor-buttons" style="width: 35px; height: 200px;">
+                            <a id="btnAddTematica" href="#"><img alt="" src="images/buttons_icons/add.png"
+                                    onmouseover="hover(this);" onmouseout="unhover(this);" data-img="add"
+                                    data-file="buttons_icons"></a>
+                            <a id="btnEditTematica" href="#"><img alt="" src="images/buttons_icons/edit.png"
+                                    onmouseover="hover(this);" onmouseout="unhover(this);" data-img="edit"
+                                    data-file="buttons_icons"></a>
+                            <a id="btnDeleteTematica" href="#"><img alt="" src="images/buttons_icons/delete.png"
+                                    onmouseover="hover(this);" onmouseout="unhover(this);" data-img="delete"
+                                    data-file="buttons_icons"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s4">
+                    <h5>Sub-categorías</h5>
+                    <div class="col s7">
+                        <div class="contenedor-lista"
+                            style=" background-color: #fff; width: 100%; height: 600px;  max-height: 600px; overflow: auto; font-size: 14px;">
+
+                            <ul id="collection-subtematica" class="collection"></ul>
+
+                        </div>
+                    </div>
+                    <div class="col s5">
+                        <div class="contenedor-buttons" style="width: 35px; height: 200px;">
+                            <a id="btnAddSubTematica" href="#"><img alt="" src="images/buttons_icons/add.png"
+                                    onmouseover="hover(this);" onmouseout="unhover(this);" data-img="add"
+                                    data-file="buttons_icons"></a>
+                            <a id="btnEditSubTematica" href="#"><img alt="" src="images/buttons_icons/edit.png"
+                                    onmouseover="hover(this);" onmouseout="unhover(this);" data-img="edit"
+                                    data-file="buttons_icons"></a>
+                            <a id="btnDeleteSubTematica" href="#"><img alt="" src="images/buttons_icons/delete.png"
+                                    onmouseover="hover(this);" onmouseout="unhover(this);" data-img="delete"
+                                    data-file="buttons_icons"></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s4">
+                    <h5>Capas</h5>
+                    <div class="col s7">
+                        <div class="contenedor-lista"
+                            style=" background-color: #fff; width: 100%; height: 600px;  max-height: 600px; overflow: auto;  font-size: 14px;">
+
+                            <ul id="collection-layer" class="collection"></ul>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="modal_confirm" class="modal-popup">
+        <div class="ventana_confirmacion" style="border-radius: 5px;">
+            <div class="row">
+                <div class="col s12 center">
+                    <h6>¿Está seguro que desea eliminar el registro?</h6>
+                    <br />
+                    <a id="btnElimnarProceder" href="#" style="margin-right: 30px;"><img alt="Aceptar"
+                            src="images/buttons_letters/aceptar.png" onmouseover="hover(this);"
+                            onmouseout="unhover(this);" data-img="aceptar" data-file="buttons_letters"></a>
+                    <a id="btnEliminarCancelar" href="#"><img alt="Cancelar" src="images/buttons_letters/cancelar.png"
+                            onmouseover="hover(this);" onmouseout="unhover(this);" data-img="cancelar"
+                            data-file="buttons_letters"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_tematica" class="modal-popup">
+        <div class="ventana_tematica">
+            <div class="row center">
+                <h5>Ingrese todos los datos:</h5>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <label id="lblIdTematica" style="visibility: hidden;"></label>
+                    <div class="input-field col s10">
+                        <input placeholder="Digite aquí el nombre de la categoría" id="nombre_tematica" type="text"
+                            class="validate">
+                        <label for="nombre_tematica">Nombre de la Categoría</label>
+                    </div>
+                    <div class="input-field col s2">
+                        <input placeholder="0" value="1" id="orden_tematica" type="number" class="validate" min="1"
+                            max="999" disabled>
+                        <label for="orden_tematica">Orden</label>
+                    </div>
+                </div>
+
+                <div class="col s12">
+                    <div class="file-field input-field col s6">
+                        <div class="btn">
+                            <span>Icono</span>
+                            <input id="btnIconUpload" type="file" accept="image/png">
+                        </div>
+                        <div class="file-path-wrapper">
+                            <input class="file-path validate" type="text">
+                        </div>
+                    </div>
+                    <div class="file-field input-field col s6">
+                        <div class="btn">
+                            <span>Icono</span>
+                            <input id="btnIconFocusUpload" type="file" accept="image/png">
+                        </div>
+                        <div class="file-path-wrapper">
+                            <input class="file-path validate" type="text">
+                        </div>
+                    </div>
+                    <div class="col s6 center">
+                        <img id="imgIconUpload" width="60px" height="60px">
+                    </div>
+                    <div class="col s6 center">
+                        <img id="imgIconFocusUpload" width="60px" height="60px">
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="row center">
+                <a id="btnProcced" href="#" style="margin-right: 30px;"><img alt="Aceptar"
+                        src="images/buttons_letters/aceptar.png" onmouseover="hover(this);" onmouseout="unhover(this);"
+                        data-img="aceptar" data-file="buttons_letters"></a>
+                <a id="btnCancel" href="#"><img alt="Cancelar" src="images/buttons_letters/cancelar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="cancelar"
+                        data-file="buttons_letters"></a>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_subtematica" class="modal-popup">
+        <div class="ventana_tematica">
+            <div class="row center">
+                <h5>Ingrese todos los datos:</h5>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <label id="lblIdSubtematica" style="visibility: hidden;"></label>
+                    <div class="input-field col s6">
+                        <select id="cboSubsistema" disabled>
+                        </select>
+                        <label>Sub-Sistema</label>
+                    </div>
+                    <div class="input-field col s6">
+                        <select id="cboTematica" disabled>
+                        </select>
+                        <label>Categoría</label>
+                    </div>
+                    <div class="input-field col s10">
+                        <input placeholder="Digite el nombre de la sub-categoría" id="nombre_subtematica" type="text"
+                            class="validate">
+                        <label for="nombre_subtematica">Nombre de la Sub-categoría</label>
+                    </div>
+                    <div class="input-field col s2">
+                        <input placeholder="0" value="1" id="orden_subtematica" type="number" class="validate" min="1"
+                            max="999" disabled>
+                        <label for="orden_subtematica">Orden</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input placeholder="Mensaje que aparecerá al pasar el cursor sobre la sub-categoría (opcional)"
+                            id="tooltip_subtematica" type="text" class="validate">
+                        <label for="tooltip_subtematica">Digite la descripción (Opcional)</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row center">
+                <a id="btnProccedSubtematica" href="#" style="margin-right: 30px;"><img alt="Aceptar"
+                        src="images/buttons_letters/aceptar.png" onmouseover="hover(this);" onmouseout="unhover(this);"
+                        data-img="aceptar" data-file="buttons_letters"></a>
+                <a id="btnCancelSubtematica" href="#"><img alt="Cancelar" src="images/buttons_letters/cancelar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="cancelar"
+                        data-file="buttons_letters"></a>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_clonar" class="modal-popup">
+        <div class="ventana_clonar clonar__content">
+            <div class="nav__categories scrollbar" id="category__content">
+
+            </div>
+            <div id="category__buttons">
+                <!-- <button id="btnAceptarClon">Aceptar</button> -->
+                <button id="btnCancelarClon">Cerrar</button>
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="modal_wait">
+        <div class="ventana">
+            <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var IdTematicoCurrent = 0, IdSubtematicaCurrent = 0;
+        var IdSubsistemaCurrent = 0;
+        var objectTematica = {}, objectSubtematica = {}, objectSubsistema = {};
+        var flagInsert = false, flagInsertSubtematica = false;
+        var IdUsuarioCurrent = 999999;
+        var respuesta = {};
+        var IsTematica = false;
+
+        var registro_tematica_template = `<a id="ID_TEMA" href="#!" class="collection-item item-tematica ID_TEMA" data-tag="tematica">TEMA_DESC<img alt="mover" src="images/buttons_icons/move_drag.png" /></a>`;
+        var registro_subtematica_template = `<a id="ID_SUBT" href="#!" class="collection-item item-subtematica ID_SUBT" data-tag="subtematica">SUBT_DESC<img alt="mover" src="images/buttons_icons/move_drag.png" /></a>`;
+        var registro_layer_template = `<a id="ID_LAYR" href="#!" class="collection-item item-layer ID_LAYR" data-tag="layer">NOMB_LAYR<img alt="mover" src="images/buttons_icons/move_drag.png" /></a>`;
+
+        const $btnClonar = document.querySelector('#btnClonar');
+        const $categoryContent = document.querySelector('#category__content');
+        const $btnAceptarClon = document.querySelector('#btnAceptarClon');
+        const $btnCancelarClon = document.querySelector('#btnCancelarClon');
+
+        var $checkboxLayers;
+        var $checkboxLayersSelected = '';
+        // $btnAceptarClon.addEventListener('click', clonarCapas);
+        $btnCancelarClon.addEventListener('click', cancelarClonar);
+        $btnClonar.addEventListener('click', getCategoriesNacional);
+
+        function clonarCapas() {
+            $checkboxLayers.forEach(function ($el) {
+                if ($el.checked)
+                    $checkboxLayersSelected += $el.id.replace('chkLayer_', '') + '&&';
+            });
+            console.log($checkboxLayersSelected)
+        }
+
+        function cancelarClonar() {
+            $checkboxLayersSelected = '';
+            $('#modal_clonar').fadeOut();
+            //Refrescamos
+            loadTematico(IdSubsistemaCurrent);
+        }
+
+        async function getCategoriesNacional() {
+            var dataCategories = new FormData();
+            dataCategories.append('idsubs', 0);
+
+            let respCategories = await fetch(GET_CATEGORIES_SUBSISTEMA, { method: 'POST', body: dataCategories });
+            let respCategoriesJson = await respCategories.json();
+
+            if (respCategoriesJson.length > 0) {
+
+                $categoryContent.innerHTML = '';
+                respCategoriesJson.forEach(categoria => {
+                    $categoryContent.insertAdjacentHTML('beforeend',
+                        `<div id="div_category_${categoria.idtematico}" class="category">
+                    <img class="category__image" id="imageCategory_${categoria.idtematico}" alt="Ícono de ${categoria.tematico_descripcion}" src="${categoria.icono}">
+                    <input class="category__checkbox" type="checkbox" id="category_${categoria.idtematico}">
+                    <label class="category__label" for="category_${categoria.idtematico}">
+                        ${categoria.tematico_descripcion}
+                    </label>
+                    <ul class="category__list" id="category_list_${categoria.idtematico}">
+                    </ul>
+                </div>`);
+                });
+                await getLayersNacional();
+            }
+
+            // Traemos las capas del subsistema y marcamos las coincidencias
+            await getLayersSubsistemaChecked();
+
+            $('#modal_clonar').fadeIn();
+        }
+        var mLayer;
+        async function getLayersNacional() {
+            let layerNacional = await fetch(URL_LAYER_GENERAL);
+            let layerNacionalJSON = await layerNacional.json();
+            mLayer = layerNacionalJSON;
+
+
+            mLayer.forEach(layer => {
+                let $uParent;
+                if (layer.idsubtematica === 0) {
+                    $uParent = document.querySelector(`#category_list_${layer.idtematica}`);
+                }
+                else {
+                    if (document.querySelector(`#div_subcategory_${layer.idsubtematica}`) === null) {
+                        let $uList = document.querySelector(`#category_list_${layer.idtematica}`);
+                        if ($uList !== undefined) {
+                            $uList.insertAdjacentHTML('beforeend',
+                                `<div class="subcategory" id="div_subcategory_${layer.idsubtematica}">
+                            <input type="checkbox" id="subcategory_${layer.idsubtematica}">
+                            <label for="subcategory_${layer.idsubtematica}">${layer.subtematico_descripcion}</label>
+                            <ul id="subcategory_list_${layer.idsubtematica}">
+                            </ul>
+                        </div>`
+                            );
+                        }
+                    }
+                    $uParent = document.querySelector(`#subcategory_list_${layer.idsubtematica}`);
+                }
+                if ($uParent === null)
+                    return;
+
+                $uParent.insertAdjacentHTML('beforeend',
+                    `<li>
+                        <section data-code="${layer.capaxml}">
+                            <input class="checkbox__class" type="checkbox" name="checkbox" id="chkLayer_${layer.id}" data-source="${layer.idfuente}" data-xml="${layer.capaxml}" data-name="${layer.capa}">
+                            <label for="chkLayer_${layer.id}" id="label_${layer.id}" title="${layer.tooltip_layer}">${layer.capa}</label>
+                        </section>
+                    </li>`);
+            });
+            $checkboxLayers = $categoryContent.querySelectorAll('.checkbox__class');
+
+            $checkboxLayers.forEach(function ($el) {
+                $el.addEventListener('change', cloneStateLayer);
+            });
+
+        }
+
+        async function getLayersSubsistemaChecked() {
+            var data = new FormData();
+            data.append('idlayer', 0);
+            data.append('idtematica', 0);
+            data.append('idsubtematica', 0);
+            data.append('idsubs', IdSubsistemaCurrent);
+
+            response = await fetch(GET_LAYER_X_SUBSISTEMA, { method: 'POST', body: data });
+            responseJson = await response.json();
+
+            responseJson.forEach(function (el) {
+                let $controlCheckBoxCurrent = document.querySelector(`#chkLayer_${el.id}`);
+                if ($controlCheckBoxCurrent !== null && $controlCheckBoxCurrent !== undefined) {
+                    if (el.idestado === 1)
+                        $controlCheckBoxCurrent.checked = true;
+                }
+            });
+        }
+
+        async function cloneStateLayer() {
+
+            let formDataClone = new FormData();
+            formDataClone.append('idsubs', IdSubsistemaCurrent);
+            formDataClone.append('idlyer', parseInt(this.id.replace('chkLayer_', '')));
+            formDataClone.append('idesta', ((this.checked) ? 1 : 2));
+            formDataClone.append('idusua', IdUsuarioCurrent);
+
+            responseClone = await fetch(FN_LAYER_CLONE, { method: 'POST', body: formDataClone, redirect: 'follow' });
+            responseCloneJSON = await responseClone.json();
+
+            alertToast(responseCloneJSON[0].description_response);
+        }
+
+        $(function () {
+            $('#collection-tematica').sortable({
+                update: function (event, ui) {
+                    let itemId = ui.item[0].id;
+                    let ordenId = ui.item.index();
+
+                    setOrdenTematica(itemId, ordenId + 1);
+                }
+            });
+        });
+
+        $(function () {
+            $('#collection-subtematica').sortable({
+                update: function (event, ui) {
+                    let itemId = ui.item[0].id;
+                    let ordenId = ui.item.index();
+
+                    setOrdenSubTematica(IdTematicoCurrent, itemId, ordenId + 1);
+                }
+            });
+        });
+
+        $(function () {
+            $('#collection-layer').sortable({
+                update: function (event, ui) {
+                    let itemId = ui.item[0].id;
+                    let ordenId = ui.item.index();
+                    setOrdenLayer(IdTematicoCurrent, IdSubtematicaCurrent, itemId, ordenId + 1);
+                }
+            });
+        });
+
+        function setOrdenTematica(_idtema, _ordn) {
+            var data = new FormData();
+            data.append('idtema', _idtema);
+            data.append('ordn', _ordn);
+            data.append('idsubs', IdSubsistemaCurrent);
+
+            let URL_ORDEN_CATEGORY = (IdSubsistemaCurrent === 0) ? ORDN_TEMATICO : ORD_CATEGORY_SUBSISTEMA;
+
+            fetch(URL_ORDEN_CATEGORY, { method: 'POST', body: data })
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJson => {
+
+                    if (respJson != null && respJson != undefined)
+                        alertToast(respJson[0].description_response)
+                })
+                .catch(err => {
+                    console.log(err);
+                    return;
+                })
+        }
+
+        function setOrdenSubTematica(_idtema, _idsubt, _ordn) {
+            var data = new FormData();
+            data.append('idtema', _idtema);
+            data.append('idsubt', _idsubt);
+            data.append('ordn', _ordn);
+            data.append('idsubs', IdSubsistemaCurrent);
+            let URL_ORDEN_SUBCATEGORY = (IdSubsistemaCurrent === 0) ? ORDN_SUBTEMATICO : ORD_SUBCATEGORY_SUBSISTEMA;
+
+            fetch(URL_ORDEN_SUBCATEGORY, { method: 'POST', body: data })
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJson => {
+
+                    if (respJson != null && respJson != undefined)
+                        alertToast(respJson[0].description_response)
+                })
+                .catch(err => {
+                    console.log(err);
+                    return;
+                })
+        }
+
+        async function setOrdenLayer(_idtema, _idsubt, _idcapa, _ordn) {
+            var data = new FormData();
+            data.append('idtema', _idtema);
+            data.append('idsubt', _idsubt);
+            data.append('idlyer', _idcapa);
+            data.append('ordn', _ordn);
+            data.append('idsubs', IdSubsistemaCurrent);
+            let URL_ORDEN_LAYER = (IdSubsistemaCurrent === 0) ? ORDN_LAYER : ORD_LAYER_SUBSISTEMA;
+
+            try {
+                $('.modal_wait').fadeIn("100");
+                let resp = await fetch(URL_ORDEN_LAYER, { method: 'POST', body: data });
+                let respJson = await resp.json();
+                setTimeout(() => {
+
+                    $('.modal_wait').fadeOut("100");
+                    if (respJson != null && respJson != undefined)
+                        alertToast(respJson[0].description_response)
+                }, 200);
+            } catch (error) {
+                $('.modal_wait').fadeOut("100");
+                alertToast('Actualice la página y vuelva a intentarlo.')
+            }
+
+        }
+
+        async function loadTematico(_idDefault = IdSubsistemaCurrent) {
+
+            let aTematico;
+            let jsonTematico;
+
+            if (IdSubsistemaCurrent === 0) {
+
+                let urlLoadTematico = GET_TEMATICO + '/' + IdSubsistemaCurrent;
+                aTematico = await fetch(urlLoadTematico);
+                jsonTematico = await aTematico.json();
+            }
+            else {
+                var getFormDataCategory = new FormData();
+                getFormDataCategory.append('idsubs', IdSubsistemaCurrent);
+                aTematico = await fetch(GET_CATEGORY_SUBSISTEMA, { method: 'POST', body: getFormDataCategory });
+                jsonTematico = await aTematico.json();
+            }
+
+            if (jsonTematico == null || jsonTematico == undefined) {
+                alertToast('Por favor vuelva a cargar la página.')
+                return;
+            }
+            objectTematica = jsonTematico;
+
+
+            var $controlTemporal = $('#collection-tematica');
+            $controlTemporal.empty();
+            for (var i = 0; i < jsonTematico.length; i++) {
+                let new_row = registro_tematica_template
+                    .replace(/ID_TEMA/g, jsonTematico[i].idtematico)
+                    .replace(/TEMA_DESC/g, jsonTematico[i].tematico_descripcion)
+
+                $controlTemporal.append(new_row);
+            }
+            $('.item-tematica').bind('click', getSubtematica);
+            $(".modal_wait").fadeOut("100");
+            if (_idDefault != 0) {
+                $('#' + _idDefault).addClass('active');
+            }
+        }
+
+        async function getSubtematica(_control, _IdTematica = 0) {
+
+            if (_IdTematica == 0) {
+                IdTematicoCurrent = parseInt(this.id);
+            }
+            else {
+                IdTematicoCurrent = _IdTematica;
+            }
+            desactivaFoco('collection-tematica');
+            $('#' + IdTematicoCurrent).addClass('active');
+
+            if (IdSubsistemaCurrent === 0) {
+                aSubtematico = await fetch(`${GET_SUBTEMATICO}/${IdTematicoCurrent}/${IdSubsistemaCurrent}`);
+                jsonSubtematico = await aSubtematico.json();
+            }
+            else {
+                var subcategoryFormData = new FormData();
+                subcategoryFormData.append('idtema', IdTematicoCurrent);
+                subcategoryFormData.append('idsubs', IdSubsistemaCurrent);
+
+                aSubtematico = await fetch(GET_SUBCATEGORY_SUBSISTEMA, { method: 'POST', body: subcategoryFormData });
+                jsonSubtematico = await aSubtematico.json();
+            }
+            IdSubtematicaCurrent = 0;
+            get_capa();
+            var $controlTemporal = $('#collection-subtematica');
+            $controlTemporal.empty();
+            objectSubtematica = jsonSubtematico;
+            $.each(jsonSubtematico, function (index, value) {
+                let new_row = registro_subtematica_template
+                    .replace(/ID_SUBT/g, value.idsubtematico)
+                    .replace(/SUBT_DESC/g, value.subtematico_descripcion)
+
+                $controlTemporal.append(new_row);
+            });
+            $('.item-subtematica').bind('click', setActiveSubtematica);
+
+        }
+
+        var objectLayers;
+        async function get_capa() {
+
+            let response;
+            let responseJson;
+
+            var data = new FormData();
+            data.append('idlayer', 0);
+            data.append('idtematica', IdTematicoCurrent);
+            data.append('idsubtematica', IdSubtematicaCurrent);
+            data.append('idsubs', IdSubsistemaCurrent);
+
+            if (IdSubsistemaCurrent === 0) {
+                response = await fetch(GET_ALL_LAYERS, { method: 'POST', body: data });
+                responseJson = await response.json();
+            }
+            else {
+
+                response = await fetch(GET_LAYER_X_SUBSISTEMA, { method: 'POST', body: data });
+                responseJson = await response.json();
+
+            }
+
+            var $controlTemporal = $('#collection-layer');
+            $controlTemporal.empty();
+            objectLayers = responseJson;
+            $.each(responseJson, function (index, value) {
+                if (value.idestado == 1) {
+                    if (value.idsubtematico == IdSubtematicaCurrent) {
+                        let new_row = registro_layer_template
+                            .replace(/ID_LAYR/g, value.id)
+                            .replace(/NOMB_LAYR/g, value.capa)
+
+                        $controlTemporal.append(new_row);
+                    }
+                }
+            });
+            $('.item-subtematica').bind('click', setActiveLayer);
+
+        }
+
+        function setActiveSubtematica(_id) {
+            IdSubtematicaCurrent = parseInt(this.id);
+            desactivaFoco('collection-subtematica');
+            let controlSubtematica = document.querySelector('#collection-subtematica')
+            controlSubtematica.getElementsByClassName(IdSubtematicaCurrent)[0].classList.add('active');
+            // $('#' + this.id).addClass('active');
+            get_capa();
+        }
+
+        function setActiveLayer() {
+
+        }
+
+        function desactivaFoco(_control) {
+            $.each($('#' + _control).children(), function (index, value) {
+                let controlList = document.getElementById(_control);
+                controlList.getElementsByClassName(value.id)[0].classList.remove('active');
+                // $('#' + value.id).removeClass('active');
+            });
+        }
+
+        $('#btnAddTematica').on('click', function () {
+            flagInsert = true;
+            clearTematicaForm();
+            $('#orden_tematica').val($('#collection-tematica')[0].childElementCount + 1);
+            $('#modal_tematica').fadeIn();
+        });
+
+        $('#btnCancel').on('click', function () {
+            $('#modal_tematica').fadeOut();
+        });
+
+        $('#btnProcced').on('click', function () {
+            guardarTematica();
+        });
+
+        function guardarTematica() {
+            if ($('#nombre_tematica').val().length <= 0) {
+                alertToast('Indique el nombre de la <i>Categoría</i>')
+                return;
+            }
+            if ($('#orden_tematica').val().length <= 0 | $('#orden_tematica').val() <= 0) {
+                alertToast('Debe ingresar un valor mayor o igual a 1');
+                return;
+            }
+            var desc_tema = '', ordn_tema = 999, icon_tema = '', icof_tema = '';
+            desc_tema = $('#nombre_tematica').val();
+            ordn_tema = $('#orden_tematica').val();
+            icon_tema = $('#imgIconUpload')[0].src;
+            icof_tema = $('#imgIconFocusUpload')[0].src;
+            function_request = (flagInsert) ? 'insert' : 'update';
+            fn_Tematica(function_request, desc_tema, ordn_tema, icon_tema, icof_tema);
+        }
+
+        function fn_Tematica(_funcion, _desc, _ordn, _icon, _icof) {
+
+            var data = new FormData();
+            data.append('funcion', _funcion);
+            data.append('iduser', IdUsuarioCurrent);
+            data.append('idtema', IdTematicoCurrent);
+            data.append('idsubs', IdSubsistemaCurrent);
+            data.append('desc', _desc);
+            data.append('ordn', _ordn);
+            data.append('icon', _icon);
+            data.append('icof', _icof);
+
+            fetch(FN_TEMATICO, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+
+                    let oResponseTematica = responseJson[0];
+                    if (oResponseTematica.status_response === 1) {
+                        saveLog('Categoría', oResponseTematica.scope_identity, _desc,
+                            (flagInsert) ? 'Agregado' : 'Modificado', IdUsuarioCurrent, IdSubsistemaCurrent);
+                        let IdAuxiliar = IdTematicoCurrent;
+
+                        if (IdSubsistemaCurrent != 0) {
+                            //Si no es el nacional, debemos guardar la relación de temática y subsistema
+                            var bodyCategorySubsistema = new FormData();
+                            bodyCategorySubsistema.append('idtema', oResponseTematica.scope_identity);
+                            bodyCategorySubsistema.append('idsubs', IdSubsistemaCurrent);
+                            bodyCategorySubsistema.append('ordn', _ordn);
+                            fetch(ADD_CATEGORY_SUBSISTEMA, { method: 'POST', body: bodyCategorySubsistema })
+                                .then(responseDetail => { return responseDetail.json(); })
+                                .then(responseDetailJSON => {
+                                    if (responseDetailJSON[0].status_response === 1) {
+                                        $('#modal_tematica').fadeOut();
+                                        alertToast(`Se ha ${(flagInsert) ? 'ingresado' : 'actualizado'} el registro`);
+                                        loadTematico(IdSubsistemaCurrent);
+                                    }
+                                })
+                                .catch(err => {
+                                    $('#modal_tematica').fadeOut();
+                                    alertToast(oResponseTematica.description_response);
+                                    return;
+                                })
+                        }
+                        else {
+                            $('#modal_tematica').fadeOut();
+                            alertToast(`Se ha ${(flagInsert) ? 'ingresado' : 'actualizado'} el registro`);
+                            loadTematico(IdSubsistemaCurrent);
+                        }
+                    }
+                    else {
+                        $('#modal_tematica').fadeOut();
+                        alertToast(oResponseTematica.description_response);
+                        return;
+                    }
+                });
+        }
+
+        $('#btnEditTematica').on('click', function () {
+            if (IdTematicoCurrent <= 0) {
+                alertToast('Primero seleccione la categoría a "Editar"');
+                return;
+            }
+            $('#lblIdTematica').val(IdTematicoCurrent);
+            //Debemos verificar si es una categoría nacional.
+
+
+            getTematicaToForm();
+            flagInsert = false;
+            $('#modal_tematica').fadeIn();
+        });
+
+        function getTematicaToForm() {
+            currentTematico = objectTematica.filter(i => i.idtematico == IdTematicoCurrent)[0];
+            $('#nombre_tematica').val(currentTematico.tematico_descripcion);
+            $('#orden_tematica').val(currentTematico.ordenamiento);
+            document.getElementById('imgIconUpload').setAttribute('src', DOMPurify.sanitize(currentTematico.icono));
+            document.getElementById('imgIconFocusUpload').setAttribute('src', DOMPurify.sanitize(currentTematico.icono_focus));
+        }
+
+        function clearTematicaForm() {
+            $('#lblIdTematica').val(0);
+            $('#nombre_tematica').val('');
+            $('#orden_tematica').val(1);
+            $('#imgIconUpload')[0].src = ICON_TEMATICA;
+            $('#imgIconFocusUpload')[0].src = ICON_TEMATICA_FOCUS;
+        }
+
+        function clearSubTematicaForm() {
+
+            $('#lblIdSubtematica').val(0);
+            $('#nombre_subtematica').val('');
+            $('#orden_subtematica').val(1);
+            $('#tooltip_subtematica').val('');
+        }
+
+        $('#btnDeleteTematica').on('click', function () {
+            if (IdTematicoCurrent <= 0) {
+                alertToast('Primero seleccione la categoría a "Eliminar"');
+                return;
+            }
+            IsTematica = true;
+            $('#modal_confirm').fadeIn();
+        });
+
+        $('#btnElimnarProceder').on('click', async function () {
+
+            let setUrl = '', idParam = 0;
+            let statusResponse;
+            if (IdSubsistemaCurrent != 0) {
+                setUrl = (IsTematica) ? DLT_CATEGORY_SUBSISTEMA : DLT_SUBCATEGORY_SUBSISTEMA;
+                idParam = (IsTematica) ? IdTematicoCurrent : IdSubtematicaCurrent;
+                var formDataDelete = new FormData();
+                formDataDelete.append('id', idParam);
+                formDataDelete.append('idsubs', IdSubsistemaCurrent);
+                formDataDelete.append('ordn', 0);
+
+                let responseDelete = await fetch(setUrl, { method: 'POST', body: formDataDelete });
+                let responseDeleteJSON = await responseDelete.json();
+                statusResponse = responseDeleteJSON[0].status_response;
+            }
+            else {
+                setUrl = (IsTematica) ? DLT_TEMATICO : DLT_SUBTEMATICO;
+                idParam = (IsTematica) ? IdTematicoCurrent : IdSubtematicaCurrent;
+
+                let response = await fetch(`${setUrl}/${IdUsuarioCurrent}/${idParam}`);
+                let responseJson = await response.json();
+                statusResponse = responseJson[0].status_response;
+            }
+
+            if (statusResponse === 1) {
+                if (IsTematica) {
+                    let objEliminar = objectTematica.filter(i => i.idtematico == idParam);
+                    if (objEliminar.length > 0)
+                        saveLog('Categoría', idParam, objEliminar[0].tematico_descripcion, 'Eliminado', IdUsuarioCurrent, IdSubsistemaCurrent);
+
+                    IdTematicoCurrent = 0;
+                    loadTematico(IdSubsistemaCurrent);
+                    $('#collection-subtematica').empty();
+                }
+                else {
+                    let objEliminar = objectSubtematica.filter(i => i.idsubtematico == idParam);
+                    if (objEliminar.length > 0)
+                        saveLog('Sub-categoría', idParam, objEliminar[0].subtematico, 'Eliminado', IdUsuarioCurrent, IdSubsistemaCurrent);
+                    IdSubtematicaCurrent = 0;
+                    getSubtematica('', IdTematicoCurrent);
+                }
+            }
+
+            $('#modal_confirm').fadeOut();
+        });
+
+        $('#btnEliminarCancelar').on('click', function () {
+            $('#modal_confirm').fadeOut();
+        });
+
+        $('#btnAddSubTematica').on('click', function () {
+            if (IdTematicoCurrent <= 0) {
+                alertToast('Primero seleccione una <i>Categoría</i>');
+                return;
+            }
+            flagInsertSubtematica = true;
+            clearSubTematicaForm();
+            setCboTematico(IdTematicoCurrent);
+            setCboSubsistema();
+            $('#orden_subtematica').val($('#collection-subtematica')[0].childElementCount + 1);
+            $('#modal_subtematica').fadeIn();
+        });
+
+        function getSubsistema() {
+            fetch(GET_SUBSISTEMA + '/' + IdSubsistemaCurrent)
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    if (responseJson == null || responseJson == undefined) {
+                        alertToast('Por favor volver a cargar la página.');
+                        return;
+                    }
+                    objectSubsistema = responseJson;
+
+                    if (responseJson[0].isclon === 1 && (IdRolCurrent === 1 || IdRolCurrent === 2)) {
+                        //Como es subsistema clon, habilitamos el botón para clonar categorías, subcategorías y capas.
+                        $('#btnClonar').css('display', 'block');
+                    }
+                })
+                .catch(err => {
+                    alertToast('Error al cargar el subsistema');
+                    return;
+                });
+        }
+
+        function setCboSubsistema() {
+            $.each(objectSubsistema, function () {
+                $('#cboSubsistema').append(`<option value="${this.idsubsistema}">${this.nombre}</option>`)
+            });
+            $("#cboSubsistema").formSelect();
+        }
+
+        function setCboTematico(_idSelected = 0) {
+            $.each(objectTematica, function () {
+                $('#cboTematica').append(`<option value="${this.idtematico}">${this.tematico_descripcion}</option>`)
+            });
+            if (_idSelected != 0) {
+                $('#cboTematica').val(_idSelected);
+                $('#cboTematica').addClass('disabled');
+            }
+            $("#cboTematica").formSelect();
+        }
+
+        $('#btnCancelSubtematica').on('click', function () {
+            $('#modal_subtematica').fadeOut();
+        });
+
+        $('#btnProccedSubtematica').on('click', function () {
+            guardarSubtematica();
+        });
+
+        function guardarSubtematica() {
+            if ($('#nombre_subtematica').val().length <= 0) {
+                alertToast('Indique el nombre de la <i>Sub-categoría</i>')
+                return;
+            }
+            if ($('#orden_subtematica').val().length <= 0 | $('#orden_subtematica').val() <= 0) {
+                alertToast('Debe ingresar un valor mayor o igual a 1');
+                return;
+            }
+            var desc_subt = '', ordn_subt = 999, ttip_subt = '';
+            desc_subt = $('#nombre_subtematica').val();
+            ordn_subt = $('#orden_subtematica').val();
+            ttip_subt = $('#tooltip_subtematica').val();
+            function_request = (flagInsertSubtematica) ? 'insert' : 'update';
+            fn_SubTematica(function_request, desc_subt, ordn_subt, ttip_subt);
+        }
+
+        function fn_SubTematica(_funcion, _desc, _ordn, _ttip) {
+
+            var data = new FormData();
+            data.append('funcion', _funcion);
+            data.append('iduser', IdUsuarioCurrent);
+            data.append('idsubt', IdSubtematicaCurrent);
+            data.append('idtema', IdTematicoCurrent);
+            data.append('idsubs', IdSubsistemaCurrent);
+            data.append('nomb', _desc);
+            data.append('ordn', _ordn);
+            data.append('ttip', _ttip);
+            fetch(FN_SUBTEMATICO, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    let oResponseSubtematica = responseJson[0];
+                    if (oResponseSubtematica.status_response === 1) {
+
+                        saveLog('Sub-categoría', oResponseSubtematica.scope_identity, _desc, (flagInsertSubtematica) ? 'Agregado' : 'Modificado', IdUsuarioCurrent, IdSubsistemaCurrent);
+
+                        if (IdSubsistemaCurrent != 0) {
+                            //Si no es el nacional, debemos guardar la relación de temática y subsistema
+                            var bodySubcategorySubsistema = new FormData();
+                            bodySubcategorySubsistema.append('idsubt', oResponseSubtematica.scope_identity);
+                            bodySubcategorySubsistema.append('idsubs', IdSubsistemaCurrent);
+                            bodySubcategorySubsistema.append('ordn', _ordn);
+                            fetch(ADD_SUBCATEGORY_SUBSISTEMA, { method: 'POST', body: bodySubcategorySubsistema })
+                                .then(responseDetail => { return responseDetail.json() })
+                                .then(responseDetailJSON => {
+                                    if (responseDetailJSON[0].status_response === 1) {
+                                        $('#modal_subtematica').fadeOut();
+                                        alertToast(`Se ha ${(flagInsertSubtematica) ? 'ingresado' : 'actualizado'} el registro`);
+
+                                        getSubtematica('', IdTematicoCurrent);
+                                    }
+                                });
+                        }
+                        else {
+                            $('#modal_subtematica').fadeOut();
+                            alertToast(`Se ha ${(flagInsertSubtematica) ? 'ingresado' : 'actualizado'} el registro`);
+                            getSubtematica('', IdTematicoCurrent);
+                        }
+                    }
+                    else {
+                        $('#modal_subtematica').fadeOut();
+                        alertToast(oResponseSubtematica.description_response);
+                        return;
+                    }
+                });
+        }
+
+        $('#btnEditSubTematica').on('click', function () {
+            if (IdSubtematicaCurrent <= 0) {
+                alertToast('Primero seleccione la sub-categoría a "Editar"');
+                return;
+            }
+            $('#lblIdSubTematica').val(IdSubtematicaCurrent);
+            getSubTematicaToForm();
+            flagInsertSubtematica = false;
+            $('#modal_subtematica').fadeIn();
+        });
+
+        function getSubTematicaToForm() {
+            setCboSubsistema();
+            setCboTematico(IdTematicoCurrent);
+            currentSubtematico = objectSubtematica.filter(i => i.idsubtematico == IdSubtematicaCurrent)[0];
+            $('#nombre_subtematica').val(currentSubtematico.subtematico_descripcion);
+            $('#tooltip_subtematica').val(currentSubtematico.tooltip);
+            $('#orden_subtematica').val(currentSubtematico.orden);
+        }
+
+        $('#btnDeleteSubTematica').on('click', function () {
+            if (IdSubtematicaCurrent <= 0) {
+                alertToast('Primero seleccione la sub-categoría a "Eliminar"');
+                return;
+            }
+            IsTematica = false;
+            $('#modal_confirm').fadeIn();
+        });
+
+        $('#btnIconUpload').on('change', function () {
+            convertImageToBase64('btnIconUpload', 'imgIconUpload', ICON_TEMATICA);
+        });
+
+        $('#btnIconFocusUpload').on('change', function () {
+            convertImageToBase64('btnIconFocusUpload', 'imgIconFocusUpload', ICON_TEMATICA_FOCUS);
+        });
+
+        function convertImageToBase64(_buttonControl, _imageControl, _iconDefault) {
+            var files = document.getElementById(_buttonControl).files;
+            if (files.length == 0) {
+                document.getElementById(_imageControl)
+                    .setAttribute(
+                        'src', _iconDefault
+                    );
+                return;
+            }
+            var file = files[0];
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function () {
+                document.getElementById(_imageControl)
+                    .setAttribute(
+                        'src', reader.result
+                    );
+            };
+        }
+
+        var role_allowed = [1, 3];
+
+        function setUser() {
+            // var mToken = localStorage.getItem('geoToken');
+            var mToken = getCookie('geoToken');
+            var decoded = jwt_decode(mToken);
+            $('#lblUsuario').text(decoded.usuario);
+            $('#lblRol').text(decoded.rol);
+            IdUsuarioCurrent = decoded.idusuario;
+            IdSubsistemaCurrent = decoded.idsubs;
+            IdRolCurrent = decoded.idrol;
+            if (!role_allowed.includes(decoded.idrol)) {
+                window.location.replace("/subsistema/administracion/unauthorized.html");
+                return;
+            }
+            setMenuByRol(decoded.idrol);
+            loadTematico(IdSubsistemaCurrent);
+
+            getSubsistema();
+            $(".modal_wait").fadeOut("100");
+        }
+
+        $(document).ready(function () {
+            $(".modal_wait").fadeIn("100");
+            validarToken();
+
+            $("#menu").load("../administracion/template/index.html", function () {
+                $('#mnuTematica').css('background-color', menuSeleccionado);
+                setTimeout(() => {
+                    setUser();
+                    set_usuario_avatar();
+                }, 500);
+            });
+
+            $(".collection").sortable();
+            $(".collection").disableSelection();
+            M.updateTextFields();
+            $('select').formSelect();
+
+        });
+    </script>
+</body>
+
+</html>

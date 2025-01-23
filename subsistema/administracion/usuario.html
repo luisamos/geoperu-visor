@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración de Usuarios</title>
+
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/purify.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+</head>
+
+<body>
+    <div id="menu">
+    </div>
+
+    <div class="contenido">
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <h3>Gestión de Usuarios</h3>
+                    <p style="font-size: 18px;">Delega roles con funciones específicas para tu equipo de trabajo.</p>
+                </div>
+                <div class="input-field col s4">
+                    <input id="filtro_usuario" type="text" class="validate" value="" placeholder=" ">
+                    <label for="filtro_usuario">Nombre o Apellidos</label>
+                </div>
+                <div class="input-field col s4">
+                    <select id="cboRol">
+                    </select>
+                    <label>Rol del usuario</label>
+                </div>
+                <a id="btnFiltro" href="#!" class="right"><img alt="Buscar" src="images/buttons_letters/buscar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="buscar"
+                        data-file="buttons_letters"></a>
+            </div>
+            <div class="row" style="height: 10px;">
+                <div class="input-field col s2 left">
+                    <label class="">
+                        <input id="chkOnlyActive" type="checkbox" />
+                        <span>Mostrar sólo activas</span>
+                    </label>
+                </div>
+                <a id="btnAgregar" href="#!" class="right"><img alt="Buscar" src="images/buttons_letters/agregar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="agregar"
+                        data-file="buttons_letters"></a>
+            </div>
+            <br />
+            <div class="row" style="max-height: 600px;  overflow-y: auto;">
+                <div class="col s12">
+                    <table class="highlight" id="tblUsuario" style="background-color: #fff;">
+                        <thead>
+                            <tr>
+                                <th style="width: 10%; padding-left: 20px;">N°</th>
+                                <th>Subsistema</th>
+                                <th>Nombres</th>
+                                <th>Rol</th>
+                                <th>Correo electrónico</th>
+                                <th>Estado</th>
+                                <th style="width: 10%;">Opciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col s12">
+                    <p>Super-administrador: Cuenta con todos los permisos de gestión, incluido seguimiento de actividad
+                        y control de eventos.<br />
+                        Administrador: Cuenta con los permisos de gestión para administrar contenido, delegar roles y
+                        actualizar información.<br />
+                        Editor de información. Solo puede subir archivos con información geográfica. <br />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_usuario" class="modal-popup">
+        <div class="ventana_usuario">
+            <div class="row center">
+                <h5>Ingrese todos los datos:</h5>
+            </div>
+            <div class="row">
+                <div class="input-field col s6">
+                    <label id="lblIdUsuario" style="visibility: hidden;"></label>
+                    <input id="paterno_usuario" type="text" class="validate" value=""
+                        placeholder="Ingrese su apellido paterno">
+                    <label for="paterno_usuario">Ap. Paterno</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="materno_usuario" type="text" class="validate" value=""
+                        placeholder="Ingrese su apellido materno">
+                    <label for="materno_usuario">Ap. Materno</label>
+                </div>
+                <div class="input-field col s8">
+                    <input id="nombre_usuario" type="text" class="validate" value="" placeholder="Ingrese sus nombres">
+                    <label for="nombre_usuario">Nombres</label>
+                </div>
+                <div class="input-field col s4">
+                    <input id="dni_usuario" type="number" class="validate" placeholder="00000000" value="">
+                    <label for="dni_usuario">N° Documento</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="mail_usuario" type="text" class="validate" value="" placeholder="Ingrese su email">
+                    <label for="mail_usuario">Correo electrónico</label>
+                </div>
+                <!-- <div class="input-field col s6">
+                    <input id="user_usuario" type="text" class="validate" value="" placeholder="Ingrese su usuario">
+                    <label for="user_usuario">Usuario</label>
+                </div> -->
+                <div class="input-field col s6">
+                    <input id="pass_usuario" type="password" class="validate" value=""
+                        placeholder="Ingrese su contraseña">
+                    <label for="pass_usuario">Contraseña</label>
+                </div>
+                <div class="input-field col s6">
+                    <select id="cboRolModal">
+                    </select>
+                    <label>Rol del usuario</label>
+                </div>
+                <div class="input-field col s6">
+                    <select id="cboEstado">
+                        <option value="-1">Seleccione el estado</option>
+                        <option value="0">Inactivo</option>
+                        <option value="1">Activo</option>
+                    </select>
+                    <label>Estado</label>
+                </div>
+                <div id="divSubsistema" class="input-field col s12">
+                    <select id="cboSubsistema">
+                    </select>
+                    <label>Seleccione el subsistema</label>
+                </div>
+            </div>
+            <div class="row center">
+                <a id="btnProcced" href="#"><img alt="Aceptar" src="images/buttons_letters/aceptar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="aceptar"
+                        data-file="buttons_letters"></a>
+                <a id="btnCancel" href="#"><img alt="Cancelar" src="images/buttons_letters/cancelar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="cancelar"
+                        data-file="buttons_letters"></a>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_confirm" class="modal-popup">
+        <div class="ventana_confirmacion" style="border-radius: 5px;">
+            <div class="row">
+                <label id="lblIdToggle" style="visibility: hidden;"></label>
+                <div class="col s12 center">
+                    <h6>¿Está seguro que desea activar/desactivar el registro?</h6>
+                    <br />
+                    <a id="btnElimnarProceder" href="#" style="margin-right: 30px;"><img alt="Aceptar"
+                            src="images/buttons_letters/aceptar.png" onmouseover="hover(this);"
+                            onmouseout="unhover(this);" data-img="aceptar" data-file="buttons_letters"></a>
+                    <a id="btnEliminarCancelar" href="#"><img alt="Cancelar" src="images/buttons_letters/cancelar.png"
+                            onmouseover="hover(this);" onmouseout="unhover(this);" data-img="cancelar"
+                            data-file="buttons_letters"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal_wait">
+        <div class="ventana">
+            <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        var flagInsert = false;
+        var IdUsuarioCurrent = 0, IdUserSelected = 0;
+        var IdSubsistemaCurrent = 0;
+        var objectList = {}, objectListFilter = {}, objectListRol = {}, objectListSubsistema = {};
+        //Se añade la etiqueta table para que pueda sanitizar correctamente
+        var registro_template = `<table><tr><td style="padding-left: 20px;">ITEM_USER</td><td>ITEM_SUBS</td><td>ITEM_APPA ITEM_APMA, ITEM_NOMB</td><td>ITEM_NROL</td><td>ITEM_MAIL</td><td>ITEM_ESTA</td><td>
+                                        <a title="Editar usuario" class="openEdit" data-id="ITEM_ID"><img alt="Editar Usuario" src="images/buttons_icons/layer_edit.png"></a>
+                                        <a title="Activar/Desactivar usuario" class="openTgle" data-id="ITEM_ID"><img alt="Activar/Desactivar Usuario" src="images/buttons_icons/layer_toggle.png"></a>
+                                        </td></tr></table>`;
+
+
+        function get_rol_all() {
+            fetch(GET_ROL)
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJson => {
+                    objectListRol = respJson;
+                    $('#cboRol').append(`<option value="0">Todos</option>`);
+                    $.each(respJson, function () {
+                        $('#cboRol').append(`<option value="${this.idrol}">${this.nombre_rol}</option>`)
+                    });
+                    $("#cboRol").formSelect();
+                });
+        }
+
+        function get_subsistema_all(_idsubs) {
+            var data = new FormData();
+            data.append('idsubs', _idsubs);
+            fetch(GET_SUBSISTEMA_ALL, { method: 'POST', body: data })
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJson => {
+                    objectListSubsistema = respJson;
+                    $.each(respJson, function () {
+                        $('#cboSubsistema').append(`<option value="${this.idsubsistema}">${this.nombre} - (${this.ubigeo})</option>`)
+                    });
+                    $("#cboSubsistema").formSelect();
+                });
+        }
+
+        function fill_cbo_rol() {
+            $('#cboRolModal').empty();
+            $('#cboRolModal').append(`<option value="0">Seleccione un rol</option>`);
+            $.each(objectListRol, function () {
+                $('#cboRolModal').append(`<option value="${this.idrol}">${this.nombre_rol}</option>`)
+            });
+            $("#cboRolModal").formSelect();
+        }
+
+        function filtro() {
+            let idRolFiltro = $('#cboRol').val();
+            let textoFiltro = $('#filtro_usuario').val().toLowerCase();
+            objectListFilter = objectList;
+
+            if (idRolFiltro != 0) {
+                objectListFilter = objectListFilter.filter(i => i.idrol == idRolFiltro);
+            }
+
+            if (textoFiltro.trim().length > 0) {
+                objectListFilter = objectListFilter.filter(i => i.nombre_completo.includes(textoFiltro) ||
+                    i.email_usuario.includes(textoFiltro) ||
+                    i.ndocumento_usuario.includes(textoFiltro));
+            }
+
+            fillTable(objectListFilter, $('#tblUsuario'));
+        }
+
+        $('#chkOnlyActive').on('change', function () {
+            setFilter();
+        });
+
+        function setFilter() {
+            var objectListFilter = {};
+            if ($('#chkOnlyActive').prop('checked')) {
+                objectListFilter = objectList.filter(i => i.idestado == 1);
+            }
+            else {
+                objectListFilter = objectList;
+            }
+
+            // if ($('#filtro_capa').val().length > 0) {
+            //     objectListFilter = objectListFilter.filter(i => i.capa.toLowerCase().includes($('#filtro_capa').val().toLowerCase()));
+            // }
+
+            $('#tblUsuario > tbody > tr').remove();
+            var $controlTemporal = $('#tblUsuario');
+
+            fillTable(objectListFilter, $controlTemporal);
+        }
+
+        function get_all_users() {
+            var data = new FormData();
+            data.append('iduser', IdUserSelected);
+            data.append('idsubs', IdSubsistemaCurrent);
+            fetch(GET_USUARIO_ALL, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    objectList = responseJson;
+
+                    $('#tblUsuario > tbody > tr').remove();
+                    var $controlTemporal = $('#tblUsuario');
+                    fillTable(objectList, $controlTemporal);
+                })
+                .catch(err => {
+                    console.log(err);
+                    alertToast('Hemos detectado un error de red, la página se cargará nuevamente.')
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                });
+        }
+
+        function fillTable(_list, _control) {
+            $('#tblUsuario > tbody > tr').remove();
+            for (var i = 0; i < _list.length; i++) {
+                let new_row = registro_template
+                    .replace(/ITEM_USER/g, i + 1)
+                    .replace(/ITEM_ID/g, _list[i].idusuario)
+                    .replace(/ITEM_SUBS/g, _list[i].subsistema)
+                    .replace(/ITEM_APPA/g, _list[i].paterno_usuario)
+                    .replace(/ITEM_APMA/g, _list[i].materno_usuario)
+                    .replace(/ITEM_NOMB/g, _list[i].nombres_usuario)
+                    .replace(/ITEM_NROL/g, _list[i].nombre_rol)
+                    .replace(/ITEM_MAIL/g, _list[i].email_usuario)
+                    .replace(/ITEM_ESTA/g, _list[i].estado)
+               
+                _control[0].innerHTML += DOMPurify.sanitize(new_row, CONFIG_SANITIZE);
+            }
+            $('.openEdit').bind('click', openModalEdit);
+            $('.openTgle').bind('click', openModalTgle);
+            $('.modal_wait').fadeOut();
+        }
+
+        function openModalEdit() {
+            clearForm();
+            fill_cbo_rol();
+            let objectFound = objectList.find(i => i.idusuario == $(this).attr('data-id'));
+            IdUserSelected = objectFound.idusuario;
+            $('#lblIdUsuario').val(objectFound.idusuario);
+            $('#paterno_usuario').val(objectFound.paterno_usuario);
+            $('#materno_usuario').val(objectFound.materno_usuario);
+            $('#nombre_usuario').val(objectFound.nombres_usuario);
+            $('#dni_usuario').val(objectFound.ndocumento_usuario);
+            $('#mail_usuario').val(objectFound.email_usuario);
+            // $('#user_usuario').val(objectFound.user_usuario);
+            $('#pass_usuario').val(objectFound.pass_usuario);
+            $('#cboRolModal').val(objectFound.idrol);
+            $("#cboRolModal").formSelect();
+            $('#cboEstado').val(objectFound.idestado);
+            $("#cboEstado").formSelect();
+            flagInsert = false;
+            $('#modal_usuario').fadeIn();
+
+            $('#cboSubsistema').val(objectFound.idsubsistema);
+            $("#cboSubsistema").formSelect();
+
+        }
+
+        function clearForm() {
+            fill_cbo_rol();
+            $('#lblIdUsuario').val(0);
+            $('#paterno_usuario').val('');
+            $('#materno_usuario').val('');
+            $('#nombre_usuario').val('');
+            $('#dni_usuario').val('');
+            $('#mail_usuario').val('');
+            // $('#user_usuario').val('');
+            $('#pass_usuario').val('');
+            $('#cboRolModal').val(0);
+            $("#cboRolModal").formSelect();
+            $('#cboEstado').val(-1);
+            $("#cboEstado").formSelect();
+        }
+
+        function openModalTgle() {
+            $("#modal_confirm").fadeIn();
+            $('#lblIdToggle').val($(this).attr('data-id'));
+        }
+
+        function addModal() {
+            IdUserSelected = 0;
+            clearForm();
+            flagInsert = true;
+            $('#modal_usuario').fadeIn();
+        }
+
+        function closeModal() {
+            $('#modal_usuario').fadeOut();
+        }
+
+        function toggle() {
+            var data = new FormData();
+            data.append('iduser', IdUsuarioCurrent);
+            data.append('idusuario', $('#lblIdToggle').val());
+
+            fetch(TGL_USER, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    alertToast('Se ha activado/desactivado el registro.');
+                    get_all_users();
+                });
+
+            $("#modal_confirm").fadeOut();
+        }
+
+        function saveUsuario(idrol, _appa, _apma, _nomb, _idtipo, _ndoc, _mail, _user, _pasw, _idesta, _idsubs) {
+            var data = new FormData();
+            data.append('iduser', IdUserSelected);
+            // data.append('idsubs', IdSubsistemaCurrent);
+            data.append('idsubs', _idsubs);
+            data.append('idrol', idrol);
+            data.append('appa', _appa);
+            data.append('apma', _apma);
+            data.append('nomb', _nomb);
+            data.append('idtipo', _idtipo);
+            data.append('ndoc', _ndoc);
+            data.append('mail', _mail);
+            data.append('user', _user);
+            data.append('pasw', _pasw);
+            data.append('idesta', _idesta);
+            data.append('funcion', (flagInsert) ? 'insert' : 'update');
+
+            fetch(FN_USUARIO, { method: 'POST', body: data })
+                .then(response => {
+                    return response.json();
+                })
+                .then(responseJson => {
+                    if (responseJson[0].status_response === 1) {
+                        $('#modal_usuario').fadeOut();
+                        alertToast(`Se ha ${(flagInsert) ? 'ingresado' : 'actualizado'} el registro.`);
+                        get_all_users();
+                    }
+                    else {
+                        alertToast(responseJson[0].description_response);
+                        $('#filtro_usuario').val(_mail);
+                        filtro();
+                        return;
+                    }
+                });
+        }
+
+
+
+        $('#btnFiltro').on('click', function () {
+            filtro();
+        });
+
+        $('#btnAgregar').on('click', function () {
+            addModal();
+        });
+
+        $('#btnCancel').on('click', function () {
+            closeModal();
+        });
+
+        $('#btnProcced').on('click', function () {
+
+            let idrol = $('#cboRolModal').val();
+            let appa = $('#paterno_usuario').val();
+            let apma = $('#materno_usuario').val();
+            let nomb = $('#nombre_usuario').val();
+            let idtipo = 1//$('#web_capa').val();
+            let ndoc = $('#dni_usuario').val();
+            let mail = $('#mail_usuario').val();
+            // let user = $('#user_usuario').val();
+            let user = $('#mail_usuario').val();
+            let pasw = $('#pass_usuario').val();
+            let idesta = $('#cboEstado').val();
+            let idsubs = $('#cboSubsistema').val();
+
+            if (idrol <= 0) {
+                alertToast('Seleccione un rol');
+                return;
+            }
+
+            if (appa.trim().length <= 0) {
+                alertToast('Ingrese el apellido paterno');
+                return;
+            }
+
+            if (apma.trim().length <= 0) {
+                alertToast('Ingrese el apellido materno');
+                return;
+            }
+
+            if (nomb.trim().length <= 0) {
+                alertToast('Ingrese al menos un nombre');
+                return;
+            }
+
+            if (ndoc.trim().length != 8) {
+                alertToast('Su N° de documento debe tener 8 dígitos');
+                return;
+            }
+
+            if (mail.trim().length <= 0) {
+                alertToast('Ingrese el correo electrónico.');
+                return;
+            }
+
+            if (user.trim().length <= 0) {
+                alertToast('Ingrese el usuario');
+                return;
+            }
+
+            if (pasw.trim().length <= 0) {
+                alertToast('Ingrese la contraseña');
+                return;
+            }
+
+            saveUsuario(idrol, appa, apma, nomb, idtipo, ndoc, mail, user, pasw, idesta, idsubs);
+        });
+
+
+
+        $('#btnElimnarProceder').on('click', function () {
+            toggle();
+            $("#modal_confirm").fadeOut();
+        });
+
+        $('#btnEliminarCancelar').on('click', function () {
+            $("#modal_confirm").fadeOut();
+        });
+
+        var role_allowed = [1, 2];
+        function setUser() {
+            // var mToken = localStorage.getItem('geoToken');
+            var mToken = getCookie('geoToken');
+            var decoded = jwt_decode(mToken);
+            $('#lblUsuario').text(decoded.usuario);
+            $('#lblRol').text(decoded.rol);
+            IdUsuarioCurrent = decoded.idusuario;
+            IdSubsistemaCurrent = decoded.idsubs;
+            if (!role_allowed.includes(decoded.idrol)) {
+                window.location.replace("/subsistema/administracion/unauthorized.html");
+                return;
+            }
+            get_rol_all();
+            setMenuByRol(decoded.idrol);
+            get_subsistema_all(IdSubsistemaCurrent);
+            get_all_users();
+        }
+
+        $(document).ready(function () {
+            $(".modal_wait").fadeIn("100");
+            validarToken();
+
+            $("#menu").load("../administracion/template/index.html", function () {
+                $('#mnuUsuario').css('background-color', menuSeleccionado);
+                setTimeout(() => {
+                    setUser();
+                    set_usuario_avatar();
+                }, 500);
+            });
+            $('select').formSelect();
+            $('.datepicker').datepicker();
+            M.updateTextFields();
+
+        });
+    </script>
+
+</body>
+
+</html>

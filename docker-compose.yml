@@ -1,0 +1,14 @@
+version: '3'
+services:
+  geoperu-visor:
+    container_name: geoperu-visor
+    restart: always
+    build:
+      context: .
+      target: base
+    # env_file: ./.env
+    volumes:
+    - ./:/var/www/html
+    ports:
+      - "8085:80"
+

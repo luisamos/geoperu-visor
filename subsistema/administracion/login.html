@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo de Administración - Geo Perú</title>
+
+    <link rel="stylesheet" href="../administracion/css/materialize.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="./css/subsistema.css">
+
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+
+</head>
+
+<body>
+    
+
+    <div id="modal_login" class="modal__login">
+        <div class="modal__content">
+            <div class="content__controls">
+                <img alt="Logo de Geo Perú" src="images/logo_login.png" style="width: 150px;">
+                <p class="content__title">Módulo de Administración <br />Geo Perú</p>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="user_usuario" type="text" class="validate" value="" placeholder="Ingrese su correo">
+                        <label for="user_usuario">Correo</label>
+                    </div>
+                    <div class="input-field col s12">
+                        <input id="pass_usuario" type="password" class="validate" value=""
+                            placeholder="Ingrese su contraseña">
+                        <label for="pass_usuario">Contraseña</label>
+                    </div>
+                </div>
+                <button id="btnProcced" class="button__primary">INGRESAR</button>
+                
+            </div>
+            <div class="login__image">
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal_wait">
+        <div class="ventana">
+            <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+        </div>
+    </div>
+
+</body>
+<script type="text/javascript">
+
+    function geoLogueo(_user, _pass) {
+        var data = new FormData();
+        data.append('user', _user);
+        data.append('pass', _pass);
+
+        fetch(FN_LOGUEO, { method: 'POST', body: data })
+            .then(response => {
+                return response.json();
+            })
+            .then(responseJson => {
+                // localStorage.setItem('geoToken', responseJson.token);
+                setCookie('geoToken', responseJson.token, 1);
+                let jwtParse = parseJwt(responseJson.token);
+                // var objDecode = parseJwt(responseJson.token)
+                if (responseJson.status === 1) {
+                    //Mandamos el log
+                    saveLog('login', jwtParse.idusuario, _user, 'acceso', jwtParse.idusuario, jwtParse.idsubs);
+
+                    window.location.replace("/subsistema/administracion/general.html")
+                }
+                else {
+                    saveLog('login', 0, _user, 'denegado', 0, 0);
+                    alertToast('Usuario y/o contraseña no son correctos.');
+                    $('.modal_wait').fadeOut();
+                    return;
+                }
+            });
+    }
+
+    function validarLogueo() {
+        var user_user = $('#user_usuario').val();
+        var pass_user = $('#pass_usuario').val();
+
+        if (user_user.trim().length <= 0) {
+            alertToast('Ingrese su usuario');
+            return;
+        }
+
+        if (pass_user.trim().length <= 0) {
+            alertToast('Ingrese su contraseña');
+            return;
+        }
+
+        geoLogueo(user_user, pass_user);
+    }
+
+    $('#btnProcced').on('click', function () {
+        $('.modal_wait').fadeIn();
+        validarLogueo();
+    });
+
+    $('#pass_usuario').on('keydown', function (e) {
+        if (e.keyCode == 13)
+            $('#btnProcced').trigger('click');
+    });
+
+    $(document).ready(function () {
+        // var cockieWeb = validarCockie();
+        var cockieWeb = getCookie('geoToken');
+        if (cockieWeb != '')
+            console.log('Sesión válida desde la web');
+        else {
+
+        }
+        // if (cockieWeb != null) {
+        //     // localStorage.setItem('geoToken', cockieWeb);
+        //     setCookie('geoToken', cockieWeb, 1);
+        // }
+
+        validarToken(false);
+
+        $('.modal_wait').fadeOut();
+        $('#modal_login').hide();
+        $('#modal_login').css('left', (window.innerWidth / 2) - 350);
+        $('#modal_login').css('top', (window.innerHeight / 2) - 235);
+        $('#modal_login').show();
+
+        M.updateTextFields();
+    });
+
+</script>
+
+</html>

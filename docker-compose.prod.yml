@@ -1,0 +1,18 @@
+version: '3'
+services:
+  geoperu-visor:
+    container_name: geoperu-visor
+    restart: always
+    build:
+      context: .
+      target: production
+    # environment: 
+    #   - IS_DEV=false
+    #   - PROTOCOL=https
+    #   - DOMINIO=geoperu.gob.pe
+    #   - SUB_DOMINIO=visor.geoperu.gob.pe
+    #   - SERVER_ESPACIAL=espacialg.geoperu.gob.pe
+    #   - DOMINIO_ESPACIAL=https://espacialg.geoperu.gob.pe
+    ports:
+      - "8081:80"
+

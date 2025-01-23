@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración de Íconos</title>
+
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+    <style>
+        #fileUpload {
+            font-size: 30px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+
+        #btnUpload,
+        #btnCopy {
+            border: 1px solid #BDBDBD;
+            color: #BDBDBD;
+            background-color: white;
+            padding: 0px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: capitalize;
+            font-family: 'Calibri';
+        }
+
+        #btnAccept {
+            border: 1px solid #039be5;
+            background-color: #fff;
+            color: #039be5;
+            padding: 0px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: capitalize;
+            font-family: 'Calibri';
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="menu">
+    </div>
+
+    <div class="contenido">
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <h3>Configuración de íconos</h3>
+                    <p style="font-size: 18px;">Geo Perú te da la posibilidad de subir íconos a nuestro repositorio
+                        privado y los puedas utilizar exclusivamente para darle estilos a tus capas.</p>
+                </div>
+                <div class="col s8">
+                    <p>1. Primero haz clic sobre el botón de subir y busca el ícono que desees.</p>
+                    <div class="col-sm-8">
+                        <button id="btnUpload" class="btn">Examinar</button>
+                        <input type="file" id="fileUpload" class="single__file" accept="image/*" />
+                        <label id="lblFileUpload" for=""></label>
+                    </div>
+
+                </div>
+                <div class="col s8">
+                    <p>2. Luego haga clic en el botón aceptar y espere a que termine la carga</p>
+                    <button id="btnAccept" class="btn">Aceptar</button>
+                </div>
+                <div class="col s8">
+                    <p>3. Ahora podrá copiar el enlace generado para sus capas GeoJSON.</p>
+                    <textarea id="txtURLGenerate" type="text" placeholder="URL generado" disabled value=""></textarea>
+                    <button id="btnCopy" class="btn">Copiar</button>
+                </div>
+            </div>
+            <br />
+
+
+            <div class="modal_wait">
+                <div class="ventana">
+                    <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                var IdSubsistemaCurrent = 0;
+
+                const $fileUpload = document.getElementById('fileUpload');
+                const $btnUpload = document.getElementById('btnUpload');
+                const $lblFileUpload = document.getElementById('lblFileUpload');
+                const $txtURLGenerate = document.getElementById('txtURLGenerate');
+
+                $btnUpload.addEventListener('click', () => {
+                    $fileUpload.click();
+                })
+
+                $fileUpload.addEventListener('change', setTextChangeUpload);
+                var blobFile;
+
+                //Función que reconoce el cambio en el input del archivo
+                function setTextChangeUpload() {
+                    if (this.files[0] === undefined) {
+                        $lblFileUpload.innerHTML = '';
+                        blobFile = null;
+                        return;
+                    }
+                    $lblFileUpload.innerHTML = this.files[0].name;
+
+                    let fileCurrent = this.files[0];
+                    let readerCurrent = new FileReader();
+                    readerCurrent.onload = (event) => {
+                        blobFile = event.target.result;
+                    }
+                    readerCurrent.readAsArrayBuffer(fileCurrent);
+                }
+
+                function setUser() {
+                    var mToken = getCookie('geoToken');
+                    var decoded = jwt_decode(mToken);
+                    $('#lblUsuario').text(decoded.usuario);
+                    $('#lblRol').text(decoded.rol);
+                    IdUsuarioCurrent = decoded.idusuario;
+                    IdSubsistemaCurrent = decoded.idsubs;
+                    setMenuByRol(decoded.idrol);
+                    $(".modal_wait").fadeOut();
+                }
+
+                $('#btnAccept').on('click', async function () {
+                    let files = $fileUpload.files;
+                    let file = files[0];
+
+                    if (file === undefined) {
+                        alertToast('Primero suba su ícono.');
+                        return;
+                    }
+
+                    try {
+                        let today = new Date();
+                        let hash = `${today.getFullYear()}${pad(today.getMonth() + 1)}${pad(today.getDate())}${pad(today.getHours())}${pad(today.getMinutes())}${pad(today.getSeconds())}${pad(today.getMilliseconds(), 4)}`
+                        let typeIcon = 'image/svg+xml'
+                        // let typeIcon = 'image/gif+xml'
+                        let fData = new FormData();
+                        fData.append('hash', hash);
+                        fData.append('icon', file.name);
+                        fData.append('type', typeIcon)
+                        const oDataSign = await fetch(UPLOAD_SIGNED_CDN, { method: 'PUT', body: fData, redirect: 'follow' }).then(resp => resp.json());
+
+                        var headersIcon = new Headers();
+                        headersIcon.append("Host", oDataSign.response_header);
+                        headersIcon.append("Content-Type", typeIcon);
+
+                        var requestOptions = {
+                            method: 'PUT',
+                            headers: headersIcon,
+                            body: blobFile,
+                            redirect: 'follow',
+                        };
+                        var urlSignedKey = oDataSign.response_message.replace('AccessKeyId', 'AWSAccessKeyId');
+                        const oDataStr = await fetch(urlSignedKey, requestOptions).then(resp => resp.text());
+
+                        alertToast('Se ha guardado su archivo, puede copiar la URL');
+                        $txtURLGenerate.value = `${URL_REPO_CDN}visor/modulos/geojson-icons/${hash}/${file.name}`;
+                    } catch (error) {
+                        alert('No se pudo guardar su archivo. \nContacte con el equipo de Geo Perú.');
+                        return;
+                    }
+                });
+
+                const $btnCopy = document.getElementById('btnCopy');
+                $btnCopy.addEventListener('click', () => {
+                    if ($txtURLGenerate.value.length <= 0) {
+                        alertToast('Primero suba su ícono.');
+                        return;
+                    }
+
+                    $txtURLGenerate.select();
+                    $txtURLGenerate.setSelectionRange(0, 99999);
+
+                    navigator.clipboard.writeText($txtURLGenerate.value);
+                    alertToast('Se ha copiado la URL.');
+                })
+
+                function pad(num, size = 2) {
+                    num = num.toString();
+                    while (num.length < size) num = "0" + num;
+                    return num;
+                }
+
+                $(document).ready(function () {
+                    $(".modal_wait").fadeIn("100");
+                    validarToken();
+
+                    $("#menu").load("../administracion/template/index.html", function () {
+                        setTimeout(() => {
+                            setUser();
+                            set_usuario_avatar();
+                        }, 500);
+                    });
+                });
+            </script>
+</body>
+
+</html>

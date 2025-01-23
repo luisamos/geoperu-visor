@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Geo Perú</title>
+
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+    <style>
+        #imgPerfil,
+        #imgPreview {
+            border-radius: 15px;
+            margin: auto;
+            width: 120px;
+            height: 120px;
+            display: block;
+
+            background-repeat: no-repeat;
+            background-position: 50%;
+            border-radius: 50%;
+            background-size: 100% auto;
+        }
+
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        #btnUpload {
+            border: 1px solid #BDBDBD;
+            color: #BDBDBD;
+            background-color: white;
+            padding: 0px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: capitalize;
+            font-family: 'Calibri';
+        }
+
+        #fileUpload {
+            font-size: 30px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+
+        .lbl {
+            display: block;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="menu">
+    </div>
+
+    <div class="contenido">
+        <div class="container">
+            <div class="row">
+                <div class="col s4">
+                    <h1>Mi perfil:</h1>
+                    <p>Personalice la información que comparte con su equipo de trabajo o actualice sus datos. </p>
+                    <div style="background-color: #fff; height: 335px;width: 252px; margin: auto; text-align: center;">
+                        <img id="imgPreview" src="../administracion/images/buttons_icons/cambiar_imagen.png"
+                            style="padding-top: 10px;" alt="Imagen de Perfil">
+                        <label class="lbl" id="lblNombre" style="display: block;">Nombre Completo</label>
+                        <label class="lbl" id="lblCargo" style="display: block;">Cargo</label>
+                        <label class="lbl" id="lblLocalidad" style="display: block;">Localidad</label>
+                        <label class="lbl" id="lblCorreo" style="display: block;">Correo electrónico</label>
+                    </div>
+                </div>
+                <div class="col s8" style="margin-top: 2.8rem;">
+                    <div style="background-color: #fff; margin: auto;">
+                        <di class="row">
+                            <div class="row" style="margin-left: 0px;">
+                                <h6 class="center">Imagen de perfil:</h6>
+                                <img id="imgPerfil" src="../administracion/images/buttons_icons/cambiar_imagen.png"
+                                    alt="Imagen de Perfil">
+                                <div class="upload-btn-wrapper">
+                                    <button id="btnUpload" class="btn">Examinar</button>
+                                    <input id="fileUpload" type="file" name="myfile" />
+                                </div>
+                            </div>
+
+                            <div class="row" style="margin-left: 0px; margin-top: 20px;">
+                                <div class="input-field col s4">
+                                    <input placeholder="Ingrese su apellido paterno" id="paterno" type="text"
+                                        class="validate">
+                                    <label for="paterno">Ap. Paterno</label>
+                                </div>
+
+                                <div class="input-field col s4">
+                                    <input placeholder="Ingrese su apellido materno" id="materno" type="text"
+                                        class="validate">
+                                    <label for="materno">Ap. Materno</label>
+                                </div>
+
+                                <div class="input-field col s4">
+                                    <input placeholder="Ingrese su nombre" id="nombres" type="text" class="validate">
+                                    <label for="nombres">Nombres</label>
+                                </div>
+                            </div>
+
+                            <div class="row" style="margin-left: 0px; margin-top: 20px;">
+                                <div class="input-field col s6">
+                                    <input placeholder="" id="cargo" type="text" class="validate">
+                                    <label for="cargo">Cargo</label>
+                                </div>
+                                <div class="input-field col s3">
+                                    <input placeholder="" id="nivel" type="text" class="validate" disabled>
+                                    <label for="nivel">Nivel de gobierno</label>
+                                </div>
+                                <div class="input-field col s3">
+                                    <input placeholder="" id="localidad" type="text" class="validate" disabled>
+                                    <label for="localidad">Localidad</label>
+                                </div>
+                            </div>
+
+                            <div class="row" style="margin-left: 0px; margin-top: 20px;">
+                                <div class="input-field col s6">
+                                    <input placeholder="" id="correo" type="text" class="validate" disabled>
+                                    <label for="correo">Correo electrónico</label>
+                                </div>
+                                <a id="btnChangePassword" href="#"><img alt="Cambiar Contraseña"
+                                        src="images/buttons_letters/change_password.png" onmouseover="hover(this);"
+                                        onmouseout="unhover(this);" data-img="change_password"
+                                        data-file="buttons_letters"></a>
+                                <!-- <p>
+                                    <label>
+                                        <input id="rstPassword" type="checkbox" class="filled-in" />
+                                        <span>Cambiar contraseña</span>
+                                    </label>
+                                </p> -->
+                            </div>
+
+                            <div class="row" style="margin-left: 0px; margin-top: 20px;">
+                                <div class="input-field col s6" style="display: block;">
+                                    <input placeholder="" id="password" type="password" class="validate" disabled>
+                                    <label for="password">Contraseña</label>
+                                </div>
+                                <div class="input-field col s6">
+                                    <input placeholder="" id="password2" type="password" class="validate" disabled>
+                                    <label for="password2">Repetir contraseña</label>
+                                </div>
+                            </div>
+                            <div class="row center">
+                                <a id="btnActualizar" href="#"><img alt="Actualizar"
+                                        src="images/buttons_letters/actualizar.png" onmouseover="hover(this);"
+                                        onmouseout="unhover(this);" data-img="actualizar"
+                                        data-file="buttons_letters"></a>
+                                <a id="btnDescartar" href="#"><img alt="Descartar"
+                                        src="images/buttons_letters/descartar.png" onmouseover="hover(this);"
+                                        onmouseout="unhover(this);" data-img="descartar"
+                                        data-file="buttons_letters"></a>
+                            </div>
+                        </di>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal_password" class="modal-popup">
+        <div class="ventana_password">
+            <div class="row center">
+                <h5>Ingrese todos los datos:</h5>
+            </div>
+            <div class="row">
+                <div class="input-field col s6" style="display: block;">
+                    <input placeholder="" id="password_old" type="password" class="validate">
+                    <label for="password_old">Ingrese su contraseña</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s6" style="display: block;">
+                    <input placeholder="" id="password_new" type="password" class="validate">
+                    <label for="password_new">Ingrese su nueva contraseña</label>
+                </div>
+                <div class="input-field col s6" style="display: block;">
+                    <input placeholder="" id="password_conf" type="password" class="validate">
+                    <label for="password_conf   ">Vuelva a repetir su nueva contraseña</label>
+                </div>
+            </div>
+            <div class="row center">
+                <a id="btnActualizarPassword" href="#"><img alt="Actualizar" src="images/buttons_letters/actualizar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="actualizar"
+                        data-file="buttons_letters"></a>
+                <a id="btnDescartarPassword" href="#"><img alt="Descartar" src="images/buttons_letters/descartar.png"
+                        onmouseover="hover(this);" onmouseout="unhover(this);" data-img="descartar"
+                        data-file="buttons_letters"></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal_wait">
+        <div class="ventana">
+            <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        var file1;
+        var IdUsuarioCurrent = 0;
+        var imgDefault = '';
+
+        $('#fileUpload').on('change', function () {
+            // if (this.files.length > 0) {
+            //     file1 = this.files[0];
+            //     var fileNew = URL.createObjectURL(file1);
+            //     $('#imgPerfil').attr('src', fileNew);
+            // }
+            convertImageToBase64('fileUpload', 'imgPerfil', imgDefault);
+        });
+
+        $('#btnActualizar').on('click', function () {
+            var paterno = '', materno = '', nombres = '', cargo = '', mail = '', password = '', password2 = '', foto = '';
+
+            paterno = $('#paterno').val();
+            materno = $('#materno').val();
+            nombres = $('#nombres').val();
+            cargo = $('#cargo').val();
+            correo = $('#correo').val();
+            password = $('#password').val();
+            password2 = $('#password2').val();
+            foto = $('#imgPerfil')[0].src;
+
+            if (paterno.trim().length <= 0) {
+                alertToast('Ingrese su apellido paterno');
+                return;
+            }
+
+            if (materno.trim().length <= 0) {
+                alertToast('Ingrese su apellido materno');
+                return;
+            }
+
+            if (nombres.trim().length <= 0) {
+                alertToast('Ingrese su nombre');
+                return;
+            }
+            if (correo.trim().length <= 0) {
+                alertToast('Ingrese su correo electrónico');
+                return;
+            }
+
+            if (password == undefined || password == null) {
+                alertToast('Ingrese su contraseña');
+                return;
+            }
+
+            if (password2 == undefined || password2 == null) {
+                alertToast('Repita su contraseña');
+                return;
+            }
+
+            if (password.trim().length <= 0 || password2.trim().length <= 0) {
+                alertToast('Ingrese su contraseña');
+                return;
+            }
+            $('.modal_wait').fadeIn();
+            saveData(paterno, materno, nombres, '', cargo, foto, correo, password);
+        });
+
+        $('#btnDescartar').on('click', function () {
+            getPerfil();
+        });
+
+        function getPerfil() {
+            var data = new FormData();
+            data.append('iduser', IdUsuarioCurrent);
+            fetch(GET_PERFIL, { method: 'POST', body: data })
+                .then(resp => resp.json())
+                .then(respJson => {
+                    var objTemporal = respJson[0]
+                    imgDefault = objTemporal.foto;
+                    if (objTemporal.foto.length > 0) {
+                        $('#imgPreview').attr('src', objTemporal.foto);
+                        $('#imgPerfil').attr('src', objTemporal.foto);
+                    }
+
+                    $('#paterno').val(objTemporal.paterno_usuario);
+                    $('#materno').val(objTemporal.materno_usuario);
+                    $('#nombres').val(objTemporal.nombres_usuario);
+                    $('#cargo').val(objTemporal.cargo);
+                    $('#nivel').val(objTemporal.nivel);
+                    $('#localidad').val(objTemporal.subsistema);
+                    $('#correo').val(objTemporal.email_usuario);
+
+                    $('#password').val(objTemporal.ndocumento_usuario);
+                    $('#password2').val(objTemporal.ndocumento_usuario);
+
+                    $('#lblNombre').text(`${objTemporal.paterno_usuario} ${objTemporal.materno_usuario}, ${objTemporal.nombres_usuario}`);
+                    $('#lblCargo').text(objTemporal.cargo);
+                    $('#lblLocalidad').text(objTemporal.subsistema);
+                    $('#lblCorreo').text(objTemporal.email_usuario);
+
+                    $(".modal_wait").fadeOut();
+                })
+                .catch(err => {
+                    $(".modal_wait").fadeOut();
+                    console.log(err);
+                });
+        }
+
+        function saveData(_appa, _apma, _nomb, _ndoc, _carg, _foto, _mail, _pasw) {
+            var data = new FormData();
+            data.append('iduser', IdUsuarioCurrent);
+            data.append('appa', _appa);
+            data.append('apma', _apma);
+            data.append('nomb', _nomb);
+            data.append('ndoc', _ndoc);
+            data.append('carg', _carg);
+            data.append('foto', _foto);
+            data.append('mail', _mail);
+            data.append('pasw', _pasw);
+
+            fetch(FN_PERFIL, { method: 'POST', body: data })
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJson => {
+                    alertToast(`Se ha actualizado el registro`);
+                    set_usuario_avatar();
+                    getPerfil();
+                })
+                .catch(err => {
+                    $('.modal_wait').fadeOut();
+                    console.log(err);
+                });
+        }
+
+        function setUser() {
+            // var mToken = localStorage.getItem('geoToken');
+            var mToken = getCookie('geoToken');
+            var decoded = jwt_decode(mToken);
+            $('#lblUsuario').text(decoded.usuario);
+            $('#lblRol').text(decoded.rol);
+            IdUsuarioCurrent = decoded.idusuario;
+            IdSubsistemaCurrent = decoded.idsubs;
+            setMenuByRol(decoded.idrol);
+            getPerfil();
+        }
+
+        function convertImageToBase64(_buttonControl, _imageControl, _iconDefault) {
+            var files = document.getElementById(_buttonControl).files;
+            if (files.length == 0) {
+                document.getElementById(_imageControl)
+                    .setAttribute(
+                        'src', _iconDefault
+                    );
+                return;
+            }
+            var file = files[0];
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = function () {
+                document.getElementById(_imageControl)
+                    .setAttribute(
+                        'src', reader.result
+                    );
+            };
+        }
+
+        $('#btnChangePassword').on('click', function () {
+            $("#modal_password").fadeIn("100");
+        });
+
+        $('#btnActualizarPassword').on('click', function () {
+            if ($('#password_old').val().trim().length <= 0) {
+                alertToast('Ingrese su contraseña actual');
+                return;
+            }
+            if ($('#password_new').val().trim().length <= 0) {
+                alertToast('Ingrese su nueva contraseña');
+                return;
+            }
+            if ($('#password_conf').val().trim().length <= 0) {
+                alertToast('Ingrese la confirmación de su contraseña');
+                return;
+            }
+
+            let psw_old = '', psw_new = '', psw_rep = '';
+            psw_old = $('#password_old').val();
+            psw_new = $('#password_new').val();
+            psw_rep = $('#password_conf').val();
+
+            if (psw_new != psw_rep) {
+                alertToast('Las contraseñas no coinciden');
+                return;
+            }
+            var data = new FormData();
+            data.append('iduser', IdUsuarioCurrent);
+            data.append('pold', psw_old);
+            data.append('pnew', psw_new);
+            fetch(FN_PASSWORD, { method: 'POST', body: data })
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJson => {
+                    if (respJson != null && respJson != undefined) {
+                        var response = respJson[0];
+                        // status_response
+                        alertToast(response.description_response);
+                        if (response.status_response == 1)
+                            $('#modal_password').fadeOut();
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    return;
+                })
+        });
+
+        $('#btnDescartarPassword').on('click', function () {
+            $("#modal_password").fadeOut();
+        });
+
+        $(document).ready(function () {
+            $('#modal_password').fadeOut();
+            validarToken();
+
+            $("#menu").load("../administracion/template/index.html", function () {
+                $('#mnuPerfil').css('background-color', menuSeleccionado);
+                setTimeout(() => {
+                    setUser();
+                    set_usuario_avatar();
+                }, 500);
+            });
+
+            $('select').formSelect();
+            M.updateTextFields();
+        });
+    </script>
+</body>
+
+</html>

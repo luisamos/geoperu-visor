@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración Controles</title>
+
+    <link rel="stylesheet" href="./css/materialize.min.css">
+    <link rel="stylesheet" href="./css/index.css">
+
+    <script src="./js/jquery-3.4.1.min.js"></script>
+    <script src="./js/jquery-ui-1.11.4.min.js"></script>
+    <script src="./js/materialize.min.js"></script>
+    <script type="text/javascript" src="./js/jwt-decode.min.js"></script>
+    <script type="text/javascript" src="./js/purify.min.js"></script>
+    <script type="text/javascript" src="./js/url.js"></script>
+    <script type="text/javascript" src="./js/index.js"></script>
+    <style>
+        .container p {
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="menu">
+    </div>
+
+    <div class="contenido">
+        <div class="container">
+            <div class="row">
+                <div class="col s12">
+                    <h3>Administración de controles</h3>
+                    <p style="font-size: 18px;">Configura los controles que deseas que aparezcan en tu visor.</p>
+                </div>
+            </div>
+            <br />
+            <div class="row" style="max-height: 600px;  overflow-y: auto;">
+                <div class="col s12">
+                    <table class="highlight" id="tblControls" style="background-color: #fff;">
+                        <thead>
+                            <tr>
+                                <th style="padding-left: 20px;">N°</th>
+                                <th>Nombre</th>
+                                <th>Mensaje emergente</th>
+                                <th>Estado</th>
+                                <th style="width: 15%; text-align: center;">Opciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal_wait">
+        <div class="ventana">
+            <img alt="Cargando..." src="images/wait_geoperu.gif" height="150px">
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var IdSubsistemaCurrent = 0;
+        var registro_template = `<table><tr>
+                                            <td style="padding-left: 20px;">ITEM_CTRL</td>
+                                            <td>NOMB_CTRL</td>
+                                            <td>TTIP_CTRL</td>
+                                            <td>ESTA_CTRL</td>
+                                            <td style="width: 15%; text-align: center;">
+                                                <a href="#!" title="Activar/Desactivar capa" class="openTgle" data-id="ITEM_ID" data-ctrl="ID_CTRL">
+                                                    <img alt="Activar/Desactivar Layer" src="images/buttons_icons/layer_toggle.png" 
+                                                    onmouseover="hover(this);" onmouseout="unhover(this);" data-img="layer_toggle" data-file="buttons_icons">
+                                                </a>
+                                            </td>
+                                        </tr></table>`;
+
+        function getControles() {
+            var data = new FormData();
+            data.append('idsubsistema', IdSubsistemaCurrent);
+            fetch(GET_CONTROLES, { method: 'POST', body: data })
+                .then(resp => {
+                    return resp.json();
+                })
+                .then(respJson => {
+                    if (respJson === null) {
+                        errorReload();
+                        return;
+                    }
+                    let listControles = respJson;
+
+                    $('#tblControls > tbody > tr').remove();
+                    var $controlTemporal = $('#tblControls');
+                    fillTable(listControles, $controlTemporal);
+
+                    $(".modal_wait").fadeOut();
+                })
+        }
+
+        async function fillTable(_list, _control) {
+            for (var i = 0; i < _list.length; i++) {
+                let new_row = registro_template
+                    .replace(/ITEM_CTRL/g, i + 1)
+                    .replace(/ITEM_ID/g, _list[i].idsubsistemacontrol)
+                    .replace(/ID_CTRL/g, _list[i].idcontrol)
+                    .replace(/NOMB_CTRL/g, _list[i].ncontrol)
+                    .replace(/TTIP_CTRL/g, _list[i].tooltip)
+                    .replace(/ESTA_CTRL/g, _list[i].estado)
+
+                _control[0].innerHTML += DOMPurify.sanitize(new_row, CONFIG_SANITIZE);
+            }
+            $('.openTgle').bind('click', openModalTgle);
+        }
+
+        async function openModalTgle() {
+            $("#modal_confirm").fadeIn();
+            let IdControlCurrent = $(this).attr('data-ctrl');
+
+            if (IdControlCurrent === null) return;
+            if (IdControlCurrent === undefined) return;
+            if (IdControlCurrent === 0) return;
+
+            var data = new FormData();
+            data.append('idsubsistema', IdSubsistemaCurrent);
+            data.append('idcontrol', parseInt(IdControlCurrent));
+            data.append('idusuario', IdUsuarioCurrent);
+
+            let respFetch = await fetch(SET_CONTROL_SUBSISTEMA, { method: 'POST', body: data });
+            let responseJson = await respFetch.json();
+            if (responseJson === null) {
+                errorReload();
+                return;
+            }
+            alertToast(responseJson[0].description_response);
+
+            $(".modal_wait").fadeOut();
+            getControles();
+        }
+
+        function errorReload() {
+            alertToast('No hemos podido establcer conexión, la página se recargará en 3 seg.')
+            setTimeout(() => {
+                window.location.reload();
+            }, 3000);
+        }
+
+        function setUser() {
+            // var mToken = localStorage.getItem('geoToken');
+            var mToken = getCookie('geoToken');
+            var decoded = jwt_decode(mToken);
+            $('#lblUsuario').text(decoded.usuario);
+            $('#lblRol').text(decoded.rol);
+            IdUsuarioCurrent = decoded.idusuario;
+            IdSubsistemaCurrent = decoded.idsubs;
+            setMenuByRol(decoded.idrol);
+            getControles();
+        }
+
+        $(document).ready(function () {
+            $(".modal_wait").fadeIn("100");
+            validarToken();
+
+            $("#menu").load("../administracion/template/index.html", function () {
+                $('#mnuControl').css('background-color', menuSeleccionado);
+                setTimeout(() => {
+                    setUser();
+                    set_usuario_avatar();
+                }, 500);
+            });
+        });
+    </script>
+</body>
+
+</html>
