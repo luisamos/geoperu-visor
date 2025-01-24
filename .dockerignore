@@ -1,6 +1,10 @@
-Dockerfile
+Dockerfile.dev
+Dockerfile.prod
 docker*.yaml
 docker*.yml
 .git
 app-visor.code-workspace
 README.md
+index.tv.html
+login.html
+dashboard.html

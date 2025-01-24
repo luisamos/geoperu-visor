@@ -1,11 +1,13 @@
 # Copy source files from host computer to the container
-FROM ghcr.io/geo-peru/tools/nginx-static:1.0.0-1.22 AS base
+#FROM ghcr.io/geo-peru/tools/nginx-static:1.0.0-1.22 AS base
+FROM ghcr.io/luisamos/nginx-static:latest-24012025 AS base
 
 ARG APP_DIR=/var/www/html
 ENV APP_DIR=${APP_DIR}
-RUN apk add --no-cache bash
+#RUN apk add --no-cache bash
+RUN apt-get update && apt-get install -y bash && apt-get clean
 
-FROM base as production
+FROM base AS production
 WORKDIR ${APP_DIR}
 COPY --chown=nginx:nginx . .
 ENTRYPOINT ["/bin/bash", "deployment/entrypoint.sh"]

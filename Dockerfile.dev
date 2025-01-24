@@ -1,0 +1,30 @@
+# Etapa base
+FROM nginx:latest AS base
+
+# Definir el directorio de la aplicación como una variable ARG y ENV
+ARG APP_DIR=/var/www/html
+ENV APP_DIR=${APP_DIR}
+
+# Instalar bash utilizando apt (Debian-based)
+RUN apt-get update && apt-get install -y bash && apt-get clean
+#RUN apk add --no-cache bash
+
+# Etapa de producción
+FROM base AS production
+
+# Establecer el directorio de trabajo
+WORKDIR ${APP_DIR}
+
+# Copiar el código fuente al contenedor con el propietario adecuado
+COPY --chown=nginx:nginx . .
+
+# Copiar la configuración personalizada de Nginx y GIT
+RUN apt-get remove --purge git -y
+COPY nginx.conf /etc/nginx/nginx.conf
+RUN rm -f /var/www/html/nginx.conf
+
+# Definir el script de entrada, si existe
+ENTRYPOINT ["/bin/bash", "deployment/entrypoint.sh"]
+
+# Ejecutar Nginx en primer plano
+CMD ["nginx", "-g", "daemon off;"]
