@@ -1092,9 +1092,15 @@ function addLegend(layerToAdd, _width = '', _src = './css/leaflet/images/marker-
     nameLayer = (sourceLayer === '1' || sourceLayer === '2') ? oCapaCurrent.capaxml : (layerToAdd.dataset['hash'].length > 0 ? layerToAdd.dataset['hash'] : oCapaCurrent.url_fuente.replace('.zip', ''));
 
     if (sourceLayer === '2' || sourceLayer === '5')
-        urlLegendLayer = oCapaCurrent.url_fuente.indexOf('https') >= 0 ? `${oCapaCurrent.url_fuente.substr(0, oCapaCurrent.url_fuente.indexOf('?') + 1)}${URL_LENGEND_TYPE.replace('/wms?', '&')}${nameLayer}` : `${oCapaCurrent.url_fuente.substr(0, oCapaCurrent.url_fuente.indexOf('?') + 1)}${URL_LENGEND_TYPE.replace('/wms?', '&')}${nameLayer}`    
+    {
+        let urlleyenda= oCapaCurrent.url_fuente;
+        urlleyenda = urlleyenda.includes('?') ? urlleyenda : urlleyenda + '?';        
+        urlLegendLayer = `${urlleyenda.substr(0, urlleyenda.indexOf('?') + 1)}${URL_LENGEND_TYPE.replace('/wms?', '&')}${nameLayer}`;       
+    }
     else if (sourceLayer === '7' || sourceLayer === '8')
+    {
         urlLegendLayer = _src;
+    }
     else
         urlLegendLayer = URL_SERVICE_GEOSERVER + workspaceLayer + URL_LENGEND_TYPE + nameLayer + URL_LEGEND_PROP
 
@@ -1232,42 +1238,40 @@ const $contentData = document.querySelector('#contentData');
 
 function limpiarColumnas(tabla)
 {
-    // Crear un elemento temporal para manipular el DOM
+    //console.log(tabla);
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = tabla;
 
-    // Buscar todas las filas de la tabla
     const filas = tempDiv.querySelectorAll("table tbody tr");
 
-    // Lista de columnas a eliminar
-    const columnasAEliminar = ["objectid", "shape", "st_areashape", "st_lengthshape"];
+    const columnasAEliminar = ["objectid", "objectid1", "objectid12", "objectid_1",
+        "shape", "st_areashape", "st_lengthshape", "shape.starea", "shape.stlength", 
+        "fid", "area_ha", "shape.area", "shape.len",
+        "shape.starea()", "shape.stlength()", "shape_leng",
+        "perimetro", "datos_fundamentales.dbo.rio_area.area",
+        "long", "lat", "x", "y", "datos_fundamentales.dbo.lago_y_laguna.area",
+        "rgb.rojo", "rgb.verde", "rgb.azul",        
+    ];
 
-    // Identificar los índices de las columnas a eliminar
     const headers = filas[0].querySelectorAll("th");
     const indicesAEliminar = [];
 
-    // Modificar los nombres de las columnas y eliminar guiones bajos
     headers.forEach((header, index) => {
-        // Convertir el texto a mayúsculas y eliminar "_"
-        header.textContent = header.textContent.toUpperCase().replace(/_/g, " ");
+        header.textContent = header.textContent.toUpperCase().replace(/_/, " ");
         
-        // Si el nombre está en la lista de columnas a eliminar, guardar su índice
         if (columnasAEliminar.includes(header.textContent.trim().toLowerCase().replace(/ /g, "_"))) {
             indicesAEliminar.push(index);
         }
     });
 
-    // Ordenar los índices en orden descendente para evitar problemas al eliminar
     indicesAEliminar.sort((a, b) => b - a);
 
-    // Eliminar las celdas correspondientes de cada fila
     filas.forEach((fila) => {
     indicesAEliminar.forEach((index) => {
         fila.children[index].remove();
     });
     });
 
-    // Convertir la tabla modificada de nuevo a un string
     tabla = tempDiv.innerHTML;
     return tabla;
 }
@@ -1313,17 +1317,22 @@ async function onClickMap(evt) {
 
         let dataResponseText = await $.ajax({
             type: "get",
-            url: urlCurrentMD
+            url: urlCurrentMD,            
         });
-
+        
         cantRequest += 1;
         //Extraemos sólo la tabla
         let metadataTableIni = -1;
         let metadataTableEnd = -1;
         let currentTable = '';
-        metadataTableIni = dataResponseText.indexOf('<table>');
-        if (metadataTableIni === -1) metadataTableIni = dataResponseText.indexOf('<table');
-        metadataTableEnd = dataResponseText.indexOf('</table>');
+
+        if (dataResponseText.documentElement) {        
+            console.log("Respuesta XML:", dataResponseText);
+        } else if (typeof dataResponseText === "string" && dataResponseText.includes("<html")) {
+            metadataTableIni = dataResponseText.indexOf('<table>');
+            if (metadataTableIni === -1) metadataTableIni = dataResponseText.indexOf('<table');
+            metadataTableEnd = dataResponseText.indexOf('</table>');
+        }       
 
         //Si no se encuentra índices de tabla, se pasa al siguiente.
         if (metadataTableIni === -1 || metadataTableEnd === -1) {
@@ -1402,7 +1411,10 @@ async function getFeatureInfoUrlStr(_evt, _lyr, _url, _alias) {
 
     let currentBounds = map.getBounds();
     if (oLayerFeatureInfo.idfuente === 2 || oLayerFeatureInfo.idfuente === 5)
+    {
+        _url = _url.indexOf('?') === -1 ? _url + '?' : _url;
         urlGetInfo = `${_url}SERVICE=WMS&VERSION=1.3.0&REQUEST=GetFeatureInfo&BBOX=SUR_LAT,SUR_LNG,NOR_LAT,NOR_LNG&CRS=EPSG%3A4326&WIDTH=MAP_ANCHO&HEIGHT=MAP_ALTO&LAYERS=NOMB_CAPA&STYLES=&FORMAT=image/jpeg&QUERY_LAYERS=NOMB_CAPA&INFO_FORMAT=text/html&I=CORD_EQUIS&J=CORD_YE&FEATURE_COUNT=50`
+    }
     else
         urlGetInfo = `${DOMINIO_ESPACIAL}/geoserver/${currentWorkspace}/wms?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&FORMAT=image%2Fpng&TRANSPARENT=true&QUERY_LAYERS=NOMB_CAPA&LAYERS=NOMB_CAPA&exceptions=application%2Fvnd.ogc.se_inimage&INFO_FORMAT=text%2Fhtml&FEATURE_COUNT=50&X=CORD_EQUIS&Y=CORD_YE&SRS=EPSG%3A4326&STYLES=&WIDTH=MAP_ANCHO&HEIGHT=MAP_ALTO&BBOX=SUR_LNG%2CSUR_LAT%2CNOR_LNG%2CNOR_LAT`
     

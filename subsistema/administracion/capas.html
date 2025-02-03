@@ -166,7 +166,7 @@
     <div id="modal_layer" class="modal-popup">
         <div class="ventana_layer">
             <div class="row center">
-                <h5>Ingrese todos los datos:</h5>
+                <h5>INGRESE UNA CAPA GEOGRÁFICA</h5>
                 <img id="imgClose_modal_layer" alt="Cerrar ventana" src="images/buttons_icons/close.png"
                     style="position: absolute; right: 10px; top: 10px;" />
             </div>
@@ -1059,7 +1059,7 @@
             data.append('idfuen', _idfuen);
             data.append('uext', _uext);
             data.append('idsubs', IdSubsistemaCurrent);
-
+            console.log(data);
             if ((_idfuen == 3 || _idfuen == 6) && flagInsert) {
 
                 let files = $inputFile.files;

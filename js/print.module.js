@@ -1,6 +1,7 @@
 var Mfprint = (function () {
     'use strict';
-    var _MASK = "http://proxy.geoperu.gob.pe/",
+    //var _MASK = "http://proxy.geoperu.gob.pe/",
+    var _MASK = "",
         _map,
         LEGEND_EXCEPTIONS = [
             "peru_sudamerica_mascara_",

@@ -125,7 +125,7 @@ const GET_SUBCATEGORIES_SUBSISTEMA = `${SERVER_PORT_APP}/subcategorias_subsistem
 const GET_LAYER_SUBSISTEMA = `${SERVER_PORT_APP}/layers_subsistema/`
 
 const FN_LOGUEO = SERVER_PORT_SEG + '/geo_logueo/'
-const URL_PROXY = `https://proxy.geoperu.gob.pe/`
+//const URL_PROXY = `https://proxy.geoperu.gob.pe/`
 
 // Nuevos métodos para soportar clones a subsistemas
 const GET_CATEGORY_SUBSISTEMA = SERVER_PORT_APP + '/get-categoria-subsistema/'

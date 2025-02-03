@@ -2129,7 +2129,7 @@ function copyToShare() {
 }
 
 // const URL_PROXY = 'https://geocors.herokuapp.com/';
-const URL_PROXY = 'https://proxy.geoperu.gob.pe/';
+//const URL_PROXY = 'https://proxy.geoperu.gob.pe/';
 const $capasUploaded = document.querySelector('#capasUploaded');
 
 //Función para cargar un WMS
