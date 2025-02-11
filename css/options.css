@@ -605,6 +605,13 @@ table>thead>tr th {
     background: var(--color-subcategory);
 }
 
+table>tbody>tr th {
+    position: sticky;
+    top: 0;
+    background: var(--color-subcategory);
+    color: var(--color-claro);
+}
+
 .section__footerWMS {
     position: absolute;
     width: 95%;

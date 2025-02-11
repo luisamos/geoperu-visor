@@ -1235,11 +1235,13 @@ async function showInformacion(_layerXML) {
     if (respGetFilesJson === null) return;
     if (respGetFilesJson === undefined) return;
 
+    let $div_archivos= document.querySelector('#div_archivos');
     let $lnkInfoFile_1 = document.querySelector('#lnkInfoFile_1');
     let $lnkInfoFile_2 = document.querySelector('#lnkInfoFile_2');
     let $lnkInfoFile_3 = document.querySelector('#lnkInfoFile_3');
 
     if (respGetFilesJson.filter(i => i.item === 1)[0] !== undefined) {
+        $div_archivos.classList.remove('displayNone');
         $lnkInfoFile_1.classList.remove('displayNone');
         $lnkInfoFile_1.innerHTML = DOMPurify.sanitize(respGetFilesJson.filter(i => i.item === 1)[0].nombre);
         $lnkInfoFile_1.href = respGetFilesJson.filter(i => i.item === 1)[0].url_file
@@ -1262,9 +1264,7 @@ async function showInformacion(_layerXML) {
     }
     else
         $lnkInfoFile_3.classList.add('displayNone');
-
 }
-
 
 async function showInformacionIdLayer(_layerXML) {
     let respJson = await fetch(URL_GET_INFO_LAYER + _layerXML).then(resp => resp.json());
@@ -1289,6 +1289,7 @@ async function showInformacionIdLayer(_layerXML) {
     rowsControlTableInfo($cellDownload, oInformacion.descarga, true);
     rowsControlTableInfo($cellPolitica, oInformacion.politica, false);
     rowsControlTableInfo($cellLineamiento, oInformacion.lineamiento, false);
+   
 
     if (!$modalInfo.classList.contains('displayBlock'))
         $modalInfo.classList.add('displayBlock');
@@ -1385,20 +1386,31 @@ async function showInformacionIdLayer(_layerXML) {
 
 //Función que controla la visibilidad de los campos de la tabla de información
 function rowsControlTableInfo(_$control, _value, _isURL = false) {
+    
     let $rowControl = document.querySelector('#' + _$control.id.replace('cell', 'row'));
-    _$control.innerHTML = DOMPurify.sanitize(((_isURL) ? `<a target="_blank" href="${((_value.indexOf('http')) >= 0 ? '' : '//')}${_value}">` : '') + _value + ((_isURL) ? `</a>` : ''));
-    if (_value.trim().length > 0) $rowControl.style.display = 'table-row';
-    else $rowControl.style.display = 'none';
+    if(_value.trim().length === 0) $rowControl.style.display = 'none';
+    else
+    {   
+        if(_$control.id === 'cellDownload')
+        {            
+            _$control.innerHTML = `<a target="_blank" href="${_value}">Descargar</a>`;
+        }
+        else
+        {            
+            _$control.innerHTML = DOMPurify.sanitize(((_isURL) ? `<a target="_blank" href="${((_value.indexOf('http')) >= 0 ? '' : '//')}${_value}">` : '') + _value + ((_isURL) ? `</a>` : ''));            
+        }
+        $rowControl.style.display = 'table-row';
+    }
 }
 
 //Función para enviar mensajes de alerta.
-function alertCustom(_message) {
+function alertCustom(_message, tiempo=3000) {
     $spanCustom.innerHTML = DOMPurify.sanitize(_message);
     $toast__custom.classList.add('displayBlock');
 
     setTimeout(() => {
         $toast__custom.classList.remove('displayBlock');
-    }, 3000);
+    }, tiempo);
 }
 
 const $modals = document.querySelectorAll('.modal');

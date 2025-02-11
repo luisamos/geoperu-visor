@@ -1003,6 +1003,18 @@ async function toggleStateCheckLayer(_element) {
         else {
             if (_element.checked) {
                 layerGroup.addLayer(layerCurrent);
+                
+                if(layerCurrent.options.idfuente == 2)
+                {
+                    alertCustom('Conectando con el servicio externo...');
+                    
+                    validarServicioWeb(layerCurrent.options.url_fuente).then(function(resultado) {
+                        if(resultado != 200)
+                            console.log(resultado);
+                            alertCustom('Servicio web no disponible. <strong>GEOPERU</strong> se comunicará con la entidad correspondiente para habilitar el servicio.', 60000);
+                    });
+                }
+
                 if (layerCurrent.options.idfuente !== 5)
                     addLegend(_element);
             }
@@ -1015,6 +1027,17 @@ async function toggleStateCheckLayer(_element) {
             getAllPropertiesMap();
         }
     }
+}
+
+function validarServicioWeb(url) {
+    return $.ajax({
+      url: url,
+      method: "GET"
+    }).then(function() {
+      return 200;
+    }).catch(function(jqXHR) {
+      return jqXHR.status;
+    });
 }
 
 //Función que cambia el estado del control de la capa (Range)

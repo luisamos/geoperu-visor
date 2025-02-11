@@ -60,10 +60,11 @@
     height: 30px;
     /* border-radius: 5px 0 0 5px; */
     font-size: 14px;
+    font-weight: bold;
     outline: none;
     color: var(--color-text);
     font-size: 12px;
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
     background-image: url('../images/general/search-white.svg');
     background-position: 10px center;
     background-repeat: no-repeat;

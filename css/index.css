@@ -340,10 +340,10 @@ footer label {
 
 #spanDefinition {
     color: var(--color-text);
-    font-size: 16px;
-    font-weight: 400;
+    font-size: 15px;
+    font-weight: 200;
     overflow-y: auto;
-    max-height: 180px;
+    max-height: 100px;
 }
 
 .file__info {
@@ -387,12 +387,13 @@ footer label {
 }
 
 .table__vertical tr {
-    min-height: 50px;
+    min-height: 51px;
+    background-color: var(--color-claro);
 }
 
 .table__vertical th {
-    width: 30%;
-    height: 30px;
+    width: 35%;
+    height: 18px;
     font-weight: 600;
     text-align: left;
     color: var(--color-title);
@@ -459,9 +460,6 @@ footer label {
     border-color: #333333;
     display: block;
 }
-
-
-
 
 .content__metadata {
     min-height: calc(70vh - 100px);
